@@ -13,8 +13,8 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +36,7 @@ public class Dm2eApiClient {
 	private Map<String,Dataset> datasetCache = new HashMap<>();
 	private String	apiBase;
 	private HashMap<String, Namespace>	jdomNS	= new HashMap<String, Namespace>();
-	public DateTimeFormatter iso8601formatter = ISODateTimeFormat.dateTime();
+	public DateTimeFormatter oaiDateFormatter = DateTimeFormat.forPattern("YYYY-MM-dd");
 	private boolean useCaching = false;
 
 	public Dm2eApiClient(String apiBase) {
@@ -49,6 +49,9 @@ public class Dm2eApiClient {
 		setNamespaces();
 	}
 
+	public String nowOaiFormatted() {
+		return oaiDateFormatter.print(DateTime.now());
+	}
 	public void setNamespaces() {
 		jdomNS.put("", Namespace.getNamespace("", NS.OAI.BASE));
 		jdomNS.put(NS.OAI.BASE, Namespace.getNamespace("", NS.OAI.BASE));
@@ -104,13 +107,13 @@ public class Dm2eApiClient {
 		Element dateStamp = new Element("datestamp", jdomNS.get("oai"));
 		Statement aggDateStmt = resMap.getAggregation().getProperty(resMap.getModel().createProperty(NS.DCTERMS.PROP_CREATED));
 		if (null != aggDateStmt) {
-			dateStamp.addContent(iso8601formatter.print(DateTime.parse(aggDateStmt
+			dateStamp.addContent(oaiDateFormatter.print(DateTime.parse(aggDateStmt
 					.getObject()
 					.asLiteral()
 					.getValue()
 					.toString())));
 		} else {
-			dateStamp.addContent(iso8601formatter.print(DateTime.now()));
+			dateStamp.addContent(oaiDateFormatter.print(DateTime.now()));
 
 		}
 		oaiHeader.addContent(dateStamp);

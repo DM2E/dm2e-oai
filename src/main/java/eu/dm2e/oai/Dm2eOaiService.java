@@ -23,9 +23,6 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,12 +45,10 @@ public class Dm2eOaiService {
 	                tplGetRecord,
 	                tplListIdentifiers,
 	                tplListRecords;
-	DateTimeFormatter iso8601formatter = ISODateTimeFormat.dateTime();
 	XMLOutputter xmlOutput = new XMLOutputter();
 
 	// Caching client, hence static
 	private static Dm2eApiClient api = new Dm2eApiClient("http://lelystad.informatik.uni-mannheim.de:3000/direct", true);
-
 	private String jdomElementToString(Element el) {
 		StringWriter strwriter = new StringWriter();
 		try {
@@ -140,8 +135,7 @@ public class Dm2eOaiService {
 	
 	private Response oaiListMetadataFormats() {
 		Map<String,Object> valuesMap = new HashMap<>();
-		String nowFormatted = iso8601formatter.print(DateTime.now());
-		valuesMap.put("responseDate", nowFormatted);
+		valuesMap.put("responseDate", api.nowOaiFormatted());
 		valuesMap.put("baseURI", baseURI);
 		StrSubstitutor sub = new StrSubstitutor(valuesMap);
 		return Response
@@ -153,8 +147,7 @@ public class Dm2eOaiService {
 
 	private Response oaiIdentify() {
 		Map<String,Object> valuesMap = new HashMap<>();
-		String nowFormatted = iso8601formatter.print(DateTime.now());
-		valuesMap.put("responseDate", nowFormatted);
+		valuesMap.put("responseDate", api.nowOaiFormatted());
 		valuesMap.put("baseURI", baseURI);
 		StrSubstitutor sub = new StrSubstitutor(valuesMap);
 		return Response
@@ -183,8 +176,7 @@ public class Dm2eOaiService {
 			listSets.addContent(set);
 		}
 		
-		String nowFormatted = iso8601formatter.print(DateTime.now());
-		valuesMap.put("responseDate", nowFormatted);
+		valuesMap.put("responseDate", api.nowOaiFormatted());
 		valuesMap.put("baseURI", baseURI);
 		valuesMap.put("request", jdomElementToString(request));
 		valuesMap.put("ListSets", jdomElementToString(listSets));
@@ -232,8 +224,7 @@ public class Dm2eOaiService {
 		Document record = api.resourceMapToOaiRecord(rm, metadataPrefix);
 
 		Map<String,Object> valuesMap = new HashMap<>();
-		String nowFormatted = iso8601formatter.print(DateTime.now());
-		valuesMap.put("responseDate", nowFormatted);
+		valuesMap.put("responseDate", api.nowOaiFormatted());
 		valuesMap.put("request", xmlOutput.outputString(httpRequestAsOaiRequest()));
 		valuesMap.put("record", xmlOutput.outputString(record));
 		StrSubstitutor sub = new StrSubstitutor(valuesMap);
@@ -314,7 +305,7 @@ public class Dm2eOaiService {
 			}
 		}
 
-		// TODO resumptiontoken
+		// resumptiontoken
 		Element newResumptionToken = new Element("resumptionToken");
 		if (! isFinished) {
 			newResumptionToken.setAttribute("cursor", Integer.toString(start));
@@ -324,8 +315,7 @@ public class Dm2eOaiService {
 
 		log.debug("All dataset/resourcemap id tuples retrieved retrieved");
 		Map<String,Object> valuesMap = new HashMap<>();
-		String nowFormatted = iso8601formatter.print(DateTime.now());
-		valuesMap.put("responseDate", nowFormatted);
+		valuesMap.put("responseDate", api.nowOaiFormatted());
 		valuesMap.put("request", xmlOutput.outputString(httpRequestAsOaiRequest()));
 		valuesMap.put("list", headersSB.toString());
 		valuesMap.put("resumptionToken", xmlOutput.outputString(newResumptionToken));
