@@ -36,7 +36,7 @@ public class Dm2eApiClient {
 	private Map<String,Dataset> datasetCache = new HashMap<>();
 	private String	apiBase;
 	private HashMap<String, Namespace>	jdomNS	= new HashMap<String, Namespace>();
-	public DateTimeFormatter oaiDateFormatter = DateTimeFormat.forPattern("YYYY-MM-dd");
+	public DateTimeFormatter oaiDateFormatter = DateTimeFormat.forPattern("YYYY-MM-dd'T'HH:mm:ss'Z'");
 	private boolean useCaching = false;
 
 	public Dm2eApiClient(String apiBase) {
