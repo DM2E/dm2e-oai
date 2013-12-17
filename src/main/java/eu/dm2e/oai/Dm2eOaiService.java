@@ -2,8 +2,12 @@ package eu.dm2e.oai;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -15,6 +19,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.jena.riot.RiotNotFoundException;
+import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
@@ -27,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.io.Resources;
 
 import eu.dm2e.linkeddata.Dm2eApiClient;
+import eu.dm2e.linkeddata.model.Dataset;
 import eu.dm2e.linkeddata.model.ResourceMap;
 
 @Path("oai")
@@ -35,14 +41,18 @@ public class Dm2eOaiService {
 	Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	@Context UriInfo ui;
-	private Object	baseURI = "http://localhost:7777/oai";
-	private String tplIdentify;
-	private String tplListMetadataFormats;
-	private String tplListSets;
+	private String	baseURI = "http://localhost:7777/oai";
+	private String tplIdentify,
+	                tplListMetadataFormats,
+	                tplListSets,
+	                tplGetRecord,
+	                tplListIdentifiers,
+	                tplListRecords;
 	DateTimeFormatter iso8601formatter = ISODateTimeFormat.dateTime();
 	XMLOutputter xmlOutput = new XMLOutputter();
 
-	private Dm2eApiClient api = new Dm2eApiClient("http://lelystad.informatik.uni-mannheim.de:3000/direct");
+	// Caching client, hence static
+	private static Dm2eApiClient api = new Dm2eApiClient("http://lelystad.informatik.uni-mannheim.de:3000/direct", true);
 
 	private String jdomElementToString(Element el) {
 		StringWriter strwriter = new StringWriter();
@@ -68,14 +78,25 @@ public class Dm2eOaiService {
 				"Identifiers are of the form DATASETID___RESOURCEMAPID"
 				).build();
 	}
-
+	private Response errorBadResumptionToken(String resumptionToken) {
+		return Response.status(Response.Status.BAD_REQUEST).entity(
+				"Bad resumptionToken '" + resumptionToken + "'." +
+				"\n" + 
+				"resumptionTokens are of the form setSpec__start__limit (though this should not concern harvesters)"
+				).build();
+	}
 	private Response errorNotFound(String identifier) {
 		return Response.status(Response.Status.NOT_FOUND).entity("Unknown identifier '" + identifier + "'").build();
+	}
+	private Response errorUnsupportedMetadataPrefix(String metadataPrefix) {
+		return Response.status(Response.Status.BAD_REQUEST).entity("Unsupported metadataPrefix '" + metadataPrefix + "'").build();
 	}
 	
 	public Dm2eOaiService() {
 		// pretty print xml
-		xmlOutput.setFormat(Format.getPrettyFormat());
+		final Format jdomFormat = Format.getPrettyFormat();
+		jdomFormat.setOmitDeclaration(true);
+		xmlOutput.setFormat(jdomFormat);
 		try {
 			tplIdentify = Resources.toString(
 					Resources.getResource("/Identify.xml"),
@@ -85,6 +106,15 @@ public class Dm2eOaiService {
 					Charset.forName("UTF-8"));
 			tplListSets = Resources.toString(
 					Resources.getResource("/ListSets.xml"),
+					Charset.forName("UTF-8"));
+			tplGetRecord = Resources.toString(
+					Resources.getResource("/GetRecord.xml"),
+					Charset.forName("UTF-8"));
+			tplListIdentifiers = Resources.toString(
+					Resources.getResource("/ListIdentifiers.xml"),
+					Charset.forName("UTF-8"));
+			tplListRecords = Resources.toString(
+					Resources.getResource("/ListRecords.xml"),
 					Charset.forName("UTF-8"));
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -100,6 +130,8 @@ public class Dm2eOaiService {
 		switch(verb) {
 		case "Identify": return oaiIdentify();
 		case "ListMetadataFormats": return oaiListMetadataFormats();
+		case "ListIdentifiers": return oaiListIdentifiersOrRecords(true);
+		case "ListRecords": return oaiListIdentifiersOrRecords(false);
 		case "ListSets": return oaiListSets();
 		case "GetRecord": return oaiGetRecord();
         default: return errorUnknownVerb(verb);
@@ -136,19 +168,18 @@ public class Dm2eOaiService {
 	private Response oaiListSets() {
 		Map<String,Object> valuesMap = new HashMap<>();
 		
-		Element request = new Element("request");
-		request.setAttribute("verb", "ListSets");
+		Element request = httpRequestAsOaiRequest();
 
 		Element listSets = new Element("ListSets");
-		for (String ds : api.listDatasets()) {
-			ds = ds.replaceAll("/", "__");
+		for (String datasetId : api.listDatasets()) {
+			datasetId = api.oaifyId(datasetId);
 			Element set = new Element("set");
 			Element setSpec = new Element("setSpec");
 			Element setName = new Element("setName");
 			set.addContent(setSpec);
 			set.addContent(setName);
-			setSpec.addContent("dataset:" + ds);
-			setName.addContent("Dataset " + ds);
+			setSpec.addContent("dataset:" + api.oaifyId(datasetId));
+			setName.addContent("Dataset " + api.oaifyId(datasetId) + " (actually it's" + datasetId + " but OAI-PMH forbids that)");
 			listSets.addContent(set);
 		}
 		
@@ -165,6 +196,15 @@ public class Dm2eOaiService {
 					.build()
 					;
 	}
+
+	public Element httpRequestAsOaiRequest() {
+		Element request = new Element("request");
+		for (String qParam : ui.getQueryParameters().keySet()) {
+			request.setAttribute(qParam, ui.getQueryParameters().getFirst(qParam));
+		}
+		request.addContent(baseURI);
+		return request;
+	}
 	
 	private Response oaiGetRecord() {
 		String identifier, metadataPrefix;
@@ -172,27 +212,130 @@ public class Dm2eOaiService {
 		} catch (NullPointerException e) { return errorMissingParameter("identifier"); }
 		try { metadataPrefix = ui.getQueryParameters().get("metadataPrefix").get(0);
 		} catch (NullPointerException e) { return errorMissingParameter("metadataPrefix"); }
+		if (! metadataPrefix.equals("oai_dc")) {
+			return errorUnsupportedMetadataPrefix(metadataPrefix);
+		}
 		
-		String[] idSegments = identifier.split("___");
-		if (idSegments.length != 2) {
+		String[] idSegments;
+		try {
+			idSegments = api.unoaifyId(identifier);
+		} catch (IllegalArgumentException e) {
 			return errorBadIdentifier(identifier);
 		}
-		String datasetId = idSegments[0].replace("__", "/");
-		String resourceMapId = idSegments[1].replace("__", "/");
-		ResourceMap rm = null;
-		try {
-			 rm = api.getResourceMap(datasetId, resourceMapId);
-		} catch (RiotNotFoundException e) {
-			return errorNotFound(identifier);
-		}
+		String datasetId = idSegments[0];
+		String resourceMapId = idSegments[1];
 
-		return Response.ok().entity(
-				"datasetId: " + datasetId + "\n"
-                + "resourceMapId: " + resourceMapId
-				+ "\n"
-				+ api.dumpModel(rm.getModel())
-                ).build() ;
+		ResourceMap rm = null;
+		try { rm = api.getResourceMap(datasetId, resourceMapId);
+		} catch (RiotNotFoundException e) { return errorNotFound(identifier); }
+		
+		Document record = api.resourceMapToOaiRecord(rm, metadataPrefix);
+
+		Map<String,Object> valuesMap = new HashMap<>();
+		String nowFormatted = iso8601formatter.print(DateTime.now());
+		valuesMap.put("responseDate", nowFormatted);
+		valuesMap.put("request", xmlOutput.outputString(httpRequestAsOaiRequest()));
+		valuesMap.put("record", xmlOutput.outputString(record));
+		StrSubstitutor sub = new StrSubstitutor(valuesMap);
+		return Response
+					.ok()
+					.entity(sub.replace(tplGetRecord))
+					.type(MediaType.APPLICATION_XML)
+					.build()
+					;
 	}
 
-	
+	// TODO Resumption Token Magic to improve performance
+	private Response oaiListIdentifiersOrRecords(boolean headersOnly) {
+		String setSpec, resumptionToken;
+		int limit = 10;		// TODO this is for testing
+		try { setSpec = ui.getQueryParameters().get("setSpec").get(0);
+		} catch (NullPointerException e) { log.debug("No setSpec argument to ListIdentifiers."); }
+		try {
+			resumptionToken = ui.getQueryParameters().get("resumptionToken").get(0);
+		} catch (NullPointerException e) {
+			log.debug("No resumptionToken argument to ListIdentifiers.");
+			resumptionToken="__0"; 	// this means: empty 'setSpec', 'cursor' at 0
+		}
+		
+		// parse resumptionToken
+		String[] resumptionTokenSegments = resumptionToken.split("__");
+		if (resumptionTokenSegments.length != 2) {
+			return errorBadResumptionToken(resumptionToken);
+		}
+		setSpec = resumptionTokenSegments[0];
+		int start = Integer.parseInt(resumptionTokenSegments[1]);
+
+		StringBuilder headersSB = new StringBuilder();
+		List<List<String>> datasetResourceMapTuples = new ArrayList<>();
+		
+		// Handle setSpec, if not provided use all datasets
+		Set<String> datasetIds = new HashSet<>();
+		if (setSpec.equals("")) {
+			datasetIds.addAll(api.listDatasets());
+		} else {
+			datasetIds.add(api.unoaifyId(setSpec)[0]);
+		}
+		
+		// generate datasetId / resourceMapId tuples
+		for (String datasetId : datasetIds) {
+			log.debug("Retrieving dataset " + datasetId);
+			Dataset dataset = api.getDataset(datasetId);
+			log.debug("Retrieved dataset " + dataset);
+			for (String resourceMapId : api.listResourceMaps(dataset)) {
+				List<String> datasetResourceMapTuple = new ArrayList<>();
+				datasetResourceMapTuple.add(datasetId);
+				datasetResourceMapTuple.add(resourceMapId);
+				datasetResourceMapTuples.add(datasetResourceMapTuple);
+			}
+		}
+		
+		int completeListSize = datasetResourceMapTuples.size();
+		boolean isFinished = false;
+		log.debug("Listing from " + start + " to " + (start + limit));
+		for (int i = start ; i < start + limit ; i++ ) {
+			log.debug("Retrieving dataset/resourcemap tuple #" + i);
+			if (i >= datasetResourceMapTuples.size()) {
+				log.debug("We're finished");
+				isFinished = true;
+				break;
+			}
+			List<String> datasetResourceMapTuple = datasetResourceMapTuples.get(i);
+			String datasetId = datasetResourceMapTuple.get(0);
+			String resourceMapId = datasetResourceMapTuple.get(1);
+			
+			// NOTE
+			// This is the heavy work
+			ResourceMap resourceMap = api.getResourceMap(datasetId, resourceMapId);
+			if (headersOnly) {
+				headersSB.append(xmlOutput.outputString(api.resourceMapToOaiHeader(resourceMap)));
+			} else {
+				headersSB.append(xmlOutput.outputString(api.resourceMapToOaiRecord(resourceMap, "oai_dc")));
+			}
+		}
+
+		// TODO resumptiontoken
+		Element newResumptionToken = new Element("resumptionToken");
+		if (! isFinished) {
+			newResumptionToken.setAttribute("cursor", Integer.toString(start));
+			newResumptionToken.setAttribute("completeListSize", Integer.toString(completeListSize));
+			newResumptionToken.addContent(setSpec + "__" + (start + limit));
+		}
+
+		log.debug("All dataset/resourcemap id tuples retrieved retrieved");
+		Map<String,Object> valuesMap = new HashMap<>();
+		String nowFormatted = iso8601formatter.print(DateTime.now());
+		valuesMap.put("responseDate", nowFormatted);
+		valuesMap.put("request", xmlOutput.outputString(httpRequestAsOaiRequest()));
+		valuesMap.put("list", headersSB.toString());
+		valuesMap.put("resumptionToken", xmlOutput.outputString(newResumptionToken));
+		StrSubstitutor sub = new StrSubstitutor(valuesMap);
+		String tplToUse = headersOnly ? tplListIdentifiers : tplListRecords;
+		return Response
+					.ok()
+					.entity(sub.replace(tplToUse))
+					.type(MediaType.APPLICATION_XML)
+					.build()
+					;
+	}
 }

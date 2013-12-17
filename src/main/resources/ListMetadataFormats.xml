@@ -10,6 +10,11 @@
      <schema>http://www.openarchives.org/OAI/2.0/oai_dc.xsd</schema>
      <metadataNamespace>http://www.openarchives.org/OAI/2.0/oai_dc/</metadataNamespace>
    </metadataFormat>
+   <metadataFormat>
+     <metadataPrefix>oai_dm2e</metadataPrefix>
+     <schema>http://onto.dm2e.eu/schemas/oai_dm2e.xsd</schema>
+     <metadataNamespace>http://onto.dm2e.eu/schemas/dm2e/1.1/</metadataNamespace>
+   </metadataFormat>
 <!--    <metadataFormat> -->
 <!--      <metadataPrefix>perseus</metadataPrefix> -->
 <!--      <schema>http://www.perseus.tufts.edu/persmeta.xsd</schema> -->

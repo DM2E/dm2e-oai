@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.jdom2.Attribute;
@@ -31,12 +32,24 @@ import eu.dm2e.ws.NS;
 
 public class Dm2eApiClient {
 
+	private Map<String,ResourceMap> resourceMapCache = new HashMap<>();
+	private Map<String,Dataset> datasetCache = new HashMap<>();
 	private String	apiBase;
 	private HashMap<String, Namespace>	jdomNS	= new HashMap<String, Namespace>();
 	public DateTimeFormatter iso8601formatter = ISODateTimeFormat.dateTime();
+	private boolean useCaching = false;
 
 	public Dm2eApiClient(String apiBase) {
 		this.apiBase = apiBase;
+		setNamespaces();
+	}
+	public Dm2eApiClient(String apiBase, boolean useCaching) {
+		this.apiBase = apiBase;
+		this.useCaching = useCaching;
+		setNamespaces();
+	}
+
+	public void setNamespaces() {
 		jdomNS.put("", Namespace.getNamespace("", NS.OAI.BASE));
 		jdomNS.put(NS.OAI.BASE, Namespace.getNamespace("", NS.OAI.BASE));
 		jdomNS.put("oai", Namespace.getNamespace("oai", NS.OAI.BASE));
@@ -58,6 +71,8 @@ public class Dm2eApiClient {
 		jdomNS.put(NS.PRO.BASE, Namespace.getNamespace("pro", NS.PRO.BASE));
 		jdomNS.put("bibo", Namespace.getNamespace("bibo", NS.BIBO.BASE));
 		jdomNS.put(NS.BIBO.BASE, Namespace.getNamespace("bibo", NS.BIBO.BASE));
+		jdomNS.put("owl", Namespace.getNamespace("owl", NS.OWL.BASE));
+		jdomNS.put(NS.OWL.BASE, Namespace.getNamespace("owl", NS.OWL.BASE));
 	}
 
 	public String dumpModel(Model model) {
@@ -66,6 +81,51 @@ public class Dm2eApiClient {
 		return strwriter.toString();
 	}
 	
+	public String oaifyId(String dm2eId) {
+		return dm2eId.replaceAll("/", "__");
+	}
+	public String oaifyId(String datasetId, String resourceMapId) {
+		return oaifyId(datasetId) + "___" + oaifyId(resourceMapId);
+	}
+	public String[] unoaifyId(String oaiId) throws IllegalArgumentException {
+		String[] idSegments = oaiId.split("___");
+		if (idSegments.length != 2) { throw new IllegalArgumentException("oaiId must contain '___'"); }
+		idSegments[0] = idSegments[0].replace("__", "/");
+		idSegments[1] = idSegments[1].replace("__", "/");
+		return idSegments;
+	}
+
+	public Element resourceMapToOaiHeader(ResourceMap resMap) {
+		Element oaiHeader = new Element("header", jdomNS.get("oai"));
+		String id = oaifyId(resMap.getDatasetId(), resMap.getResourceMapId());
+		Element identifier = new Element("identifier", jdomNS.get("oai"));
+		identifier.addContent(id);
+		oaiHeader.addContent(identifier);
+		Element dateStamp = new Element("datestamp", jdomNS.get("oai"));
+		Statement aggDateStmt = resMap.getAggregation().getProperty(resMap.getModel().createProperty(NS.DCTERMS.PROP_CREATED));
+		if (null != aggDateStmt) {
+			dateStamp.addContent(iso8601formatter.print(DateTime.parse(aggDateStmt
+					.getObject()
+					.asLiteral()
+					.getValue()
+					.toString())));
+		} else {
+			dateStamp.addContent(iso8601formatter.print(DateTime.now()));
+
+		}
+		oaiHeader.addContent(dateStamp);
+		Element setSpec = new Element("setSpec", jdomNS.get("oai"));
+		setSpec.addContent(oaifyId(resMap.getDatasetId()));
+		oaiHeader.addContent(setSpec);
+		return oaiHeader;
+	}
+	
+	/**
+	 * Convert a ResourceMap to a oai:record
+	 * @param resMap	ResourceMap to convert
+	 * @param metadataPrefix	Which type of metadata (currently: only 'oai_dc')
+	 * @return
+	 */
 	public Document resourceMapToOaiRecord(ResourceMap resMap, String metadataPrefix) {
 		if (metadataPrefix.equals("oai_dc")) {
 			return resourceMapToOaiRecord_oai_dc(resMap);
@@ -94,7 +154,7 @@ public class Dm2eApiClient {
 		}
 
 		// header, about, metadata
-		Element oaiHeader = new Element("header", jdomNS.get("oai"));
+		Element oaiHeader = resourceMapToOaiHeader(resMap);
 		Element oaiMetadata = new Element("metadata", jdomNS.get("oai"));
 		Element oaiDcDc = new Element("dc", jdomNS.get("oai_dc"));
 		oaiMetadata.addContent(oaiDcDc);
@@ -118,29 +178,6 @@ public class Dm2eApiClient {
 //				rightsReference.addContent(licenseURI.getURI());
 				oaiAbout.addContent(rights);
 			}
-		}
-		// header
-		{
-			String id = 
-					resMap.getDatasetId().replace("/", "__")
-					+ "___" +
-					resMap.getResourceMapId().replace("/", "__");
-			Element identifier = new Element("identifier", jdomNS.get("oai"));
-			identifier.addContent(id);
-			oaiHeader.addContent(identifier);
-			Element dateStamp = new Element("datestamp", jdomNS.get("oai"));
-			Statement aggDateStmt = resMap.getAggregation().getProperty(resMap.getModel().createProperty(NS.DCTERMS.PROP_CREATED));
-			if (null != aggDateStmt) {
-				dateStamp.addContent(iso8601formatter.print(DateTime.parse(aggDateStmt
-					.getObject()
-					.asLiteral()
-					.getValue()
-					.toString())));
-			} else {
-				dateStamp.addContent(iso8601formatter.print(DateTime.now()));
-
-			}
-			oaiHeader.addContent(dateStamp);
 		}
 		
 		// metadata : RDF -> XML
@@ -242,10 +279,27 @@ public class Dm2eApiClient {
 	 */
 	// http://lelystad.informatik.uni-mannheim.de:3000/direct/dataset/bbaw/dta/1386762086592
 	public Dataset getDataset(String datasetId, String versionId) {
+		Logger log = LoggerFactory.getLogger(getClass().getName());
+		final String cacheNeedle = datasetId + versionId;
+		if (useCaching) {
+			if (datasetCache.keySet().contains(cacheNeedle)) {
+				return datasetCache.get(cacheNeedle);
+			} else {
+				log.debug("Not cached: " + cacheNeedle);
+			}
+		}
 		String uri = apiBase + "/dataset/" + datasetId + "/" + versionId;
 		Model model = ModelFactory.createDefaultModel();
+		long t0 = System.currentTimeMillis();
 		model.read(uri);
-		return new Dataset(uri, model, datasetId, versionId);
+		long t1 = System.currentTimeMillis();
+		log.debug(String.format("Reading the Dataset '%s/%s' took %sms", datasetId, versionId, (t1-t0)));
+		final Dataset dataset = new Dataset(uri, model, datasetId, versionId);
+		if (useCaching) {
+			log.debug("Caching " + dataset + " as " + cacheNeedle + ".");
+			datasetCache.put(cacheNeedle, dataset);
+		}
+		return dataset;
 	}
 
 	/**
@@ -272,7 +326,10 @@ public class Dm2eApiClient {
 		String uri = apiBase + "/dataset/" + datasetId;
 		HashSet<String> set = new HashSet<>();
 		Model model = ModelFactory.createDefaultModel();
+		long t0 = System.currentTimeMillis();
 		model.read(uri);
+		long t1 = System.currentTimeMillis();
+		log.debug(String.format("Reading the Versions of Dataset '%s' took %sms", datasetId, (t1-t0)));
 		log.trace("list versions response: " + dumpModel(model));
 		StmtIterator iter = model.listStatements(model.createResource(uri), model
 			.createProperty(NS.DM2E_UNOFFICIAL.PROP_HAS_VERSION), (Resource) null);
@@ -294,7 +351,10 @@ public class Dm2eApiClient {
 		String uri = apiBase + "/list";
 		HashSet<String> set = new HashSet<>();
 		Model model = ModelFactory.createDefaultModel();
+		long t0 = System.currentTimeMillis();
 		model.read(uri);
+		long t1 = System.currentTimeMillis();
+		log.debug(String.format("Reading the list of Datasets took %sms", (t1-t0)));
 		log.trace("list collections response: " + dumpModel(model));
 		StmtIterator collectionIter = model.listStatements(model.createResource(uri), model
 			.createProperty(NS.DM2E_UNOFFICIAL.PROP_HAS_COLLECTION), (Resource) null);
@@ -327,11 +387,30 @@ public class Dm2eApiClient {
 	}
 
 	public ResourceMap getResourceMap(String datasetId, String resourceMapId) {
+		Logger log = LoggerFactory.getLogger(getClass().getName());
+		final String cacheNeedle = datasetId + resourceMapId;
+		if (useCaching) {
+			if (resourceMapCache.keySet().contains(cacheNeedle)) {
+				return resourceMapCache.get(cacheNeedle);
+			} else {
+				log.debug("Not cached: " + cacheNeedle);
+			}
+
+		}
 		Model model = ModelFactory.createDefaultModel();
 		Resource choRes = model.createResource(apiBase + "/item/" + datasetId + "/" + resourceMapId);
+		long t0 = System.currentTimeMillis();
 		model.read(choRes.getURI());
+		long t1 = System.currentTimeMillis();
+		log.debug(String.format("Reading the ResourceMap '%s__%s' took %sms", datasetId, resourceMapId, (t1-t0)));
+
 		Resource aggRes = model.createResource(choRes.getURI().replace("/item/", "/aggregation/"));
-		return new ResourceMap(model, choRes, aggRes, datasetId, resourceMapId);
+		final ResourceMap resourceMap = new ResourceMap(model, choRes, aggRes, datasetId, resourceMapId);
+		if (useCaching) {
+			log.debug("Caching " + resourceMap + " as " + cacheNeedle + ".");
+			resourceMapCache.put(cacheNeedle, resourceMap);
+		}
+		return resourceMap;
 	}
 
 }
