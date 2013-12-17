@@ -1,0 +1,11 @@
+<schema targetNamespace="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+        xmlns="http://www.w3.org/2001/XMLSchema" 
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+    >
+<element name="type">
+    <complexType>
+        <attribute name="resource" type="anyURI" form="qualified"/>
+    </complexType>
+</element> 
+
+</schema>

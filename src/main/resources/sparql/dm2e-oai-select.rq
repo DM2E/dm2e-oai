@@ -1,0 +1,81 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX dm2e: <http://onto.dm2e.eu/schemas/dm2e/1.1/>
+PREFIX bibo: <http://purl.org/ontology/bibo/>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX oai: <http://www.openarchives.org/OAI/2.0/>
+PREFIX oai_dc: <http://www.openarchives.org/OAI/2.0/oai_dc/>
+PREFIX oai_rights: <http://www.openarchives.org/OAI/2.0/rights/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX edm: <http://www.europeana.eu/schemas/edm/> 
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dm2e_helper_ns: <urn:x-dm2e:>
+PREFIX fabio: <http://purl.org/spar/fabio/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT * WHERE {
+    GRAPH ?graph {
+        # Aggregation and ProvidedCHO
+        ?agg edm:aggregatedCHO ?cho .
+        {
+            ?cho dc:type dm2e:Manuscript . 
+        } UNION {
+            # stupid typo somewhere by someone :(
+            ?cho dc:type <http://onto.dm2e.eu/schemas/dm2e/1.1/#Manuscript>
+        } UNION {
+            ?cho dc:type dm2e:Page . 
+        } UNION {
+            ?cho dc:type fabio:Article . 
+        # } UNION {
+        #     # stupid typo somewhere by someone :(
+        #     ?cho dc:type <http://onto.dm2e.eu/schemas/dm2e/1.1/#Manuscript>
+        }
+
+        # UNION
+        # { ?cho dc:type fabio:Article . }
+
+        # edm:provider
+        ?agg edm:provider ?edm_provider .
+
+        # Type of resource
+        ?cho dc:type ?dc_type .
+
+        # dcterms:title -> dc:title
+        ?cho dcterms:title ?dcterms_title .
+
+        # edm:type -> dc:type
+        ?cho edm:type ?edm_type .
+
+        # edm:rights
+        OPTIONAL { ?agg edm:rights ?edm_rights }
+
+        # Web Resources
+        OPTIONAL {
+            ?agg edm:isShownBy ?edm_isShownBy .
+        }
+        OPTIONAL {
+            ?agg edm:isShownAt ?edm_isShownAt .
+        }
+        # dc:date -- not available for any CHO (i.e. not for Page)
+        OPTIONAL {
+            { 
+                ?cho dcterms:issued ?timespan .
+                ?timespan skos:prefLabel ?timespan_label .
+                # remove language and datatype from skos:prefLabel since it's generic
+                # ideally we should parse edm:Timestamps here
+            } UNION { ?cho dc:date ?dc_date }
+        }
+        # bibo:volume
+        OPTIONAL { ?cho bibo:volume ?bibo_volume }
+        # bibo:pages
+        OPTIONAL { ?cho bibo:pages ?bibo_pages }
+        # dcterms:subtitle
+        OPTIONAL { 
+            ?cho dcterms:subtitle ?dcterms_subtitle
+            FILTER (STR(?dcterms_subtitle) != "")
+        }
+        # dc:language
+        OPTIONAL { ?cho dc:language ?dc_language }
+        # dc:subject
+        OPTIONAL { ?cho dc:subject ?dc_subject }
+    }
+}

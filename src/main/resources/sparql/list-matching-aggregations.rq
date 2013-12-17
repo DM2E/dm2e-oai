@@ -1,0 +1,33 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX dm2e: <http://onto.dm2e.eu/schemas/dm2e/1.1/>
+PREFIX bibo: <http://purl.org/ontology/bibo/>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX oai: <http://www.openarchives.org/OAI/2.0/>
+PREFIX oai_dc: <http://www.openarchives.org/OAI/2.0/oai_dc/>
+PREFIX oai_rights: <http://www.openarchives.org/OAI/2.0/rights/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX edm: <http://www.europeana.eu/schemas/edm/> 
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dm2e_helper_ns: <urn:x-dm2e:>
+PREFIX fabio: <http://purl.org/spar/fabio/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT ?agg WHERE {
+    GRAPH ?graph {
+        # Aggregation and ProvidedCHO
+        ?agg edm:aggregatedCHO ?cho .
+        {
+            ?cho dc:type dm2e:Manuscript . 
+        } UNION {
+            # stupid typo somewhere by someone :(
+            ?cho dc:type <http://onto.dm2e.eu/schemas/dm2e/1.1/#Manuscript>
+        } UNION {
+            ?cho dc:type dm2e:Page . 
+        } UNION {
+            # stupid typo somewhere by someone :(
+            ?cho dc:type <http://onto.dm2e.eu/schemas/dm2e/1.1/#Page>
+        } UNION {
+            ?cho dc:type fabio:Article . 
+        }
+    }
+} LIMIT 10

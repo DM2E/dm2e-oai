@@ -1,0 +1,5 @@
+<schema targetNamespace="http://onto.dm2e.eu/schemas/dm2e/1.1/" 
+        xmlns="http://www.w3.org/2001/XMLSchema" 
+    >
+<element name="printedAt" type="anyURI"/>
+</schema>

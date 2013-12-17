@@ -1,0 +1,5 @@
+<schema targetNamespace="http://purl.org/spar/pro/" 
+        xmlns="http://www.w3.org/2001/XMLSchema" 
+    >
+<element name="author" type="anyURI"/>
+</schema>
