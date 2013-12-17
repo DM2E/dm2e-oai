@@ -147,7 +147,7 @@ public class Dm2eOaiService {
 		return Response
 					.ok()
 					.entity(sub.replace(tplListMetadataFormats))
-					.type(MediaType.APPLICATION_XML)
+					.type(MediaType.TEXT_XML)
 					.build()
 					;	}
 
@@ -160,7 +160,7 @@ public class Dm2eOaiService {
 		return Response
 					.ok()
 					.entity(sub.replace(tplIdentify))
-					.type(MediaType.APPLICATION_XML)
+					.type(MediaType.TEXT_XML)
 					.build()
 					;
 	}
@@ -192,7 +192,7 @@ public class Dm2eOaiService {
 		return Response
 					.ok()
 					.entity(sub.replace(tplListSets))
-					.type(MediaType.APPLICATION_XML)
+					.type(MediaType.TEXT_XML)
 					.build()
 					;
 	}
@@ -240,7 +240,7 @@ public class Dm2eOaiService {
 		return Response
 					.ok()
 					.entity(sub.replace(tplGetRecord))
-					.type(MediaType.APPLICATION_XML)
+					.type(MediaType.TEXT_XML)
 					.build()
 					;
 	}
@@ -334,7 +334,7 @@ public class Dm2eOaiService {
 		return Response
 					.ok()
 					.entity(sub.replace(tplToUse))
-					.type(MediaType.APPLICATION_XML)
+					.type(MediaType.TEXT_XML)
 					.build()
 					;
 	}
