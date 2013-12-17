@@ -15,9 +15,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.jena.riot.RiotNotFoundException;
 import org.jdom2.Document;
@@ -49,6 +51,22 @@ public class Dm2eOaiService {
 	                tplListRecords;
 	XMLOutputter xmlOutput = new XMLOutputter();
 	
+	/**
+	 * Allowed keys for key=value pairs in GET/POST requests
+	 */
+	enum OaiKey {
+		verb,
+		identifier,
+		resumptionToken,
+		from,
+		until,
+		set,
+		metadataPrefix,
+	}
+	
+	/**
+	 * OAI-PMH error codes
+	 */
 	enum OaiError {
 		badArgument,
 		badResumptionToken,
@@ -95,7 +113,7 @@ public class Dm2eOaiService {
 		}
 	}
 
-	private Response oaiError(Map<String,String> kvPairs, Response.Status httpStatus, OaiError errorCode, String errorDescription) {
+	private Response oaiError(Map<OaiKey,String> kvPairs, Response.Status httpStatus, OaiError errorCode, String errorDescription) {
 		Map<String,String> valuesMap = new HashMap<>();
 		valuesMap.put("request", oaiRequest(kvPairs));
 		valuesMap.put("responseDate", api.nowOaiFormatted());
@@ -110,57 +128,65 @@ public class Dm2eOaiService {
 					;
 		
 	}
-	private Response errorMissingParameter(Map<String,String> kvPairs, String paramName){
-		return oaiError(kvPairs, Response.Status.BAD_REQUEST, OaiError.badArgument, "Missing required parameter '" + paramName + "'.");
+	private Response errorIllegalparameter(Map<OaiKey,String> kvPairs, String paramName){
+		return oaiError(kvPairs, Response.Status.BAD_REQUEST, OaiError.badArgument, "Parameter '" + paramName + "' is not a valid OAI-PMH parameter.");
 	}
-	private Response errorUnknownVerb(Map<String,String> kvPairs) {
-		return oaiError(kvPairs, Response.Status.BAD_REQUEST, OaiError.badVerb, "Unknown verb '" + kvPairs.get("verb") + "'.");
+	private Response errorMissingParameter(Map<OaiKey,String> kvPairs, OaiKey verb){
+		return oaiError(kvPairs, Response.Status.BAD_REQUEST, OaiError.badArgument, "Missing required parameter '" + verb + "'.");
 	}
-	private Response errorBadIdentifier(Map<String,String> kvPairs) {
+	private Response errorUnknownVerb(Map<OaiKey,String> kvPairs) {
+		return oaiError(kvPairs, Response.Status.BAD_REQUEST, OaiError.badVerb, "Unknown verb '" + kvPairs.get(OaiKey.verb) + "'.");
+	}
+	private Response errorBadIdentifier(Map<OaiKey,String> kvPairs) {
 		return oaiError(kvPairs, Response.Status.BAD_REQUEST, OaiError.idDoesNotExist, 
-				"Bad identifier '" + kvPairs.get("identifier") + "'." +
+				"Bad identifier '" + kvPairs.get(OaiKey.identifier) + "'." +
 				"\n" + 
 				"Identifiers are of the form DATASETID___RESOURCEMAPID"
         );
 	}
-	private Response errorBadResumptionToken(Map<String,String> kvPairs) {
+	private Response errorBadResumptionToken(Map<OaiKey,String> kvPairs) {
 		return oaiError(kvPairs, Response.Status.BAD_REQUEST, OaiError.badResumptionToken,
-				"Bad resumptionToken '" + kvPairs.get("resumptionToken") + "'." +
+				"Bad resumptionToken '" + kvPairs.get(OaiKey.resumptionToken) + "'." +
 				"\n" + 
 				"resumptionTokens are of the form setSpec__start__limit (though this should not concern harvesters)"
 				);
 	}
-	private Response errorNotFound(Map<String,String> kvPairs) {
-		return oaiError(kvPairs, Response.Status.NOT_FOUND, OaiError.idDoesNotExist, "Record not found: '" + kvPairs.get("identifier") + "'.");
+	private Response errorNotFound(Map<OaiKey,String> kvPairs) {
+		return oaiError(kvPairs, Response.Status.NOT_FOUND, OaiError.idDoesNotExist, "Record not found: '" + kvPairs.get(OaiKey.identifier) + "'.");
 	}
-	private Response errorUnsupportedMetadataPrefix(Map<String,String> kvPairs) {
-		return oaiError(kvPairs, Response.Status.BAD_REQUEST, OaiError.cannotDisseminateFormat, "Unsupported metadataPrefix '" + kvPairs.get("metadataPrefix") + "'.");
+	private Response errorUnsupportedMetadataPrefix(Map<OaiKey,String> kvPairs) {
+		return oaiError(kvPairs, Response.Status.BAD_REQUEST, OaiError.cannotDisseminateFormat, "Unsupported metadataPrefix '" + kvPairs.get(OaiKey.metadataPrefix) + "'.");
 	}
 
 	
 	@POST
 	public Response oaiPOST (Form form) {
-		Map<String,String> kvPairs = new HashMap<>();
-		for (Entry<String, List<String>> entry : form.asMap().entrySet()) {
-			kvPairs.put(entry.getKey(), entry.getValue().get(0));
-		}
-		return oaiHandler(kvPairs);
+		return oaiHandler(form.asMap());
 	}
 
 	@GET
 	public Response oaiGET (@Context UriInfo ui) {
-		Map<String,String> kvPairs = new HashMap<>();
-		for (Entry<String, List<String>> entry : ui.getQueryParameters().entrySet()) {
-			kvPairs.put(entry.getKey(), entry.getValue().get(0));
-		}
-		return oaiHandler(kvPairs);
+		return oaiHandler(ui.getQueryParameters());
 	}
 
-	private Response oaiHandler(Map<String,String> kvPairs) {
-		if (null == kvPairs.get("verb")) return errorMissingParameter(kvPairs, "verb");
+	private Response oaiHandler(MultivaluedMap<String, String> multiValueMap) {
+		List<String> illegalKeys = new ArrayList<>();
+		Map<OaiKey,String> kvPairs = new HashMap<>();
+		for (Entry<String, List<String>> entry : multiValueMap.entrySet()) {
+			try {
+				OaiKey oaiKey = OaiKey.valueOf(entry.getKey());
+				kvPairs.put(oaiKey, entry.getValue().get(0));
+			} catch (IllegalArgumentException e) {
+				illegalKeys.add(entry.getKey());
+			}
+		}
+		if (illegalKeys.size() > 0) {
+			return errorIllegalparameter(kvPairs, StringUtils.join(illegalKeys.toArray(), ", "));
+		}
+		if (null == kvPairs.get(OaiKey.verb)) return errorMissingParameter(kvPairs, OaiKey.verb);
 
 		// GetRecord, Identify, ListIdentifiers, ListMetadataFormats, ListRecords, ListSets
-		switch(kvPairs.get("verb")) {
+		switch(kvPairs.get(OaiKey.verb)) {
 			case "Identify": return oaiIdentify(kvPairs);
 			case "ListMetadataFormats": return oaiListMetadataFormats(kvPairs);
 			case "ListIdentifiers": return oaiListIdentifiersOrRecords(kvPairs, true);
@@ -171,7 +197,7 @@ public class Dm2eOaiService {
 		}
 	}
 	
-	private Response oaiListMetadataFormats(Map<String, String> kvPairs) {
+	private Response oaiListMetadataFormats(Map<OaiKey,String> kvPairs) {
 		Map<String,Object> valuesMap = new HashMap<>();
 		valuesMap.put("responseDate", api.nowOaiFormatted());
 		valuesMap.put("baseURI", uriInfo.getBaseUri() + "/oai");
@@ -183,7 +209,7 @@ public class Dm2eOaiService {
 					.build()
 					;	}
 
-	private Response oaiIdentify(Map<String, String> kvPairs) {
+	private Response oaiIdentify(Map<OaiKey,String> kvPairs) {
 		Map<String,Object> valuesMap = new HashMap<>();
 		valuesMap.put("responseDate", api.nowOaiFormatted());
 		valuesMap.put("baseURI", uriInfo.getBaseUri() + "/oai");
@@ -196,7 +222,7 @@ public class Dm2eOaiService {
 					;
 	}
 
-	private Response oaiListSets(Map<String,String> kvPairs) {
+	private Response oaiListSets(Map<OaiKey,String> kvPairs) {
 		Map<String,Object> valuesMap = new HashMap<>();
 		
 		Element listSets = new Element("ListSets");
@@ -225,20 +251,20 @@ public class Dm2eOaiService {
 					;
 	}
 
-	public String oaiRequest(Map<String,String> kvPairs) {
+	public String oaiRequest(Map<OaiKey,String> kvPairs) {
 		Element request = new Element("request");
-		for (Entry<String, String> kv : kvPairs.entrySet()) {
-			request.setAttribute(kv.getKey(), kv.getValue());
+		for (Entry<OaiKey, String> kv : kvPairs.entrySet()) {
+			request.setAttribute(kv.getKey().name(), kv.getValue());
 		}
 		request.addContent(uriInfo.getBaseUri() + "/oai");
 		return xmlOutput.outputString(request);
 	}
 	
-	private Response oaiGetRecord(Map<String,String> kvPairs) {
-		String identifier = kvPairs.get("identifier");
-		String metadataPrefix = kvPairs.get("metadataPrefix");
-		if (null == identifier) return errorMissingParameter(kvPairs, "identifier");
-		if (null == metadataPrefix) return errorMissingParameter(kvPairs, "metadataPrefix");
+	private Response oaiGetRecord(Map<OaiKey,String> kvPairs) {
+		String identifier = kvPairs.get(OaiKey.identifier);
+		String metadataPrefix = kvPairs.get(OaiKey.metadataPrefix);
+		if (null == identifier) return errorMissingParameter(kvPairs, OaiKey.identifier);
+		if (null == metadataPrefix) return errorMissingParameter(kvPairs, OaiKey.metadataPrefix);
 		if (! metadataPrefix.equals("oai_dc")) {
 			return errorUnsupportedMetadataPrefix(kvPairs);
 		}
@@ -272,10 +298,10 @@ public class Dm2eOaiService {
 	}
 
 	// TODO Resumption Token Magic to improve performance
-	private Response oaiListIdentifiersOrRecords(Map<String,String> kvPairs, boolean headersOnly) {
+	private Response oaiListIdentifiersOrRecords(Map<OaiKey,String> kvPairs, boolean headersOnly) {
 		int limit = 10;		// TODO this is for testing
-		String setSpec = kvPairs.get("setSpec");
-		String resumptionToken = kvPairs.get("resumptionToken");
+		String setSpec = kvPairs.get(OaiKey.set);
+		String resumptionToken = kvPairs.get(OaiKey.resumptionToken);
 		if (null == setSpec)
 			log.debug("No setSpec argument to ListIdentifiers.");
 		if (null == resumptionToken) {
