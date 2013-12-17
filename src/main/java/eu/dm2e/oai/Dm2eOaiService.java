@@ -1,18 +1,19 @@
 package eu.dm2e.oai; 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -37,56 +38,31 @@ public class Dm2eOaiService {
 	
 	Logger log = LoggerFactory.getLogger(getClass().getName());
 
-	@Context UriInfo ui;
-	private String	baseURI = "http://localhost:7777/oai";
+//	private String	baseURI = "http://localhost:7777/oai";
+	@Context UriInfo uriInfo;
 	private String tplIdentify,
 	                tplListMetadataFormats,
 	                tplListSets,
 	                tplGetRecord,
 	                tplListIdentifiers,
+	                tplError,
 	                tplListRecords;
 	XMLOutputter xmlOutput = new XMLOutputter();
+	
+	enum OaiError {
+		badArgument,
+		badResumptionToken,
+		badVerb,
+		cannotDisseminateFormat,
+		idDoesNotExist,
+		noRecordsMatch,
+		noMetadataFormats,
+		noSetHierarchy
+	}
 
 	// Caching client, hence static
 	private static Dm2eApiClient api = new Dm2eApiClient("http://lelystad.informatik.uni-mannheim.de:3000/direct", true);
-	private String jdomElementToString(Element el) {
-		StringWriter strwriter = new StringWriter();
-		try {
-			xmlOutput.output(el, strwriter);
-		} catch (IOException e) {
-			log.error("Exception writing XML: " + e);
-//			log.debug("Input was " + el);
-		}
-		return strwriter.toString();
-	}
 
-	private Response errorMissingParameter(String paramName){
-		return Response.status(Response.Status.BAD_REQUEST).entity("Missing '" + paramName + "' parameter.").build();
-	}
-	private Response errorUnknownVerb(String verb){
-		return Response.status(Response.Status.BAD_REQUEST).entity("Unknown verb '" + verb + "'.").build();
-	}
-	private Response errorBadIdentifier(String identifier) {
-		return Response.status(Response.Status.BAD_REQUEST).entity(
-				"Bad identifier '" + identifier + "'." +
-				"\n" + 
-				"Identifiers are of the form DATASETID___RESOURCEMAPID"
-				).build();
-	}
-	private Response errorBadResumptionToken(String resumptionToken) {
-		return Response.status(Response.Status.BAD_REQUEST).entity(
-				"Bad resumptionToken '" + resumptionToken + "'." +
-				"\n" + 
-				"resumptionTokens are of the form setSpec__start__limit (though this should not concern harvesters)"
-				).build();
-	}
-	private Response errorNotFound(String identifier) {
-		return Response.status(Response.Status.NOT_FOUND).entity("Unknown identifier '" + identifier + "'").build();
-	}
-	private Response errorUnsupportedMetadataPrefix(String metadataPrefix) {
-		return Response.status(Response.Status.BAD_REQUEST).entity("Unsupported metadataPrefix '" + metadataPrefix + "'").build();
-	}
-	
 	public Dm2eOaiService() {
 		// pretty print xml
 		final Format jdomFormat = Format.getPrettyFormat();
@@ -111,32 +87,94 @@ public class Dm2eOaiService {
 			tplListRecords = Resources.toString(
 					Resources.getResource("/ListRecords.xml"),
 					Charset.forName("UTF-8"));
+			tplError = Resources.toString(
+					Resources.getResource("/error.xml"),
+					Charset.forName("UTF-8"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
+	private Response oaiError(Map<String,String> kvPairs, Response.Status httpStatus, OaiError errorCode, String errorDescription) {
+		Map<String,String> valuesMap = new HashMap<>();
+		valuesMap.put("request", oaiRequest(kvPairs));
+		valuesMap.put("responseDate", api.nowOaiFormatted());
+		valuesMap.put("errorCode", errorCode.name());
+		valuesMap.put("errorDescription", errorDescription);
+		StrSubstitutor sub = new StrSubstitutor(valuesMap);
+		return Response
+					.status(httpStatus)
+					.entity(sub.replace(tplError))
+					.type(MediaType.TEXT_XML)
+					.build()
+					;
+		
+	}
+	private Response errorMissingParameter(Map<String,String> kvPairs, String paramName){
+		return oaiError(kvPairs, Response.Status.BAD_REQUEST, OaiError.badArgument, "Missing required parameter '" + paramName + "'.");
+	}
+	private Response errorUnknownVerb(Map<String,String> kvPairs) {
+		return oaiError(kvPairs, Response.Status.BAD_REQUEST, OaiError.badVerb, "Unknown verb '" + kvPairs.get("verb") + "'.");
+	}
+	private Response errorBadIdentifier(Map<String,String> kvPairs) {
+		return oaiError(kvPairs, Response.Status.BAD_REQUEST, OaiError.idDoesNotExist, 
+				"Bad identifier '" + kvPairs.get("identifier") + "'." +
+				"\n" + 
+				"Identifiers are of the form DATASETID___RESOURCEMAPID"
+        );
+	}
+	private Response errorBadResumptionToken(Map<String,String> kvPairs) {
+		return oaiError(kvPairs, Response.Status.BAD_REQUEST, OaiError.badResumptionToken,
+				"Bad resumptionToken '" + kvPairs.get("resumptionToken") + "'." +
+				"\n" + 
+				"resumptionTokens are of the form setSpec__start__limit (though this should not concern harvesters)"
+				);
+	}
+	private Response errorNotFound(Map<String,String> kvPairs) {
+		return oaiError(kvPairs, Response.Status.NOT_FOUND, OaiError.idDoesNotExist, "Record not found: '" + kvPairs.get("identifier") + "'.");
+	}
+	private Response errorUnsupportedMetadataPrefix(Map<String,String> kvPairs) {
+		return oaiError(kvPairs, Response.Status.BAD_REQUEST, OaiError.cannotDisseminateFormat, "Unsupported metadataPrefix '" + kvPairs.get("metadataPrefix") + "'.");
+	}
+
+	
+	@POST
+	public Response oaiPOST (Form form) {
+		Map<String,String> kvPairs = new HashMap<>();
+		for (Entry<String, List<String>> entry : form.asMap().entrySet()) {
+			kvPairs.put(entry.getKey(), entry.getValue().get(0));
+		}
+		return oaiHandler(kvPairs);
+	}
+
 	@GET
-	public Response oaiHandler(
-			// GetRecord, Identify, ListIdentifiers, ListMetadataFormats, ListRecords, ListSets
-			@QueryParam("verb") String verb
-			) {
-		if (null == verb) return errorMissingParameter("verb");
-		switch(verb) {
-		case "Identify": return oaiIdentify();
-		case "ListMetadataFormats": return oaiListMetadataFormats();
-		case "ListIdentifiers": return oaiListIdentifiersOrRecords(true);
-		case "ListRecords": return oaiListIdentifiersOrRecords(false);
-		case "ListSets": return oaiListSets();
-		case "GetRecord": return oaiGetRecord();
-        default: return errorUnknownVerb(verb);
+	public Response oaiGET (@Context UriInfo ui) {
+		Map<String,String> kvPairs = new HashMap<>();
+		for (Entry<String, List<String>> entry : ui.getQueryParameters().entrySet()) {
+			kvPairs.put(entry.getKey(), entry.getValue().get(0));
+		}
+		return oaiHandler(kvPairs);
+	}
+
+	private Response oaiHandler(Map<String,String> kvPairs) {
+		if (null == kvPairs.get("verb")) return errorMissingParameter(kvPairs, "verb");
+
+		// GetRecord, Identify, ListIdentifiers, ListMetadataFormats, ListRecords, ListSets
+		switch(kvPairs.get("verb")) {
+			case "Identify": return oaiIdentify(kvPairs);
+			case "ListMetadataFormats": return oaiListMetadataFormats(kvPairs);
+			case "ListIdentifiers": return oaiListIdentifiersOrRecords(kvPairs, true);
+			case "ListRecords": return oaiListIdentifiersOrRecords(kvPairs, false);
+			case "ListSets": return oaiListSets(kvPairs);
+			case "GetRecord": return oaiGetRecord(kvPairs);
+			default: return errorUnknownVerb(kvPairs);
 		}
 	}
 	
-	private Response oaiListMetadataFormats() {
+	private Response oaiListMetadataFormats(Map<String, String> kvPairs) {
 		Map<String,Object> valuesMap = new HashMap<>();
 		valuesMap.put("responseDate", api.nowOaiFormatted());
-		valuesMap.put("baseURI", baseURI);
+		valuesMap.put("baseURI", uriInfo.getBaseUri() + "/oai");
 		StrSubstitutor sub = new StrSubstitutor(valuesMap);
 		return Response
 					.ok()
@@ -145,10 +183,10 @@ public class Dm2eOaiService {
 					.build()
 					;	}
 
-	private Response oaiIdentify() {
+	private Response oaiIdentify(Map<String, String> kvPairs) {
 		Map<String,Object> valuesMap = new HashMap<>();
 		valuesMap.put("responseDate", api.nowOaiFormatted());
-		valuesMap.put("baseURI", baseURI);
+		valuesMap.put("baseURI", uriInfo.getBaseUri() + "/oai");
 		StrSubstitutor sub = new StrSubstitutor(valuesMap);
 		return Response
 					.ok()
@@ -158,11 +196,9 @@ public class Dm2eOaiService {
 					;
 	}
 
-	private Response oaiListSets() {
+	private Response oaiListSets(Map<String,String> kvPairs) {
 		Map<String,Object> valuesMap = new HashMap<>();
 		
-		Element request = httpRequestAsOaiRequest();
-
 		Element listSets = new Element("ListSets");
 		for (String datasetId : api.listDatasets()) {
 			datasetId = api.oaifyId(datasetId);
@@ -177,9 +213,9 @@ public class Dm2eOaiService {
 		}
 		
 		valuesMap.put("responseDate", api.nowOaiFormatted());
-		valuesMap.put("baseURI", baseURI);
-		valuesMap.put("request", jdomElementToString(request));
-		valuesMap.put("ListSets", jdomElementToString(listSets));
+		valuesMap.put("baseURI", uriInfo.getBaseUri() + "/oai");
+		valuesMap.put("request", oaiRequest(kvPairs));
+		valuesMap.put("ListSets", xmlOutput.outputString(listSets));
 		StrSubstitutor sub = new StrSubstitutor(valuesMap);
 		return Response
 					.ok()
@@ -189,43 +225,42 @@ public class Dm2eOaiService {
 					;
 	}
 
-	public Element httpRequestAsOaiRequest() {
+	public String oaiRequest(Map<String,String> kvPairs) {
 		Element request = new Element("request");
-		for (String qParam : ui.getQueryParameters().keySet()) {
-			request.setAttribute(qParam, ui.getQueryParameters().getFirst(qParam));
+		for (Entry<String, String> kv : kvPairs.entrySet()) {
+			request.setAttribute(kv.getKey(), kv.getValue());
 		}
-		request.addContent(baseURI);
-		return request;
+		request.addContent(uriInfo.getBaseUri() + "/oai");
+		return xmlOutput.outputString(request);
 	}
 	
-	private Response oaiGetRecord() {
-		String identifier, metadataPrefix;
-		try { identifier = ui.getQueryParameters().get("identifier").get(0);
-		} catch (NullPointerException e) { return errorMissingParameter("identifier"); }
-		try { metadataPrefix = ui.getQueryParameters().get("metadataPrefix").get(0);
-		} catch (NullPointerException e) { return errorMissingParameter("metadataPrefix"); }
+	private Response oaiGetRecord(Map<String,String> kvPairs) {
+		String identifier = kvPairs.get("identifier");
+		String metadataPrefix = kvPairs.get("metadataPrefix");
+		if (null == identifier) return errorMissingParameter(kvPairs, "identifier");
+		if (null == metadataPrefix) return errorMissingParameter(kvPairs, "metadataPrefix");
 		if (! metadataPrefix.equals("oai_dc")) {
-			return errorUnsupportedMetadataPrefix(metadataPrefix);
+			return errorUnsupportedMetadataPrefix(kvPairs);
 		}
 		
 		String[] idSegments;
 		try {
 			idSegments = api.unoaifyId(identifier);
 		} catch (IllegalArgumentException e) {
-			return errorBadIdentifier(identifier);
+			return errorBadIdentifier(kvPairs);
 		}
 		String datasetId = idSegments[0];
 		String resourceMapId = idSegments[1];
 
 		ResourceMap rm = null;
 		try { rm = api.getResourceMap(datasetId, resourceMapId);
-		} catch (RiotNotFoundException e) { return errorNotFound(identifier); }
+		} catch (RiotNotFoundException e) { return errorNotFound(kvPairs); }
 		
 		Document record = api.resourceMapToOaiRecord(rm, metadataPrefix);
 
 		Map<String,Object> valuesMap = new HashMap<>();
 		valuesMap.put("responseDate", api.nowOaiFormatted());
-		valuesMap.put("request", xmlOutput.outputString(httpRequestAsOaiRequest()));
+		valuesMap.put("request", oaiRequest(kvPairs));
 		valuesMap.put("record", xmlOutput.outputString(record));
 		StrSubstitutor sub = new StrSubstitutor(valuesMap);
 		return Response
@@ -237,14 +272,13 @@ public class Dm2eOaiService {
 	}
 
 	// TODO Resumption Token Magic to improve performance
-	private Response oaiListIdentifiersOrRecords(boolean headersOnly) {
-		String setSpec, resumptionToken;
+	private Response oaiListIdentifiersOrRecords(Map<String,String> kvPairs, boolean headersOnly) {
 		int limit = 10;		// TODO this is for testing
-		try { setSpec = ui.getQueryParameters().get("setSpec").get(0);
-		} catch (NullPointerException e) { log.debug("No setSpec argument to ListIdentifiers."); }
-		try {
-			resumptionToken = ui.getQueryParameters().get("resumptionToken").get(0);
-		} catch (NullPointerException e) {
+		String setSpec = kvPairs.get("setSpec");
+		String resumptionToken = kvPairs.get("resumptionToken");
+		if (null == setSpec)
+			log.debug("No setSpec argument to ListIdentifiers.");
+		if (null == resumptionToken) {
 			log.debug("No resumptionToken argument to ListIdentifiers.");
 			resumptionToken="__0"; 	// this means: empty 'setSpec', 'cursor' at 0
 		}
@@ -252,7 +286,7 @@ public class Dm2eOaiService {
 		// parse resumptionToken
 		String[] resumptionTokenSegments = resumptionToken.split("__");
 		if (resumptionTokenSegments.length != 2) {
-			return errorBadResumptionToken(resumptionToken);
+			return errorBadResumptionToken(kvPairs);
 		}
 		setSpec = resumptionTokenSegments[0];
 		int start = Integer.parseInt(resumptionTokenSegments[1]);
@@ -316,7 +350,7 @@ public class Dm2eOaiService {
 		log.debug("All dataset/resourcemap id tuples retrieved retrieved");
 		Map<String,Object> valuesMap = new HashMap<>();
 		valuesMap.put("responseDate", api.nowOaiFormatted());
-		valuesMap.put("request", xmlOutput.outputString(httpRequestAsOaiRequest()));
+		valuesMap.put("request", oaiRequest(kvPairs));
 		valuesMap.put("list", headersSB.toString());
 		valuesMap.put("resumptionToken", xmlOutput.outputString(newResumptionToken));
 		StrSubstitutor sub = new StrSubstitutor(valuesMap);
