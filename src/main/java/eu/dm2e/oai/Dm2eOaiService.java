@@ -1,5 +1,4 @@
-package eu.dm2e.oai;
-
+package eu.dm2e.oai; 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
