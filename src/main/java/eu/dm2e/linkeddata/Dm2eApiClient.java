@@ -205,9 +205,9 @@ public class Dm2eApiClient {
 		// Handle ProvidedCHO
 		Element oaiDcDc = new Element("dc", jdomNS.get("oai_dc"));
 		oaiMetadata.addContent(oaiDcDc);
-		log.debug(dumpModel(resMap.getModel()));
+//		log.debug(dumpModel(resMap.getModel()));
 		StmtIterator choIter = resMap.getModel().listStatements(resMap.getProvidedCHO_Resource(), null, (RDFNode)null);
-		log.debug("CHO Statements???? " + choIter.hasNext());
+//		log.debug("CHO Statements???? " + choIter.hasNext());
 		while (choIter.hasNext()) {
 			Statement stmt = choIter.next();
 			Property pred = stmt.getPredicate();
