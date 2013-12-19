@@ -1,13 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" 
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+         xmlns:bibo="http://purl.org/ontology/bibo/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/"
+         xmlns:dcterms="http://purl.org/dc/terms/"
+         xmlns:dm2e="http://onto.dm2e.eu/schemas/dm2e/1.1/"
+         xmlns:edm="http://www.europeana.eu/schemas/edm/"
+         xmlns:oai="http://www.openarchives.org/OAI/2.0/"
+         xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+         xmlns:owl="http://www.w3.org/2002/07/owl#"
+         xmlns:pro="http://purl.org/spar/pro/"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:rights="http://www.openarchives.org/OAI/2.0/rights/"
+         xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
+         http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
   <responseDate>${responseDate}</responseDate>
   <request verb="ListMetadataFormats"/>
   <ListMetadataFormats>
    <metadataFormat>
      <metadataPrefix>oai_dc</metadataPrefix>
-     <schema>http://www.openarchives.org/OAI/2.0/oai_dc.xsd</schema>
+<!--      <schema>http://www.openarchives.org/OAI/2.0/oai_dc.xsd</schema> -->
+    <schema>${xsdBaseURI}/oai_dc-patched.xsd</schema>
      <metadataNamespace>http://www.openarchives.org/OAI/2.0/oai_dc/</metadataNamespace>
    </metadataFormat>
    <metadataFormat>

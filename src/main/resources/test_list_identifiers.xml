@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
+         http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+  <responseDate>2013-12-19T10:55:28Z</responseDate>
+  <request from="2013-12-16T12:53:48Z" until="2013-12-18T13:20:23Z" metadataPrefix="oai_dc" verb="ListRecords">http://lelystad.informatik.uni-mannheim.de:7777//oai</request>
+  <ListRecords>
+          <oai:record xmlns:oai="http://www.openarchives.org/OAI/2.0/" xmlns:bibo="http://purl.org/ontology/bibo/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dm2e="http://onto.dm2e.eu/schemas/dm2e/1.1/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:pro="http://purl.org/spar/pro/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rights="http://www.openarchives.org/OAI/2.0/rights/">
+  <oai:header>
+    <oai:identifier>onb__codices___AL00159955</oai:identifier>
+    <oai:datestamp>2010-11-22T00:00:00Z</oai:datestamp>
+    <oai:setSpec>onb__codices</oai:setSpec>
+  </oai:header>
+  <oai:metadata>
+    <oai_dc:dc>
+      <rdf:type rdf:resource="http://dublincore.org/documents/2000/07/11/dcmi-type-vocabulary/#text" />
+      <dcterms:title>Collectio theologica</dcterms:title>
+      <bibo:numPages>Handschrift; I+126 Bll.</bibo:numPages>
+      <dm2e:shelfmarkLocation>Cod. Theol. gr. 133</dm2e:shelfmarkLocation>
+      <rdf:type rdf:resource="http://example.org/resourcemap" />
+      <dcterms:creator>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Gregorius_Nazianzenus</dcterms:creator>
+      <pro:author>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Gregorius_Nazianzenus</pro:author>
+      <dcterms:provenance>Johannes Sambucus (1531-1584) (Exlibris auf Bl. 1r, Marginalien)</dcterms:provenance>
+      <dcterms:tableOfContents>Bl. 1r-31v: Johannes Damascenus, Dialectica Cap. 1-68, Expositio fidei Cap. 1-30.32.31. 33-100 (Bl. 32r-111v); Bl. 33r: Anonymi Canon in Beatam Mariam Virginem; Bl. 112r-118r: Anonymi Chronicon ab Adamo ad Romanos; Bl. 118r-125r: Anonymi Chronicon Imperatorum ad Alexium I. Comnenum; Bl. 125r: Anonymi Formularium epistulae Metropolitae pro Christianis; Bl. 125v: Basilius Caesariensis et Gregorius Nazianzenus, Quaestiones et responsiones de sacerdotibus+</dcterms:tableOfContents>
+      <edm:type>TEXT</edm:type>
+      <dm2e:previousOwner>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Sambucus_Johannes</dm2e:previousOwner>
+      <dc:language>grc</dc:language>
+      <dm2e:support>Papier</dm2e:support>
+      <dcterms:issued>http://lelystad.informatik.uni-mannheim.de:3000/direct/timespan/onb/codices/1250-1299_AL00159955</dcterms:issued>
+      <dm2e:pageDimension>265/270 x 165/170 mm</dm2e:pageDimension>
+      <dm2e:illustration>Zierbalken mit Eckpalmetten in ziegelroter Federzeichnung mit Wellenranken; Überschriften, Initialen und Marginalien in ziegelroter Tinte</dm2e:illustration>
+      <dcterms:creator>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Basilius_Caesariensis</dcterms:creator>
+      <pro:author>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Basilius_Caesariensis</pro:author>
+      <dcterms:spatial>http://lelystad.informatik.uni-mannheim.de:3000/direct/place/onb/codices/Ohne_Ort_AL00159955</dcterms:spatial>
+      <dcterms:creator>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Johannes_Damascenus</dcterms:creator>
+      <pro:author>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Johannes_Damascenus</pro:author>
+      <dm2e:cover>Hofbibliothekseinband mit Supralibros des Gerard van Swieten, 1755</dm2e:cover>
+      <owl:sameAs>http://data.dm2e.eu/data/item/onb/codices/AL00159955</owl:sameAs>
+    </oai_dc:dc>
+  </oai:metadata>
+  <oai:about />
+</oai:record>
+<oai:record xmlns:oai="http://www.openarchives.org/OAI/2.0/" xmlns:bibo="http://purl.org/ontology/bibo/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dm2e="http://onto.dm2e.eu/schemas/dm2e/1.1/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:pro="http://purl.org/spar/pro/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rights="http://www.openarchives.org/OAI/2.0/rights/">
+  <oai:header>
+    <oai:identifier>onb__codices___AL00164609</oai:identifier>
+    <oai:datestamp>2011-02-03T00:00:00Z</oai:datestamp>
+    <oai:setSpec>onb__codices</oai:setSpec>
+  </oai:header>
+  <oai:metadata>
+    <oai_dc:dc>
+      <dcterms:creator>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/L%C3%B6wenstadt_et_Ronneburg_Ernestus_de</dcterms:creator>
+      <pro:author>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/L%C3%B6wenstadt_et_Ronneburg_Ernestus_de</pro:author>
+      <rdf:type rdf:resource="http://example.org/resourcemap" />
+      <dc:language>ger</dc:language>
+      <dcterms:provenance>Karl VI. (*1685; 1711-1740 römisch-deutscher Kaiser, Erzherzog v. Ö.; +1740): Widmungsempfänger [Cod. Ser. n. 18146 (Recenteskatalog)].</dcterms:provenance>
+      <dm2e:cover>Braunes Marmorpapier über Pappdeckeln, Wien, 19. Jhdt.</dm2e:cover>
+      <owl:sameAs>http://data.dm2e.eu/data/item/onb/codices/AL00164609</owl:sameAs>
+      <dcterms:issued>1716-1-1T00:00:00</dcterms:issued>
+      <dm2e:support>Pergament</dm2e:support>
+      <dm2e:shelfmarkLocation>Cod. 10077</dm2e:shelfmarkLocation>
+      <dcterms:spatial>http://lelystad.informatik.uni-mannheim.de:3000/direct/place/onb/codices/Ohne_Ort_AL00164609</dcterms:spatial>
+      <dcterms:title>Carmen gratulatorium germanicum ad Carolum VI. imperatorem</dcterms:title>
+      <edm:type>TEXT</edm:type>
+      <rdf:type rdf:resource="http://dublincore.org/documents/2000/07/11/dcmi-type-vocabulary/#text" />
+      <dm2e:incipit>Darff wohl ein kühner Reim ...</dm2e:incipit>
+      <bibo:numPages>Handschrift; 6 Bll.</bibo:numPages>
+      <dm2e:mentioned>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Karl_VI_R%C3%B6misch-Deutsches_Reich_Kaiser</dm2e:mentioned>
+      <dm2e:explicit>... So muss der Monden auch vor dir zurücke gehen.</dm2e:explicit>
+      <dm2e:pageDimension>Quart</dm2e:pageDimension>
+    </oai_dc:dc>
+  </oai:metadata>
+  <oai:about />
+</oai:record>
+<oai:record xmlns:oai="http://www.openarchives.org/OAI/2.0/" xmlns:bibo="http://purl.org/ontology/bibo/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dm2e="http://onto.dm2e.eu/schemas/dm2e/1.1/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:pro="http://purl.org/spar/pro/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rights="http://www.openarchives.org/OAI/2.0/rights/">
+  <oai:header>
+    <oai:identifier>onb__codices___AL00162221</oai:identifier>
+    <oai:datestamp>2011-01-19T00:00:00Z</oai:datestamp>
+    <oai:setSpec>onb__codices</oai:setSpec>
+  </oai:header>
+  <oai:metadata>
+    <oai_dc:dc>
+      <dm2e:pageDimension>320 x 260 mm</dm2e:pageDimension>
+      <dcterms:title>Kommentare zu den Evangelien</dcterms:title>
+      <dm2e:illustration>Knollenblattrankeninitiale, 1. Hälfte 12. Jhdt., fol. Ir</dm2e:illustration>
+      <bibo:numPages>Handschrift; I+288 Bll.</bibo:numPages>
+      <dcterms:provenance>Lorsch, Benediktinerkloster (um 764-1232): Besitz vermutet: Vermerk 'Codex de monasterio sancti Nazarii' fol. 278v [Autopsie].</dcterms:provenance>
+      <edm:type>TEXT</edm:type>
+      <rdf:type rdf:resource="http://example.org/resourcemap" />
+      <dm2e:shelfmarkLocation>Cod. 724</dm2e:shelfmarkLocation>
+      <dcterms:issued>http://lelystad.informatik.uni-mannheim.de:3000/direct/timespan/onb/codices/900-999_AL00162221</dcterms:issued>
+      <dm2e:previousOwner>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Kloster_Lorsch</dm2e:previousOwner>
+      <rdf:type rdf:resource="http://dublincore.org/documents/2000/07/11/dcmi-type-vocabulary/#text" />
+      <dcterms:creator>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Christianus_Stabulensis</dcterms:creator>
+      <pro:author>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Christianus_Stabulensis</pro:author>
+      <dm2e:support>Pergament</dm2e:support>
+      <owl:sameAs>http://data.dm2e.eu/data/item/onb/codices/AL00162221</owl:sameAs>
+      <dc:language>lat</dc:language>
+      <dm2e:cover>Helles Leder über Holzdeckeln</dm2e:cover>
+      <dcterms:spatial>http://lelystad.informatik.uni-mannheim.de:3000/direct/place/onb/codices/Deutschland</dcterms:spatial>
+    </oai_dc:dc>
+  </oai:metadata>
+  <oai:about />
+</oai:record>
+<oai:record xmlns:oai="http://www.openarchives.org/OAI/2.0/" xmlns:bibo="http://purl.org/ontology/bibo/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dm2e="http://onto.dm2e.eu/schemas/dm2e/1.1/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:pro="http://purl.org/spar/pro/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rights="http://www.openarchives.org/OAI/2.0/rights/">
+  <oai:header>
+    <oai:identifier>onb__codices___AL00161837</oai:identifier>
+    <oai:datestamp>2011-01-12T00:00:00Z</oai:datestamp>
+    <oai:setSpec>onb__codices</oai:setSpec>
+  </oai:header>
+  <oai:metadata>
+    <oai_dc:dc>
+      <dm2e:support>Pergament</dm2e:support>
+      <dcterms:spatial>http://lelystad.informatik.uni-mannheim.de:3000/direct/place/onb/codices/Schwaben_%28Alemannien%29</dcterms:spatial>
+      <dcterms:creator>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Verschiedene_Verfasser_AL00161837</dcterms:creator>
+      <pro:author>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Verschiedene_Verfasser_AL00161837</pro:author>
+      <dm2e:previousOwner>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Benediktinerstift_Reichenau_Bodensee</dm2e:previousOwner>
+      <bibo:numPages>Handschrift; 8 Bll.; 27 Zeilen; Schriftspiegel 185 x 130 mm</bibo:numPages>
+      <dcterms:issued>http://lelystad.informatik.uni-mannheim.de:3000/direct/timespan/onb/codices/800-833_AL00161837</dcterms:issued>
+      <owl:sameAs>http://data.dm2e.eu/data/item/onb/codices/AL00161837</owl:sameAs>
+      <dm2e:cover>Weißes unverziertes Pergament über Pappe. Wien, 19. Jhdt.</dm2e:cover>
+      <dcterms:provenance>Reichenau im Bodensee, Benediktinerstift [Menhardt, Altdeutsche Handschriften, 1960/61]. - Wolfgang Lazius (Dr. med.; *1514; Uni. Wien; Mediziner, Historiograph, Humanist; +1565): Besitz vermutet [Menhardt, Altdeutsche Handschriften, 1960/61, 10].</dcterms:provenance>
+      <rdf:type rdf:resource="http://dublincore.org/documents/2000/07/11/dcmi-type-vocabulary/#text" />
+      <edm:type>TEXT</edm:type>
+      <dc:language>lat</dc:language>
+      <dm2e:pageDimension>235 x 165 mm</dm2e:pageDimension>
+      <dcterms:title>Historische Sammelhandschrift</dcterms:title>
+      <rdf:type rdf:resource="http://example.org/resourcemap" />
+      <dm2e:shelfmarkLocation>Cod. 515</dm2e:shelfmarkLocation>
+    </oai_dc:dc>
+  </oai:metadata>
+  <oai:about />
+</oai:record>
+<oai:record xmlns:oai="http://www.openarchives.org/OAI/2.0/" xmlns:bibo="http://purl.org/ontology/bibo/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dm2e="http://onto.dm2e.eu/schemas/dm2e/1.1/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:pro="http://purl.org/spar/pro/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rights="http://www.openarchives.org/OAI/2.0/rights/">
+  <oai:header>
+    <oai:identifier>onb__codices___AL00169412</oai:identifier>
+    <oai:datestamp>2011-02-03T00:00:00Z</oai:datestamp>
+    <oai:setSpec>onb__codices</oai:setSpec>
+  </oai:header>
+  <oai:metadata>
+    <oai_dc:dc>
+      <dcterms:creator>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Axonius_Gracianus_Ioachim</dcterms:creator>
+      <pro:author>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Axonius_Gracianus_Ioachim</pro:author>
+      <dm2e:support>Papier</dm2e:support>
+      <dm2e:cover>Pergamentumschlag, 16. Jhdt.</dm2e:cover>
+      <dm2e:shelfmarkLocation>Cod. 9654</dm2e:shelfmarkLocation>
+      <dcterms:title>Historiae iudaicae compendiaria descriptio (liber I-III)</dcterms:title>
+      <dcterms:spatial>http://lelystad.informatik.uni-mannheim.de:3000/direct/place/onb/codices/Ohne_Ort_AL00169412</dcterms:spatial>
+      <dm2e:pageDimension>Oktav</dm2e:pageDimension>
+      <owl:sameAs>http://data.dm2e.eu/data/item/onb/codices/AL00169412</owl:sameAs>
+      <dc:language>lat</dc:language>
+      <edm:type>TEXT</edm:type>
+      <dcterms:issued>http://lelystad.informatik.uni-mannheim.de:3000/direct/timespan/onb/codices/1500-1599_AL00169412</dcterms:issued>
+      <bibo:numPages>Handschrift; 111 Bll.</bibo:numPages>
+      <rdf:type rdf:resource="http://example.org/resourcemap" />
+      <rdf:type rdf:resource="http://dublincore.org/documents/2000/07/11/dcmi-type-vocabulary/#text" />
+    </oai_dc:dc>
+  </oai:metadata>
+  <oai:about />
+</oai:record>
+<oai:record xmlns:oai="http://www.openarchives.org/OAI/2.0/" xmlns:bibo="http://purl.org/ontology/bibo/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dm2e="http://onto.dm2e.eu/schemas/dm2e/1.1/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:pro="http://purl.org/spar/pro/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rights="http://www.openarchives.org/OAI/2.0/rights/">
+  <oai:header>
+    <oai:identifier>onb__codices___AL00161839</oai:identifier>
+    <oai:datestamp>2011-01-12T00:00:00Z</oai:datestamp>
+    <oai:setSpec>onb__codices</oai:setSpec>
+  </oai:header>
+  <oai:metadata>
+    <oai_dc:dc>
+      <dc:language>lat</dc:language>
+      <dcterms:creator>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Verschiedene_Verfasser_AL00161839</dcterms:creator>
+      <pro:author>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Verschiedene_Verfasser_AL00161839</pro:author>
+      <bibo:numPages>Handschrift; 135 Bll.</bibo:numPages>
+      <dcterms:issued>http://lelystad.informatik.uni-mannheim.de:3000/direct/timespan/onb/codices/840-899_AL00161839</dcterms:issued>
+      <rdf:type rdf:resource="http://dublincore.org/documents/2000/07/11/dcmi-type-vocabulary/#text" />
+      <dm2e:shelfmarkLocation>Cod. 550</dm2e:shelfmarkLocation>
+      <dcterms:spatial>http://lelystad.informatik.uni-mannheim.de:3000/direct/place/onb/codices/Frankreich%3B_Arras_Saint-Vaast%3B_Oberitalien</dcterms:spatial>
+      <dcterms:title>Kirchenhistorische Sammelhandschrift</dcterms:title>
+      <dm2e:pageDimension>215 x 155 mm</dm2e:pageDimension>
+      <dm2e:cover>Weisses Pergament mit Goldpressung über Pappdeckeln, Wien, 1753</dm2e:cover>
+      <edm:type>TEXT</edm:type>
+      <owl:sameAs>http://data.dm2e.eu/data/item/onb/codices/AL00161839</owl:sameAs>
+      <rdf:type rdf:resource="http://example.org/resourcemap" />
+      <dm2e:support>Pergament</dm2e:support>
+    </oai_dc:dc>
+  </oai:metadata>
+  <oai:about />
+</oai:record>
+<oai:record xmlns:oai="http://www.openarchives.org/OAI/2.0/" xmlns:bibo="http://purl.org/ontology/bibo/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dm2e="http://onto.dm2e.eu/schemas/dm2e/1.1/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:pro="http://purl.org/spar/pro/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rights="http://www.openarchives.org/OAI/2.0/rights/">
+  <oai:header>
+    <oai:identifier>onb__codices___AL00175870</oai:identifier>
+    <oai:datestamp>2011-02-03T00:00:00Z</oai:datestamp>
+    <oai:setSpec>onb__codices</oai:setSpec>
+  </oai:header>
+  <oai:metadata>
+    <oai_dc:dc>
+      <dm2e:cover>Halbpergamentband, Wien, 19. Jhdt.</dm2e:cover>
+      <dm2e:support>Papier</dm2e:support>
+      <owl:sameAs>http://data.dm2e.eu/data/item/onb/codices/AL00175870</owl:sameAs>
+      <dm2e:pageDimension>Oktav (verschiedene Formate)</dm2e:pageDimension>
+      <dcterms:title>Sammelhandschrift</dcterms:title>
+      <rdf:type rdf:resource="http://dublincore.org/documents/2000/07/11/dcmi-type-vocabulary/#text" />
+      <dcterms:creator>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Verschiedene_Verfasser_AL00175870</dcterms:creator>
+      <pro:author>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Verschiedene_Verfasser_AL00175870</pro:author>
+      <dc:language />
+      <dm2e:shelfmarkLocation>Cod. 11368</dm2e:shelfmarkLocation>
+      <rdf:type rdf:resource="http://example.org/resourcemap" />
+      <bibo:numPages>Handschrift; IV+103+I* Bll.</bibo:numPages>
+      <dcterms:issued>http://lelystad.informatik.uni-mannheim.de:3000/direct/timespan/onb/codices/1700-1799_AL00175870</dcterms:issued>
+      <dcterms:spatial>http://lelystad.informatik.uni-mannheim.de:3000/direct/place/onb/codices/Ohne_Ort_AL00175870</dcterms:spatial>
+      <edm:type>TEXT</edm:type>
+    </oai_dc:dc>
+  </oai:metadata>
+  <oai:about />
+</oai:record>
+<oai:record xmlns:oai="http://www.openarchives.org/OAI/2.0/" xmlns:bibo="http://purl.org/ontology/bibo/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dm2e="http://onto.dm2e.eu/schemas/dm2e/1.1/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:pro="http://purl.org/spar/pro/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rights="http://www.openarchives.org/OAI/2.0/rights/">
+  <oai:header>
+    <oai:identifier>onb__codices___AL00162418</oai:identifier>
+    <oai:datestamp>2011-01-26T00:00:00Z</oai:datestamp>
+    <oai:setSpec>onb__codices</oai:setSpec>
+  </oai:header>
+  <oai:metadata>
+    <oai_dc:dc>
+      <edm:type>TEXT</edm:type>
+      <dcterms:spatial>http://lelystad.informatik.uni-mannheim.de:3000/direct/place/onb/codices/Posega</dcterms:spatial>
+      <dc:language>tur</dc:language>
+      <rdf:type rdf:resource="http://dublincore.org/documents/2000/07/11/dcmi-type-vocabulary/#text" />
+      <dm2e:support>Papier</dm2e:support>
+      <rdf:type rdf:resource="http://example.org/resourcemap" />
+      <bibo:numPages>Handschrift; 69 Bll.</bibo:numPages>
+      <dm2e:shelfmarkLocation>Cod. Mixt. 584</dm2e:shelfmarkLocation>
+      <dm2e:pageDimension>Folio</dm2e:pageDimension>
+      <dcterms:issued>http://lelystad.informatik.uni-mannheim.de:3000/direct/timespan/onb/codices/1581-1582_AL00162418</dcterms:issued>
+      <dcterms:title>Steuerliste für Bauern</dcterms:title>
+      <owl:sameAs>http://data.dm2e.eu/data/item/onb/codices/AL00162418</owl:sameAs>
+      <dcterms:creator>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Unbekannt_Verfasser_AL00162418</dcterms:creator>
+      <pro:author>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Unbekannt_Verfasser_AL00162418</pro:author>
+    </oai_dc:dc>
+  </oai:metadata>
+  <oai:about />
+</oai:record>
+<oai:record xmlns:oai="http://www.openarchives.org/OAI/2.0/" xmlns:bibo="http://purl.org/ontology/bibo/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dm2e="http://onto.dm2e.eu/schemas/dm2e/1.1/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:pro="http://purl.org/spar/pro/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rights="http://www.openarchives.org/OAI/2.0/rights/">
+  <oai:header>
+    <oai:identifier>onb__codices___AL00162222</oai:identifier>
+    <oai:datestamp>2011-01-19T00:00:00Z</oai:datestamp>
+    <oai:setSpec>onb__codices</oai:setSpec>
+  </oai:header>
+  <oai:metadata>
+    <oai_dc:dc>
+      <dm2e:cover>Brauner Lederband über dicken Eichenholzdeckeln mit gestrichenen Linien und blinden Blütenstempeln. Deutschland, Höningen ?, 15. Jhdt. (nach 1455).</dm2e:cover>
+      <dm2e:shelfmarkLocation>Cod. 806</dm2e:shelfmarkLocation>
+      <dcterms:issued>http://lelystad.informatik.uni-mannheim.de:3000/direct/timespan/onb/codices/900-1299_AL00162222</dcterms:issued>
+      <dc:language>lat</dc:language>
+      <dcterms:spatial>http://lelystad.informatik.uni-mannheim.de:3000/direct/place/onb/codices/Mittelrhein_%28H%C3%B6ningen_%3F%29</dcterms:spatial>
+      <edm:type>TEXT</edm:type>
+      <owl:sameAs>http://data.dm2e.eu/data/item/onb/codices/AL00162222</owl:sameAs>
+      <rdf:type rdf:resource="http://example.org/resourcemap" />
+      <dcterms:title>Theologische und philosophische Sammelhandschrift</dcterms:title>
+      <rdf:type rdf:resource="http://dublincore.org/documents/2000/07/11/dcmi-type-vocabulary/#text" />
+      <dcterms:creator>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Verschiedene_Verfasser_AL00162222</dcterms:creator>
+      <pro:author>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Verschiedene_Verfasser_AL00162222</pro:author>
+      <dcterms:provenance>Höningen in der Pfalz, Augustinerkloster (1120 - ca. 1569): Vermerk [Hermann, Handschriften, 1926, 24].</dcterms:provenance>
+      <bibo:numPages>Handschrift; 196 Bll.</bibo:numPages>
+      <dm2e:support>Pergament</dm2e:support>
+      <dm2e:pageDimension>218 x 126 mm</dm2e:pageDimension>
+      <dm2e:illustration>Federzeichnung, astronomische Zeichnungen</dm2e:illustration>
+      <dm2e:previousOwner>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Augustinerkloster_H%C3%B6ningen_i_d_Pfalz</dm2e:previousOwner>
+    </oai_dc:dc>
+  </oai:metadata>
+  <oai:about />
+</oai:record>
+<oai:record xmlns:oai="http://www.openarchives.org/OAI/2.0/" xmlns:bibo="http://purl.org/ontology/bibo/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dm2e="http://onto.dm2e.eu/schemas/dm2e/1.1/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:pro="http://purl.org/spar/pro/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rights="http://www.openarchives.org/OAI/2.0/rights/">
+  <oai:header>
+    <oai:identifier>onb__codices___AL00162223</oai:identifier>
+    <oai:datestamp>2011-01-19T00:00:00Z</oai:datestamp>
+    <oai:setSpec>onb__codices</oai:setSpec>
+  </oai:header>
+  <oai:metadata>
+    <oai_dc:dc>
+      <bibo:numPages>Handschrift; 10 Bll.</bibo:numPages>
+      <rdf:type rdf:resource="http://dublincore.org/documents/2000/07/11/dcmi-type-vocabulary/#text" />
+      <owl:sameAs>http://data.dm2e.eu/data/item/onb/codices/AL00162223</owl:sameAs>
+      <edm:type>TEXT</edm:type>
+      <dcterms:provenance>Geschenk 1847</dcterms:provenance>
+      <rdf:type rdf:resource="http://example.org/resourcemap" />
+      <dcterms:creator>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Bartholom%C3%A4us</dcterms:creator>
+      <pro:author>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Bartholom%C3%A4us</pro:author>
+      <dcterms:provenance>Anton Ritter von Laurin, ö. Konsul in Alexandria 1824-1849, schenkt die Hs. 1847 an die Hofbibliothek.</dcterms:provenance>
+      <dcterms:spatial>http://lelystad.informatik.uni-mannheim.de:3000/direct/place/onb/codices/Ohne_Ort_AL00162223</dcterms:spatial>
+      <dm2e:support>Papier</dm2e:support>
+      <dcterms:issued />
+      <dm2e:shelfmarkLocation>Cod. Mixt. 518</dm2e:shelfmarkLocation>
+      <dm2e:previousOwner>http://lelystad.informatik.uni-mannheim.de:3000/direct/agent/onb/codices/Laurin_Anton_Ritter_von</dm2e:previousOwner>
+      <dcterms:title>Evangelium (Fragment)</dcterms:title>
+      <dc:language>ara</dc:language>
+    </oai_dc:dc>
+  </oai:metadata>
+  <oai:about />
+</oai:record>
+
+          <resumptionToken cursor="0" completeListSize="1127">__10</resumptionToken>
+ </ListRecords>
+</OAI-PMH>

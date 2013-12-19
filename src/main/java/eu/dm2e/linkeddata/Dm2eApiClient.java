@@ -1,13 +1,13 @@
 package eu.dm2e.linkeddata;
 
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
+import net.sf.ehcache.CacheManager;
+
+import org.eclipse.jetty.http.HttpException;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -26,18 +26,26 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 
-import eu.dm2e.linkeddata.model.Dataset;
+import eu.dm2e.linkeddata.model.BaseModel;
+import eu.dm2e.linkeddata.model.Collection;
 import eu.dm2e.linkeddata.model.ResourceMap;
+import eu.dm2e.linkeddata.model.VersionedDataset;
 import eu.dm2e.ws.NS;
 
 public class Dm2eApiClient {
 
-	private Map<String,ResourceMap> resourceMapCache = new HashMap<>();
-	private Map<String,Dataset> datasetCache = new HashMap<>();
+	private static final String	CACHE_NAME	= "dm2e-oai";
+
+	Logger log = LoggerFactory.getLogger(getClass().getName());
+
+
+//	private Map<String,ResourceMap> resourceMapCache = new HashMap<>();
+//	private Map<String,VersionedDataset> datasetCache = new HashMap<>();
 	private String	apiBase;
 	private HashMap<String, Namespace>	jdomNS	= new HashMap<String, Namespace>();
 	public DateTimeFormatter oaiDateFormatter = DateTimeFormat.forPattern("YYYY-MM-dd'T'HH:mm:ss'Z'");
 	private boolean useCaching = false;
+	private static CacheManager cacheMgr = CacheManager.create();
 
 	public Dm2eApiClient(String apiBase) {
 		this.apiBase = apiBase;
@@ -84,28 +92,35 @@ public class Dm2eApiClient {
 		return strwriter.toString();
 	}
 	
-	public String oaifyId(String dm2eId) {
-		return dm2eId.replaceAll("/", "__");
-	}
-	public String oaifyId(String datasetId, String resourceMapId) {
-		return oaifyId(datasetId) + "___" + oaifyId(resourceMapId);
-	}
-	public String[] unoaifyId(String oaiId) throws IllegalArgumentException {
-		String[] idSegments = oaiId.split("___");
-		if (idSegments.length != 2) { throw new IllegalArgumentException("oaiId must contain '___'"); }
-		idSegments[0] = idSegments[0].replace("__", "/");
-		idSegments[1] = idSegments[1].replace("__", "/");
-		return idSegments;
-	}
+//	public String oaifyId(String dm2eId) {
+//		return dm2eId.replaceAll("/", "__");
+//	}
+//	public String oaifyId(String datasetId, String itemId) {
+//		return oaifyId(datasetId) + "___" + oaifyId(itemId);
+//	}
+//	public String[] unoaifyId(String... oaiIds) throws IllegalArgumentException {
+//		String[] idSegments = oaiId.split("___");
+//		if (idSegments.length != 2) { throw new IllegalArgumentException("oaiId must contain '___'"); }
+//		idSegments[0] = idSegments[0].replace("__", "/");
+//		idSegments[1] = idSegments[1].replace("__", "/");
+//		return idSegments;
+//	}
 
 	public Element resourceMapToOaiHeader(ResourceMap resMap) {
 		Element oaiHeader = new Element("header", jdomNS.get("oai"));
-		String id = oaifyId(resMap.getDatasetId(), resMap.getResourceMapId());
+		oaiHeader.setNamespace(Namespace.NO_NAMESPACE);
+		String id = String.format("oai:dm2e:%s:%s:%s:%s",
+				resMap.getProviderId(),
+				resMap.getCollectionId(),
+				resMap.getItemId(),
+				resMap.getVersionId());
 		Element identifier = new Element("identifier", jdomNS.get("oai"));
 		identifier.addContent(id);
+		identifier.setNamespace(Namespace.NO_NAMESPACE);
 		oaiHeader.addContent(identifier);
 		Element dateStamp = new Element("datestamp", jdomNS.get("oai"));
-		Statement aggDateStmt = resMap.getAggregation().getProperty(resMap.getModel().createProperty(NS.DCTERMS.PROP_CREATED));
+		dateStamp.setNamespace(Namespace.NO_NAMESPACE);
+		Statement aggDateStmt = resMap.getAggregationResource().getProperty(resMap.getModel().createProperty(NS.DCTERMS.PROP_CREATED));
 		if (null != aggDateStmt) {
 			dateStamp.addContent(oaiDateFormatter.print(DateTime.parse(aggDateStmt
 					.getObject()
@@ -117,9 +132,10 @@ public class Dm2eApiClient {
 
 		}
 		oaiHeader.addContent(dateStamp);
-		Element setSpec = new Element("setSpec", jdomNS.get("oai"));
-		setSpec.addContent(oaifyId(resMap.getDatasetId()));
-		oaiHeader.addContent(setSpec);
+		// TODO
+//		Element setSpec = new Element("setSpec", jdomNS.get("oai"));
+//		setSpec.addContent(String.format("provider:")
+//		oaiHeader.addContent(setSpec);
 		return oaiHeader;
 	}
 	
@@ -140,38 +156,39 @@ public class Dm2eApiClient {
 		Logger log = LoggerFactory.getLogger(getClass().getName());
 
 		// open the file
-		String baseName = resMap.getAggregation().getURI();
-		baseName = baseName.replaceAll("[^a-zA-Z0-9]+", "");
+//		String baseName = resMap.getAggregationUri();
+//		baseName = baseName.replaceAll("[^a-zA-Z0-9]+", "");
 		
         // build the record
 		Document doc = new Document();
 		
 		// root element and namespaces
-		Element oaiPmh = new Element("record", jdomNS.get("oai"));
+		Element oaiRecord = new Element("record", jdomNS.get(""));
+		oaiRecord.setNamespace(Namespace.NO_NAMESPACE);
 		for (String prefix : jdomNS.keySet()) {
 			if (prefix.equals("") || prefix.startsWith("http")) {
 				continue;
 			}
 			log.debug(prefix);
-			oaiPmh.addNamespaceDeclaration(jdomNS.get(prefix));
 		}
 
 		// header, about, metadata
 		Element oaiHeader = resourceMapToOaiHeader(resMap);
-		Element oaiMetadata = new Element("metadata", jdomNS.get("oai"));
-		Element oaiDcDc = new Element("dc", jdomNS.get("oai_dc"));
-		oaiMetadata.addContent(oaiDcDc);
-		Element oaiAbout = new Element("about", jdomNS.get("oai"));
-		oaiPmh.addContent(oaiHeader);
-		oaiPmh.addContent(oaiMetadata);
-		oaiPmh.addContent(oaiAbout);
-		doc.addContent(oaiPmh);
+		Element oaiMetadata = new Element("metadata", jdomNS.get(""));
+		oaiMetadata.setNamespace(Namespace.NO_NAMESPACE);
+		Element oaiAbout = new Element("about", jdomNS.get(""));
+		oaiAbout.setNamespace(Namespace.NO_NAMESPACE);
+		oaiRecord.addContent(oaiHeader);
+		oaiRecord.addContent(oaiMetadata);
+		oaiRecord.addContent(oaiAbout);
+
+		doc.addContent(oaiRecord);
 		
 //		log.debug(dumpModel(resMap.getModel()));
 		
 //		// about
 		{
-			Resource licenseURI = resMap.getAggregation().getPropertyResourceValue(resMap.getModel().createProperty(NS.EDM.PROP_RIGHTS));
+			Resource licenseURI = resMap.getAggregationResource().getPropertyResourceValue(resMap.getModel().createProperty(NS.EDM.PROP_RIGHTS));
 			Element rights = new Element("rights", jdomNS.get("rights"));
 			if (null != licenseURI) { 
 				Element rightsReference = new Element("rightsReference", jdomNS.get("rights"));
@@ -186,7 +203,11 @@ public class Dm2eApiClient {
 		// metadata : RDF -> XML
 		
 		// Handle ProvidedCHO
-		StmtIterator choIter = resMap.getModel().listStatements(resMap.getProvidedCHO(), null, (RDFNode)null);
+		Element oaiDcDc = new Element("dc", jdomNS.get("oai_dc"));
+		oaiMetadata.addContent(oaiDcDc);
+		log.debug(dumpModel(resMap.getModel()));
+		StmtIterator choIter = resMap.getModel().listStatements(resMap.getProvidedCHO_Resource(), null, (RDFNode)null);
+		log.debug("CHO Statements???? " + choIter.hasNext());
 		while (choIter.hasNext()) {
 			Statement stmt = choIter.next();
 			Property pred = stmt.getPredicate();
@@ -232,7 +253,7 @@ public class Dm2eApiClient {
 			if (null != thisElem) oaiDcDc.addContent(thisElem);
 		}
 
-		StmtIterator aggIter = resMap.getModel().listStatements(resMap.getAggregation(), null, (RDFNode)null);
+		StmtIterator aggIter = resMap.getModel().listStatements(resMap.getAggregationResource(), null, (RDFNode)null);
 		while (aggIter.hasNext()) {
 			Statement stmt = aggIter.next();
 			Property pred = stmt.getPredicate();
@@ -261,159 +282,74 @@ public class Dm2eApiClient {
 
 		return doc;
 	}
-
-	/**
-	 * Return the latest version of a Dataset
-	 * 
-	 * @param datasetId
-	 * @return Latest Version of a Dataset
-	 */
-	public Dataset getDataset(String datasetId) {
-		String latestVersionId = findLatestVersion(datasetId);
-		return getDataset(datasetId, latestVersionId);
-	}
-
-	/**
-	 * Return a dataset, defined by the dataset id and a version id
-	 * 
-	 * @param datasetId
-	 * @param versionId
-	 * @return
-	 */
-	// http://lelystad.informatik.uni-mannheim.de:3000/direct/dataset/bbaw/dta/1386762086592
-	public Dataset getDataset(String datasetId, String versionId) {
-		Logger log = LoggerFactory.getLogger(getClass().getName());
-		final String cacheNeedle = datasetId + versionId;
-		if (useCaching) {
-			if (datasetCache.keySet().contains(cacheNeedle)) {
-				return datasetCache.get(cacheNeedle);
-			} else {
-				log.debug("Not cached: " + cacheNeedle);
-			}
-		}
-		String uri = apiBase + "/dataset/" + datasetId + "/" + versionId;
-		Model model = ModelFactory.createDefaultModel();
-		long t0 = System.currentTimeMillis();
-		model.read(uri);
-		long t1 = System.currentTimeMillis();
-		log.debug(String.format("Reading the Dataset '%s/%s' took %sms", datasetId, versionId, (t1-t0)));
-		final Dataset dataset = new Dataset(uri, model, datasetId, versionId);
-		if (useCaching) {
-			log.debug("Caching " + dataset + " as " + cacheNeedle + ".");
-			datasetCache.put(cacheNeedle, dataset);
-		}
-		return dataset;
-	}
-
-	/**
-	 * Returns the id of the latest version of a dataset
-	 * 
-	 * @param datasetId
-	 * @return ID of the latest Version of a Dataset
-	 */
-	public String findLatestVersion(String datasetId) {
-		Set<String> setOfVersions = this.listVersions(datasetId);
-		ArrayList<String> listOfVersions = new ArrayList<>(setOfVersions);
-		Collections.sort(listOfVersions);
-		return listOfVersions.get(listOfVersions.size() - 1);
-	}
-
-	/**
-	 * List the version ids of a dataset
-	 * 
-	 * @param datasetId
-	 * @return Set of Dataset IDs
-	 */
-	public Set<String> listVersions(String datasetId) {
-		Logger log = LoggerFactory.getLogger(getClass().getName());
-		String uri = apiBase + "/dataset/" + datasetId;
-		HashSet<String> set = new HashSet<>();
-		Model model = ModelFactory.createDefaultModel();
-		long t0 = System.currentTimeMillis();
-		model.read(uri);
-		long t1 = System.currentTimeMillis();
-		log.debug(String.format("Reading the Versions of Dataset '%s' took %sms", datasetId, (t1-t0)));
-		log.trace("list versions response: " + dumpModel(model));
-		StmtIterator iter = model.listStatements(model.createResource(uri), model
-			.createProperty(NS.DM2E_UNOFFICIAL.PROP_HAS_VERSION), (Resource) null);
-		while (iter.hasNext()) {
-			Resource res = iter.next().getObject().asResource();
-			String id = res.toString().replace(uri + "/", "");
-			set.add(id);
-		}
-		return set;
-	}
-
 	/**
 	 * List the collections on a server
 	 * 
-	 * @return Set of collection IDs
+	 * @return Set of collections
 	 */
-	public Set<String> listDatasets() {
-		Logger log = LoggerFactory.getLogger(getClass().getName());
+	public Set<Collection> listCollections() {
 		String uri = apiBase + "/list";
-		HashSet<String> set = new HashSet<>();
+		HashSet<Collection> set = new HashSet<>();
 		Model model = ModelFactory.createDefaultModel();
 		long t0 = System.currentTimeMillis();
+		// TODO cache
 		model.read(uri);
 		long t1 = System.currentTimeMillis();
 		log.debug(String.format("Reading the list of Datasets took %sms", (t1-t0)));
 		log.trace("list collections response: " + dumpModel(model));
-		StmtIterator collectionIter = model.listStatements(model.createResource(uri), model
-			.createProperty(NS.DM2E_UNOFFICIAL.PROP_HAS_COLLECTION), (Resource) null);
+		StmtIterator collectionIter = model.listStatements(
+				model.createResource(uri),
+				model.createProperty(NS.DM2E_UNOFFICIAL.PROP_HAS_COLLECTION),
+				(Resource) null);
 		while (collectionIter.hasNext()) {
 			Resource collectionRes = collectionIter.next().getObject().asResource();
-			String datasetId = collectionRes.toString().replace(apiBase + "/dataset/", "");
-			set.add(datasetId);
+			String idStr = collectionRes.toString().replace(apiBase + "/dataset/", "");
+			String[] idStrSegments = idStr.split("/");
+			Collection coll = new Collection(apiBase, null, idStrSegments[0], idStrSegments[1]);
+			set.add(coll);
 		}
 		return set;
 	}
+	
 
-	public Set<String> listResourceMaps(Dataset ds) {
-		Logger log = LoggerFactory.getLogger(getClass().getName());
-		StmtIterator resMapIter = ds.getModel().listStatements(ds.getResource(),
-				ds.getModel().createProperty(NS.DM2E_UNOFFICIAL.PROP_CONTAINS_CHO),
-				(Resource) null);
-		Set<String> set = new HashSet<>();
-		while (resMapIter.hasNext()) {
-			Statement stmt = resMapIter.next();
-			final String resMapUri = stmt.getObject().asResource().getURI();
-			String resMapId = resMapUri.replace(apiBase + "/item/" + ds.getDatasetId() + "/", "");
-			log.debug("ResourceMap: " + resMapId);
-			set.add(resMapId);
-		}
-		return set;
+	/**
+	 * Create a VersionedDataset and read it from apiBase
+	 */
+	// http://lelystad.informatik.uni-mannheim.de:3000/direct/dataset/bbaw/dta/1386762086592
+	public BaseModel createVersionedDataset(String providerId, String datasetId, String versionId) {
+		final VersionedDataset vds = new VersionedDataset(apiBase, null, providerId, datasetId, versionId);
+		return createVersionedDataset(vds);
 	}
-
-	public ResourceMap getResourceMap(Dataset ds, String resourceMapId) {
-		return getResourceMap(ds.getDatasetId(), resourceMapId);
+	public VersionedDataset createVersionedDataset(final VersionedDataset dataset) {
+		if (useCaching) dataset.read(cacheMgr.getCache(CACHE_NAME));
+		else dataset.read();
+		return dataset;
 	}
-
-	public ResourceMap getResourceMap(String datasetId, String resourceMapId) {
-		Logger log = LoggerFactory.getLogger(getClass().getName());
-		final String cacheNeedle = datasetId + resourceMapId;
-		if (useCaching) {
-			if (resourceMapCache.keySet().contains(cacheNeedle)) {
-				return resourceMapCache.get(cacheNeedle);
-			} else {
-				log.debug("Not cached: " + cacheNeedle);
-			}
-
+	public ResourceMap createResourceMap(String providerId, String datasetId, String itemId, String versionId) throws IllegalArgumentException, HttpException {
+		final ResourceMap resourceMap = new ResourceMap(apiBase, null, providerId, datasetId, itemId, versionId);
+		return createResourceMap(resourceMap);
+	}
+	public ResourceMap createResourceMap(final ResourceMap resourceMap) throws IllegalArgumentException, HttpException {
+		if (useCaching) resourceMap.read(cacheMgr.getCache(CACHE_NAME));
+		else resourceMap.read();
+		if (! resourceMap.isRead) {
+			throw new HttpException(404);
 		}
-		Model model = ModelFactory.createDefaultModel();
-		Resource choRes = model.createResource(apiBase + "/item/" + datasetId + "/" + resourceMapId);
-		long t0 = System.currentTimeMillis();
-		model.read(choRes.getURI());
-		long t1 = System.currentTimeMillis();
-		log.debug(String.format("Reading the ResourceMap '%s__%s' took %sms", datasetId, resourceMapId, (t1-t0)));
-
-		Resource aggRes = model.createResource(choRes.getURI().replace("/item/", "/aggregation/"));
-		final ResourceMap resourceMap = new ResourceMap(model, choRes, aggRes, datasetId, resourceMapId);
-		if (useCaching) {
-			log.debug("Caching " + resourceMap + " as " + cacheNeedle + ".");
-			resourceMapCache.put(cacheNeedle, resourceMap);
-		}
+		log.debug("Model size: " + resourceMap.getModel().size());
 		return resourceMap;
 	}
-
+	public ResourceMap createResourceMap(String fromUri, boolean isOai) throws IllegalArgumentException, HttpException { 
+		ResourceMap newResourceMap;
+		try {
+			newResourceMap = new ResourceMap(apiBase, fromUri, isOai);
+		} catch (Exception e) {
+			throw e;
+		}
+		return createResourceMap(newResourceMap);
+	}
+	public Collection createCollection(final Collection collection) {
+		if (useCaching) collection.read(cacheMgr.getCache(CACHE_NAME));
+		else collection.read();
+		return collection;
+	}
 }
