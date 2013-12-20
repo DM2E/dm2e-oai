@@ -25,6 +25,7 @@ import org.apache.commons.lang.text.StrSubstitutor;
 import org.eclipse.jetty.http.HttpException;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 import org.slf4j.Logger;
@@ -33,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.io.Resources;
 
 import eu.dm2e.linkeddata.Dm2eApiClient;
+import eu.dm2e.linkeddata.model.BaseModel.IdentifierType;
 import eu.dm2e.linkeddata.model.Collection;
 import eu.dm2e.linkeddata.model.ResourceMap;
 import eu.dm2e.linkeddata.model.VersionedDataset;
@@ -197,7 +199,16 @@ public class Dm2eOaiService {
 		return oaiError(kvPairs, Response.Status.BAD_REQUEST, OaiError.idDoesNotExist, 
 				"Bad identifier '" + kvPairs.get(OaiKey.identifier) + "'." +
 				"\n" + 
-				"Identifiers must be of the form 'oai:dm2e:PROVIDER:DATASET:ITEM:VERSION'"
+				"Identifiers must be of the form 'oai:dm2e:PROVIDER:DATASET:ITEM'"
+        );
+	}
+	private Response errorBadSet(Map<OaiKey,String> kvPairs) {
+		return oaiError(kvPairs, Response.Status.BAD_REQUEST, OaiError.idDoesNotExist, 
+				"Bad setSpec '" + kvPairs.get(OaiKey.set) + "'." +
+				"\n" + 
+				"Set specs must be of the form 'provider:PROVIDER' \n" +
+				"or\n" +
+				"Set specs must be of the form 'collection:PROVIDER:DATASET' \n"
         );
 	}
 	private Response errorBadResumptionToken(Map<OaiKey,String> kvPairs) {
@@ -245,18 +256,41 @@ public class Dm2eOaiService {
 		Map<String,Object> valuesMap = new HashMap<>();
 		
 		Element listSets = new Element("ListSets");
+		listSets.setNamespace(Namespace.NO_NAMESPACE);
 		// TODO
-//		for (Collection collection : api.listCollections()) {
-//			String setId = api.oaifyId(collection.getCollectionId());
-//			Element set = new Element("set");
-//			Element setSpec = new Element("setSpec");
-//			Element setName = new Element("setName");
-//			set.addContent(setSpec);
-//			set.addContent(setName);
-//			setSpec.addContent("dataset:" + setId);
-//			setName.addContent("Dataset " + setId + " (actually it's" + collection.getCollectionId() + " but OAI-PMH forbids that)");
-//			listSets.addContent(set);
-//		}
+		for (Collection collection : api.listCollections()) {
+			{
+				String setId = String.format("provider:%s",
+						collection.getProviderId());
+				Element set = new Element("set");
+				set.setNamespace(Namespace.NO_NAMESPACE);
+				Element setSpec = new Element("setSpec");
+				setSpec.setNamespace(Namespace.NO_NAMESPACE);
+				Element setName = new Element("setName");
+				setName.setNamespace(Namespace.NO_NAMESPACE);
+				set.addContent(setSpec);
+				set.addContent(setName);
+				setSpec.addContent(setId);
+				setName.addContent("Provider " + setId);
+				listSets.addContent(set);
+			}
+			{
+				String setId = String.format("collection:%s:%s",
+						collection.getProviderId(),
+						collection.getCollectionId());
+				Element set = new Element("set");
+				set.setNamespace(Namespace.NO_NAMESPACE);
+				Element setSpec = new Element("setSpec");
+				setSpec.setNamespace(Namespace.NO_NAMESPACE);
+				Element setName = new Element("setName");
+				setName.setNamespace(Namespace.NO_NAMESPACE);
+				set.addContent(setSpec);
+				set.addContent(setName);
+				setSpec.addContent(setId);
+				setName.addContent("Collection " + setId);
+				listSets.addContent(set);
+			}
+		}
 		
 		valuesMap.put("responseDate", api.nowOaiFormatted());
 		valuesMap.put("baseURI", uriInfo.getBaseUri() + "/oai");
@@ -281,7 +315,7 @@ public class Dm2eOaiService {
 		
 		ResourceMap rm = null;
 		try {
-			rm = api.createResourceMap(identifier, true);
+			rm = api.createResourceMap(identifier, IdentifierType.OAI_IDENTIFIER);
 			log.debug(rm.getProvidedCHO_Uri());
 			log.debug("" + rm.getModel().size());
 		} catch (IllegalArgumentException e) { return errorBadIdentifier(kvPairs);
@@ -305,10 +339,13 @@ public class Dm2eOaiService {
 	// TODO Resumption Token Magic to improve performance
 	private Response oaiListIdentifiersOrRecords(Map<OaiKey,String> kvPairs, boolean headersOnly) {
 		int limit = 10;		// TODO this is for testing
-		String setSpec = kvPairs.get(OaiKey.set);
+		String set = kvPairs.get(OaiKey.set);
 		String resumptionToken = kvPairs.get(OaiKey.resumptionToken);
-		if (null == setSpec)
+		if (null == set)
 			log.debug("No setSpec argument to ListIdentifiers.");
+		else 
+			if (set.equals("") || ( ! set.startsWith("provider:") && ! set.startsWith("collection:")))
+				return errorBadSet(kvPairs);
 		if (null == resumptionToken) {
 			log.debug("No resumptionToken argument to ListIdentifiers.");
 			resumptionToken="__0"; 	// this means: empty 'setSpec', 'cursor' at 0
@@ -319,20 +356,40 @@ public class Dm2eOaiService {
 		if (resumptionTokenSegments.length != 2) {
 			return errorBadResumptionToken(kvPairs);
 		}
-		setSpec = resumptionTokenSegments[0];
 		int start = Integer.parseInt(resumptionTokenSegments[1]);
 
 		// Handle setSpec, if not provided use all datasets
 		Set<VersionedDataset> datasets = new HashSet<>();
-		if (setSpec.equals("")) {
+		if (null==set) {
 			log.debug("Iterating all collections");
 			for (Collection coll : api.listCollections()) {
 				log.debug("Adding all datasets in collection " + coll.getCollectionUri());
-				datasets.addAll(coll.listVersions());
+				datasets.add(api.createVersionedDataset(coll.getLatestVersion()));
 			}
 		} else {
 			// TODO
-//			datasetIds.add(api.unoaifyId(setSpec)[0]);
+			String setType = set.split(":")[0];
+			if (setType.equals("collection")) {
+				// collection:onb:codices
+				Collection createCollection;
+				try {
+					createCollection = api.createCollection(set, IdentifierType.OAI_SET_SPEC);
+				} catch (IllegalArgumentException e) {
+					return errorBadSet(kvPairs);
+				}
+				log.debug(createCollection.getProviderId());
+				log.debug(createCollection.getCollectionId());
+				datasets.add(api.createVersionedDataset(createCollection.getLatestVersion()));
+			} else {
+				// provider:onb
+				String provider = set.split(":")[1];
+				Set<Collection> collectionList = api.listCollections();
+				for (Collection collection:collectionList) {
+					if (collection.getProviderId().equals(provider)) {
+						datasets.add(api.createVersionedDataset(collection.getLatestVersion()));
+					}
+				}
+			}
 		}
 		
 		// Determine resource maps
@@ -381,7 +438,7 @@ public class Dm2eOaiService {
 		if (! isFinished) {
 			newResumptionToken.setAttribute("cursor", Integer.toString(start));
 			newResumptionToken.setAttribute("completeListSize", Integer.toString(completeListSize));
-			newResumptionToken.addContent(setSpec + "__" + (start + limit));
+			newResumptionToken.addContent(set + "__" + (start + limit));
 		}
 
 		log.debug("All dataset/resourcemap id tuples retrieved retrieved");

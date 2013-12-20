@@ -27,6 +27,7 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 
 import eu.dm2e.linkeddata.model.BaseModel;
+import eu.dm2e.linkeddata.model.BaseModel.IdentifierType;
 import eu.dm2e.linkeddata.model.Collection;
 import eu.dm2e.linkeddata.model.ResourceMap;
 import eu.dm2e.linkeddata.model.VersionedDataset;
@@ -109,11 +110,11 @@ public class Dm2eApiClient {
 	public Element resourceMapToOaiHeader(ResourceMap resMap) {
 		Element oaiHeader = new Element("header", jdomNS.get("oai"));
 		oaiHeader.setNamespace(Namespace.NO_NAMESPACE);
-		String id = String.format("oai:dm2e:%s:%s:%s:%s",
+		String id = String.format("oai:dm2e:%s:%s:%s",
 				resMap.getProviderId(),
 				resMap.getCollectionId(),
-				resMap.getItemId(),
-				resMap.getVersionId());
+				resMap.getItemId()
+				);
 		Element identifier = new Element("identifier", jdomNS.get("oai"));
 		identifier.addContent(id);
 		identifier.setNamespace(Namespace.NO_NAMESPACE);
@@ -133,9 +134,14 @@ public class Dm2eApiClient {
 		}
 		oaiHeader.addContent(dateStamp);
 		// TODO
-//		Element setSpec = new Element("setSpec", jdomNS.get("oai"));
-//		setSpec.addContent(String.format("provider:")
-//		oaiHeader.addContent(setSpec);
+		Element setSpecProvider = new Element("setSpec", jdomNS.get("oai"));
+		setSpecProvider.setNamespace(Namespace.NO_NAMESPACE);
+		setSpecProvider.addContent(String.format("provider:%s", resMap.getProviderId()));
+		oaiHeader.addContent(setSpecProvider);
+		Element setSpecCollection = new Element("setSpec", jdomNS.get("oai"));
+		setSpecCollection.setNamespace(Namespace.NO_NAMESPACE);
+		setSpecCollection.addContent(String.format("collection:%s:%s", resMap.getProviderId(), resMap.getCollectionId()));
+		oaiHeader.addContent(setSpecCollection);
 		return oaiHeader;
 	}
 	
@@ -207,7 +213,7 @@ public class Dm2eApiClient {
 		oaiMetadata.addContent(oaiDcDc);
 //		log.debug(dumpModel(resMap.getModel()));
 		StmtIterator choIter = resMap.getModel().listStatements(resMap.getProvidedCHO_Resource(), null, (RDFNode)null);
-//		log.debug("CHO Statements???? " + choIter.hasNext());
+		log.debug("CHO Statements???? " + choIter.hasNext());
 		while (choIter.hasNext()) {
 			Statement stmt = choIter.next();
 			Property pred = stmt.getPredicate();
@@ -305,7 +311,7 @@ public class Dm2eApiClient {
 			Resource collectionRes = collectionIter.next().getObject().asResource();
 			String idStr = collectionRes.toString().replace(apiBase + "/dataset/", "");
 			String[] idStrSegments = idStr.split("/");
-			Collection coll = new Collection(apiBase, null, idStrSegments[0], idStrSegments[1]);
+			Collection coll = createCollection(new Collection(apiBase, null, idStrSegments[0], idStrSegments[1]));
 			set.add(coll);
 		}
 		return set;
@@ -329,6 +335,15 @@ public class Dm2eApiClient {
 		final ResourceMap resourceMap = new ResourceMap(apiBase, null, providerId, datasetId, itemId, versionId);
 		return createResourceMap(resourceMap);
 	}
+//	public VersionedDataset createVersionedDataset(String fromUri, IdentifierType type) throws IllegalArgumentException, HttpException { 
+//		VersionedDataset newVersionedDataset;
+//		try {
+//			newVersionedDataset = new VersionedDataset(apiBase, fromUri, type);
+//		} catch (Exception e) {
+//			throw e;
+//		}
+//		return createVersionedDataset(newVersionedDataset);
+//	}
 	public ResourceMap createResourceMap(final ResourceMap resourceMap) throws IllegalArgumentException, HttpException {
 		if (useCaching) resourceMap.read(cacheMgr.getCache(CACHE_NAME));
 		else resourceMap.read();
@@ -338,18 +353,23 @@ public class Dm2eApiClient {
 		log.debug("Model size: " + resourceMap.getModel().size());
 		return resourceMap;
 	}
-	public ResourceMap createResourceMap(String fromUri, boolean isOai) throws IllegalArgumentException, HttpException { 
-		ResourceMap newResourceMap;
-		try {
-			newResourceMap = new ResourceMap(apiBase, fromUri, isOai);
-		} catch (Exception e) {
-			throw e;
-		}
-		return createResourceMap(newResourceMap);
+	public ResourceMap createResourceMap(String fromUri, IdentifierType type) throws IllegalArgumentException, HttpException { 
+		Collection coll = createCollection(fromUri, type);
+		String versionId = coll.getLatestVersionId();
+		return createResourceMap(new ResourceMap(apiBase, fromUri, type, versionId));
 	}
 	public Collection createCollection(final Collection collection) {
 		if (useCaching) collection.read(cacheMgr.getCache(CACHE_NAME));
 		else collection.read();
 		return collection;
+	}
+	public Collection createCollection(String fromUri, IdentifierType type) {
+		Collection newCollection;
+		try {
+			newCollection = new Collection(apiBase, fromUri, type);
+		} catch (Exception e) {
+			throw e;
+		}
+		return createCollection(newCollection);
 	}
 }

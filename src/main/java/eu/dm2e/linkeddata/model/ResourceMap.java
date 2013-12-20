@@ -9,6 +9,8 @@ import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -46,22 +48,23 @@ public class ResourceMap extends BaseModel implements Serializable{
 		this.versionId = versionId;
 	}
 	
-	public ResourceMap(String apiBase, String fromUri, boolean isOai) {
+	public ResourceMap(String apiBase, String fromUri, IdentifierType type, String versionId) {
 		this.apiBase = apiBase;
 		this.model = ModelFactory.createDefaultModel();
-		if (isOai) {
+		this.versionId = versionId;
+
+		if (type.equals(IdentifierType.OAI_IDENTIFIER)) {
 			// Parse as oai identifier
 			// oai:dm2e:bbaw:dta:20863:1386762086592
 			fromUri = fromUri.replace("__", "/");
 			String[] s = fromUri.split(":");
-			if (s.length != 6) {
+			if (s.length != 5) {
 				throw new IllegalArgumentException("Identifier '" + fromUri +"' is not a valid OAI identifier");
 			}
 			this.providerId = s[2];
 			this.collectionId = s[3];
 			this.itemId = s[4];
-			this.versionId = s[5];
-		}  else {
+		}  else if (type.equals(IdentifierType.URL)) {
 			// Parse as URI
 			//	http://lelystad.informatik.uni-mannheim.de:3000/direct/item/bbaw/dta/20863/1386762086592
 			fromUri = fromUri.replace(apiBase + "/", "");
@@ -71,6 +74,8 @@ public class ResourceMap extends BaseModel implements Serializable{
 			this.collectionId = s[0]; 			// 'dta'
 			this.itemId = s[1].substring(0, s[1].lastIndexOf('/')); // '20863'
 			this.versionId = s[1].substring(s[1].lastIndexOf('/') + 1); // '1386762086592'
+		} else {
+			throw new NotImplementedException();
 		}
 		
 	}

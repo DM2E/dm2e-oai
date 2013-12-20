@@ -24,6 +24,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import eu.dm2e.linkeddata.model.Collection;
 import eu.dm2e.linkeddata.model.ResourceMap;
 import eu.dm2e.linkeddata.model.VersionedDataset;
+import eu.dm2e.linkeddata.model.BaseModel.IdentifierType;
 
 
 
@@ -119,11 +120,11 @@ public class Dm2eApiClientTest {
 		{
 			log.debug("Test fromUri");
 			final String testUri1 = "http://lelystad.informatik.uni-mannheim.de:3000/direct/item/bbaw/dta/20863/1386762086592";
-			ResourceMap rm1 = new ResourceMap(apiBase, testUri1, false);
-			assertEquals(rm1.getProvidedCHO_Uri(), testUri1);
+			ResourceMap rm1 = new ResourceMap(apiBase, testUri1, IdentifierType.URL, "1386762086592");
+			assertEquals(rm1.getProvidedCHO_Uri(), testUri1.replaceFirst("/1386762086592", ""));
 			final String testUri2 = "http://lelystad.informatik.uni-mannheim.de:3000/direct/item/bbaw/dta/20863/foo/bar/1386762086592";
-			ResourceMap rm2 = new ResourceMap(apiBase, testUri2, false);
-			assertEquals(rm2.getProvidedCHO_Uri(), testUri2);
+			ResourceMap rm2 = new ResourceMap(apiBase, testUri2, IdentifierType.URL, "1386762086592");
+			assertEquals(rm2.getProvidedCHO_Uri(), testUri2.replaceFirst("/1386762086592", ""));
 		}
 	}
 	

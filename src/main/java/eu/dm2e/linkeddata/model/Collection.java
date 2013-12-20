@@ -30,25 +30,51 @@ public class Collection extends BaseModel implements Serializable {
 		this.providerId = providerId;
 		this.collectionId = collectionId;
 	}
+	public Collection(String apiBase, String fromUri, IdentifierType type) {
+		this.model = ModelFactory.createDefaultModel();
+		this.apiBase = apiBase;
+
+		if (type.equals(IdentifierType.OAI_IDENTIFIER)) {
+			// Parse as oai identifier
+			// oai:dm2e:bbaw:dta:20863:1386762086592
+			fromUri = fromUri.replace("__", "/");
+			String[] s = fromUri.split(":");
+			if (s.length != 5) {
+				throw new IllegalArgumentException("Identifier '" + fromUri +"' is not a valid OAI identifier");
+			}
+			this.providerId = s[2];
+			this.collectionId = s[3];
+		} else if (type.equals(IdentifierType.OAI_SET_SPEC)) {
+			String[] s = fromUri.split(":");
+			String setType = s[0];
+			log.debug("Type is " + setType);
+			if (setType.equals("collection")) {
+				if (s.length != 3) {
+					throw new IllegalArgumentException("Identifier '" + fromUri +"' is not a valid collection setSpec");
+				}
+				this.providerId = s[1];
+				this.collectionId = s[2];
+			}
+		}
+	}
 	@Override
 	public String getRetrievalUri() { return getCollectionUri(); }
 	public String getCollectionUri() { return String.format("%s/dataset/%s/%s", apiBase, providerId, collectionId); }
-	public Resource getCollectionResource() { return this.model.createResource(getCollectionUri()); }
-	private boolean isRead = false;
-	public void read() {
-		long t0 = System.currentTimeMillis();
-		getModel().read(getCollectionUri());
-		long t1 = System.currentTimeMillis();
-		log.debug(String.format("Reading of collection '%s/%s' took %sms", providerId, collectionId, (t1-t0)));
-		isRead = true;
-	}
+	public Resource getCollectionResource() { return getModel().createResource(getCollectionUri()); }
+//	public void read() {
+//		long t0 = System.currentTimeMillis();
+//		getModel().read(getCollectionUri());
+//		long t1 = System.currentTimeMillis();
+//		log.debug(String.format("Reading of collection '%s/%s' took %sms", providerId, collectionId, (t1-t0)));
+//		isRead = true;
+//	}
 	
 	/**
 	 * List the version ids of a collections
 	 * @return Set of VersionedDataset IDs
 	 */
+	// NOTE make sure the collection model is actually read!
 	public Set<String> listVersionIds() {
-		if (! isRead) read();
 		HashSet<String> set = new HashSet<>();
 		StmtIterator iter = getModel().listStatements(
 				getCollectionResource(),

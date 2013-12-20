@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -38,6 +40,14 @@ public class VersionedDataset extends BaseModel implements Serializable {
 		this.versionId = versionId;
 	}
 	
+//	public VersionedDataset(String apiBase, String fromUri, IdentifierType type) {
+//		
+//		if (! type.equals(IdentifierType.OAI_IDENTIFIER)) {
+//			throw new NotImplementedException();
+//		}
+//		
+//	}
+
 	public Resource getVersionedDatasetResource() {
 		return this.getModel().createResource(this.getVersionedDatasetUri());
 	}

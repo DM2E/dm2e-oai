@@ -17,9 +17,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 public abstract class BaseModel implements Comparable<BaseModel>{
+	
+	public enum IdentifierType {
+		URL,
+		OAI_IDENTIFIER,
+		OAI_SET_SPEC
+	}
 
 	protected Logger	log	= LoggerFactory.getLogger(getClass().getName());
 	protected Model	model;
