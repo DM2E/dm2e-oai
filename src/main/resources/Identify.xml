@@ -12,9 +12,7 @@
          xmlns:owl="http://www.w3.org/2002/07/owl#"
          xmlns:pro="http://purl.org/spar/pro/"
          xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-         xmlns:rights="http://www.openarchives.org/OAI/2.0/rights/"
-         xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
-         http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+         xmlns:rights="http://www.openarchives.org/OAI/2.0/rights/">
     <responseDate>${responseDate}</responseDate>
     <request verb="Identify">${baseURI}</request>
     <Identify>
