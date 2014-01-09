@@ -220,6 +220,7 @@ public class Dm2eApiClient {
 			RDFNode obj = stmt.getObject();
 			Namespace thisElemNs;
 			Element thisElem = null;
+			Element thisElem2 = null;
 			switch (pred.getURI().toString()) {
 			case NS.RDF.PROP_TYPE:
 				String objUri = obj.asResource().getURI();
@@ -228,6 +229,8 @@ public class Dm2eApiClient {
 				}
 				thisElem = new Element("type", jdomNS.get("rdf"));
 				thisElem.setAttribute(new Attribute("resource", obj.asResource().getURI(), jdomNS.get("rdf")));
+				thisElem2 = new Element("type", jdomNS.get("dc"));
+				thisElem2.addContent(obj.asResource().getURI());
 				break;
 			// Fall-thru cases:
 			case NS.DC.PROP_TYPE:
@@ -256,6 +259,7 @@ public class Dm2eApiClient {
 				break;
 			}
 			if (null != thisElem) oaiDcDc.addContent(thisElem);
+			if (null != thisElem2) oaiDcDc.addContent(thisElem2);
 		}
 
 		StmtIterator aggIter = resMap.getModel().listStatements(resMap.getAggregationResource(), null, (RDFNode)null);
