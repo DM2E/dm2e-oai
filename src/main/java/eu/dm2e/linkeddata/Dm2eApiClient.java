@@ -229,13 +229,12 @@ public class Dm2eApiClient {
 				thisElem = new Element("type", jdomNS.get("rdf"));
 				thisElem.setAttribute(new Attribute("resource", obj.asResource().getURI(), jdomNS.get("rdf")));
 				break;
+			// Fall-thru cases:
 			case NS.DC.PROP_TYPE:
 				if (obj.isResource()) {
 					thisElem = new Element("type", jdomNS.get("rdf"));
 					thisElem.setAttribute(new Attribute("resource", obj.asResource().getURI(), jdomNS.get("rdf")));
 				}
-				break;
-			// Fall-thru cases:
 			case NS.PRO.PROP_AUTHOR:
 				Element addElem = new Element("creator", jdomNS.get("dcterms"));
 				addElem.addContent(obj.asResource().getURI());
