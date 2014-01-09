@@ -184,7 +184,9 @@ public class Dm2eApiClient {
 		oaiMetadata.setNamespace(Namespace.NO_NAMESPACE);
 		Element oaiAbout = new Element("about", jdomNS.get(""));
 		oaiAbout.setNamespace(Namespace.NO_NAMESPACE);
-		oaiRecord.addContent(oaiHeader);
+//		TODO Ex Libris harvester croaks on the headers unfortunately, temporarily disabled
+//		kb Thu Jan  9 12:33:01 CET 2014
+//		oaiRecord.addContent(oaiHeader);
 		oaiRecord.addContent(oaiMetadata);
 		oaiRecord.addContent(oaiAbout);
 
