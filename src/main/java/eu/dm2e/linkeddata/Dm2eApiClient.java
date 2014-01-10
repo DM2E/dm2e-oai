@@ -220,8 +220,9 @@ public class Dm2eApiClient {
 			RDFNode obj = stmt.getObject();
 			Namespace thisElemNs;
 			Element thisElem = null;
-			switch (pred.getURI().toString()) {
-			case NS.RDF.PROP_TYPE:
+			final String predUrl = pred.getURI().toString();
+			boolean addGenericElement = false;
+			if (predUrl.equals(NS.RDF.PROP_TYPE)) {
 				String objUri = obj.asResource().getURI();
 				if (objUri.equals(NS.EDM.CLASS_PROVIDED_CHO)) {
 					continue;
@@ -231,22 +232,27 @@ public class Dm2eApiClient {
 				Element addElem = new Element("type", jdomNS.get("dc"));
 				addElem.addContent(obj.asResource().getURI());
 				oaiDcDc.addContent(addElem);
-				break;
-			// Fall-thru cases:
-			case NS.DC.PROP_TYPE:
+			} else if (predUrl.equals(NS.DC.PROP_TYPE)) {
 				if (obj.isResource()) {
 					thisElem = new Element("type", jdomNS.get("rdf"));
 					thisElem.setAttribute(new Attribute("resource", obj.asResource().getURI(), jdomNS.get("rdf")));
 				}
-			case NS.DCTERMS.PROP_TITLE:
+				addGenericElement = true;
+			} else if (predUrl.equals(NS.DCTERMS.PROP_TITLE)) {
 				Element addElem1 = new Element("title", jdomNS.get("dc"));
 				addElem1.addContent(obj.asLiteral().getValue().toString());
 				oaiDcDc.addContent(addElem1);
-			case NS.PRO.PROP_AUTHOR:
-				Element addElem11 = new Element("creator", jdomNS.get("dcterms"));
-				addElem11.addContent(obj.asResource().getURI());
-				oaiDcDc.addContent(addElem11);
-			default:
+				addGenericElement = true;
+			} else if (predUrl.equals(NS.PRO.PROP_AUTHOR)) {
+				Element elemAuthor = new Element("creator", jdomNS.get("dcterms"));
+				elemAuthor.addContent(obj.asResource().getURI());
+				oaiDcDc.addContent(elemAuthor);
+				addGenericElement = true;
+			} else {
+				addGenericElement = true;
+			}
+
+			if (addGenericElement) {
 //				 generic mapping
 //				log.warn("Unhandled Predicate: " + pred);
 //				continue;
@@ -260,7 +266,6 @@ public class Dm2eApiClient {
 				} else {
 					thisElem.setText(obj.asResource().getURI());
 				}
-				break;
 			}
 			if (null != thisElem) oaiDcDc.addContent(thisElem);
 		}
