@@ -169,7 +169,7 @@ public class Dm2eOaiService {
 			request.setAttribute(kv.getKey().name(), kv.getValue());
 		}
 		request.addContent(uriInfo.getBaseUri() + "/oai");
-		return xmlOutput.outputString(request);
+		return jdomDocumentToCleanString(request);
 	}
 	private Response oaiError(Map<OaiKey,String> kvPairs, Response.Status httpStatus, OaiError errorCode, String errorDescription) {
 		Map<String,String> valuesMap = new HashMap<>();
@@ -295,7 +295,7 @@ public class Dm2eOaiService {
 		valuesMap.put("responseDate", api.nowOaiFormatted());
 		valuesMap.put("baseURI", uriInfo.getBaseUri() + "/oai");
 		valuesMap.put("request", oaiRequest(kvPairs));
-		valuesMap.put("ListSets", xmlOutput.outputString(listSets));
+		valuesMap.put("ListSets", jdomDocumentToCleanString(listSets));
 		StrSubstitutor sub = new StrSubstitutor(valuesMap);
 		return Response
 					.ok()
@@ -326,7 +326,7 @@ public class Dm2eOaiService {
 		Map<String,Object> valuesMap = new HashMap<>();
 		valuesMap.put("responseDate", api.nowOaiFormatted());
 		valuesMap.put("request", oaiRequest(kvPairs));
-		valuesMap.put("record", xmlOutput.outputString(record));
+		valuesMap.put("record", jdomDocumentToCleanString(record));
 		StrSubstitutor sub = new StrSubstitutor(valuesMap);
 		return Response
 					.ok()
@@ -334,6 +334,12 @@ public class Dm2eOaiService {
 					.type(MediaType.TEXT_XML)
 					.build()
 					;
+	}
+
+	private String jdomDocumentToCleanString(Document el) { return cleanNamespaces(xmlOutput.outputString(el)); }
+	private String jdomDocumentToCleanString(Element el) { return cleanNamespaces(xmlOutput.outputString(el)); }
+	private String cleanNamespaces(String s) { 
+		return s.replaceAll(" xmlns:[a-zA-Z0-9]+=\"[^\"]+\">", ">");
 	}
 
 	// TODO Resumption Token Magic to improve performance
@@ -427,9 +433,9 @@ public class Dm2eOaiService {
 			}
 			log.debug("getUri matches: " + (resourceMaps.get(i).getRetrievalUri().equals(resourceMap.getRetrievalUri())));
 			if (headersOnly) {
-				headersSB.append(xmlOutput.outputString(api.resourceMapToOaiHeader(resourceMap)));
+				headersSB.append(jdomDocumentToCleanString(api.resourceMapToOaiHeader(resourceMap)));
 			} else {
-				headersSB.append(xmlOutput.outputString(api.resourceMapToOaiRecord(resourceMap, "oai_dc")));
+				headersSB.append(jdomDocumentToCleanString(api.resourceMapToOaiRecord(resourceMap, "oai_dc")));
 			}
 		}
 
@@ -446,7 +452,7 @@ public class Dm2eOaiService {
 		valuesMap.put("responseDate", api.nowOaiFormatted());
 		valuesMap.put("request", oaiRequest(kvPairs));
 		valuesMap.put("list", headersSB.toString());
-		valuesMap.put("resumptionToken", xmlOutput.outputString(newResumptionToken));
+		valuesMap.put("resumptionToken", jdomDocumentToCleanString(newResumptionToken));
 		StrSubstitutor sub = new StrSubstitutor(valuesMap);
 		String tplToUse = headersOnly ? tplListIdentifiers : tplListRecords;
 		return Response

@@ -40,15 +40,15 @@ public abstract class BaseModel implements Comparable<BaseModel>{
 
 	public void read(Cache cache) {
 		log.debug("List of cached objects: ");
-		for (Object x : cache.getKeys()) {
-			log.debug("  * " + x);
-		}
 		if (isRead) {
 			log.debug("Already read, return right away.");
 			return;
 		}
 		final String uri = getRetrievalUri();
 		if (cache != null) {
+			for (Object x : cache.getKeys()) {
+				log.trace("  * {}", x);
+			}
 			Element cachedObj = cache.get(uri);
 			if (cachedObj != null) {
 				log.debug("Found in cache: '" + uri + "'.");

@@ -30,6 +30,7 @@ import eu.dm2e.linkeddata.model.BaseModel;
 import eu.dm2e.linkeddata.model.BaseModel.IdentifierType;
 import eu.dm2e.linkeddata.model.Collection;
 import eu.dm2e.linkeddata.model.ResourceMap;
+import eu.dm2e.linkeddata.model.ThingWithPrefLabel;
 import eu.dm2e.linkeddata.model.VersionedDataset;
 import eu.dm2e.ws.NS;
 
@@ -219,37 +220,49 @@ public class Dm2eApiClient {
 			Property pred = stmt.getPredicate();
 			RDFNode obj = stmt.getObject();
 			Namespace thisElemNs;
-			Element thisElem = null;
+			Element el = null;
 			final String predUrl = pred.getURI().toString();
 			boolean addGenericElement = false;
-			if (predUrl.equals(NS.RDF.PROP_TYPE)) {
+			if (NS.RDF.PROP_TYPE.equals(predUrl)) {
 				String objUri = obj.asResource().getURI();
-				if (objUri.equals(NS.EDM.CLASS_PROVIDED_CHO)) {
-					continue;
-				}
-				thisElem = new Element("type", jdomNS.get("rdf"));
-				thisElem.setAttribute(new Attribute("resource", obj.asResource().getURI(), jdomNS.get("rdf")));
-				Element addElem = new Element("type", jdomNS.get("dc"));
-				addElem.addContent(obj.asResource().getURI());
-				oaiDcDc.addContent(addElem);
-			} else if (predUrl.equals(NS.DC.PROP_TYPE)) {
+				if (NS.EDM.CLASS_PROVIDED_CHO.equals(objUri)) continue;
+				el = new Element("type", jdomNS.get("rdf"));
+				el.setAttribute(new Attribute("resource", obj.asResource().getURI(), jdomNS.get("rdf")));
+				Element el2 = new Element("type", jdomNS.get("dc"));
+				el2.addContent(obj.asResource().getURI());
+				oaiDcDc.addContent(el2);
+			} else if (NS.DC.PROP_TYPE.equals(predUrl)) {
 				if (obj.isResource()) {
-					thisElem = new Element("type", jdomNS.get("rdf"));
-					thisElem.setAttribute(new Attribute("resource", obj.asResource().getURI(), jdomNS.get("rdf")));
+					el = new Element("type", jdomNS.get("rdf"));
+					el.setAttribute(new Attribute("resource", obj.asResource().getURI(), jdomNS.get("rdf")));
 				}
 				addGenericElement = true;
-			} else if (predUrl.equals(NS.DCTERMS.PROP_TITLE)) {
-				Element addElem1 = new Element("title", jdomNS.get("dc"));
-				addElem1.addContent(obj.asLiteral().getValue().toString());
-				oaiDcDc.addContent(addElem1);
+			} else if (NS.DCTERMS.PROP_TITLE.equals(predUrl)) {
+				el = new Element("title", jdomNS.get("dc"));
+				el.addContent(obj.asLiteral().getValue().toString());
 				addGenericElement = true;
-			} else if (predUrl.equals(NS.PRO.PROP_AUTHOR)) {
-				Element elemAuthor = new Element("creator", jdomNS.get("dcterms"));
-				elemAuthor.addContent(obj.asResource().getURI());
-				oaiDcDc.addContent(elemAuthor);
+			} else if (NS.DC.PROP_PUBLISHER.equals(predUrl)) {
+				el = new Element("publisher", jdomNS.get("dc"));
+				addContentOrPrefLabelToElement(obj, el);
+			} else if (NS.DM2E.PROP_PRINTED_AT.equals(predUrl)) {
+				el = new Element("coverage", jdomNS.get("dc"));
+				addContentOrPrefLabelToElement(obj, el);
+			} else if (NS.PRO.PROP_AUTHOR.equals(predUrl)) {
+				el = new Element("creator", jdomNS.get("dc"));
+				addContentOrPrefLabelToElement(obj, el);
+			} else if (NS.DC.PROP_SUBJECT.equals(predUrl)) {
+				el = new Element("subject", jdomNS.get("dc"));
+				addContentOrPrefLabelToElement(obj, el);
+//				addGenericElement = true;
+			} else if (NS.DCTERMS.PROP_ISSUED.equals(predUrl)) {
+				el = new Element("date", jdomNS.get("dc"));
+				el.addContent(obj.asLiteral().toString());
 				addGenericElement = true;
 			} else {
 				addGenericElement = true;
+			}
+			if (null != el && el.getContentSize() > 0 && el.getContent(0).getValue().length() > 0)  {
+				oaiDcDc.addContent(el);
 			}
 
 			if (addGenericElement) {
@@ -260,14 +273,14 @@ public class Dm2eApiClient {
 				if (null == thisElemNs) {
 					log.warn("Unknown namespace: " + pred.getNameSpace());
 				}
-				thisElem = new Element(pred.getLocalName(), thisElemNs);
+				Element genericElem = new Element(pred.getLocalName(), thisElemNs);
 				if (obj.isLiteral()) {
-					thisElem.setText(obj.asLiteral().getValue().toString());
+					genericElem.setText(obj.asLiteral().getValue().toString());
 				} else {
-					thisElem.setText(obj.asResource().getURI());
+					genericElem.setText(obj.asResource().getURI());
 				}
+				if (null != genericElem) oaiDcDc.addContent(genericElem);
 			}
-			if (null != thisElem) oaiDcDc.addContent(thisElem);
 		}
 
 		StmtIterator aggIter = resMap.getModel().listStatements(resMap.getAggregationResource(), null, (RDFNode)null);
@@ -298,6 +311,16 @@ public class Dm2eApiClient {
 		}
 
 		return doc;
+	}
+	private void addContentOrPrefLabelToElement(RDFNode obj, Element el) {
+		if (obj.isLiteral()) {
+			el.addContent(obj.asLiteral().getValue().toString());
+		} else {
+			// derefrence
+			ThingWithPrefLabel thingWithPrefLabel = new ThingWithPrefLabel(apiBase, null, obj.asResource().toString());
+			thingWithPrefLabel.read(cacheMgr.getCache(CACHE_NAME));
+			el.addContent(thingWithPrefLabel.getPrefLabel());
+		}
 	}
 	/**
 	 * List the collections on a server
