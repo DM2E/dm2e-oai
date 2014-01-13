@@ -7,11 +7,13 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.dm2e.linkeddata.Config;
+
 
 public class ThingWithPrefLabelTest {
 	
 	Logger log = LoggerFactory.getLogger(getClass().getName());
-	final String apiBase = "http://lelystad.informatik.uni-mannheim.de:3000/direct";
+	final String apiBase = Config.API_BASE;
 
 	@Test
 	public void testConc() {

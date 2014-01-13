@@ -39,7 +39,7 @@ public abstract class BaseModel implements Comparable<BaseModel>{
 	}
 
 	public void read(Cache cache) {
-		log.debug("List of cached objects: ");
+		log.trace("List of cached objects: ");
 		if (isRead) {
 			log.debug("Already read, return right away.");
 			return;

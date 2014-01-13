@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -69,7 +67,7 @@ public class VersionedDataset extends BaseModel implements Serializable {
 				getVersionedDatasetResource(),
 				getModel().createProperty(NS.DM2E_UNOFFICIAL.PROP_CONTAINS_CHO),
 				(Resource) null);
-		Set<ResourceMap> set = new HashSet<>();
+		Set<ResourceMap> set = new HashSet<ResourceMap>();
 		while (resMapIter.hasNext()) {
 			Statement stmt = resMapIter.next();
 			final String resMapUri = stmt.getObject().asResource().getURI();

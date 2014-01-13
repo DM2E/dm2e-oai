@@ -290,22 +290,19 @@ public class Dm2eApiClient {
 			RDFNode obj = stmt.getObject();
 			// manual mapping
 			Element thisElem = null;
-			switch (pred.getURI().toString()) {
-			case NS.EDM.PROP_IS_SHOWN_BY:
+			final String predUrl = pred.getURI().toString();
+			if (NS.EDM.PROP_IS_SHOWN_BY.equals(predUrl)) {
 				thisElem = new Element("identifier", jdomNS.get("dc"));
 				thisElem.setText(obj.asResource().getURI());
 				thisElem.setAttribute("linktype", "fulltext");
-				break;
-			case NS.EDM.PROP_IS_SHOWN_AT:
+			} else if (NS.EDM.PROP_IS_SHOWN_AT.equals(predUrl)) {
 				thisElem = new Element("identifier", jdomNS.get("dc"));
 				thisElem.setText(obj.asResource().getURI());
 				thisElem.setAttribute("linktype", "thumbnail");
-				break;
-			case NS.DM2E.PROP_HAS_ANNOTABLE_VERSION_AT:
+			} else if (NS.DM2E.PROP_HAS_ANNOTABLE_VERSION_AT.equals(predUrl)) {
 				thisElem = new Element("identifier", jdomNS.get("dc"));
 				thisElem.setText(obj.asResource().getURI());
 				thisElem.setAttribute("linktype", "thumbnail");
-				break;
 			}
 			if (null != thisElem) oaiDcDc.addContent(thisElem);
 		}
@@ -329,7 +326,7 @@ public class Dm2eApiClient {
 	 */
 	public Set<Collection> listCollections() {
 		String uri = apiBase + "/list";
-		HashSet<Collection> set = new HashSet<>();
+		HashSet<Collection> set = new HashSet<Collection>();
 		Model model = ModelFactory.createDefaultModel();
 		long t0 = System.currentTimeMillis();
 		// TODO cache
@@ -387,7 +384,7 @@ public class Dm2eApiClient {
 		log.debug("Model size: " + resourceMap.getModel().size());
 		return resourceMap;
 	}
-	public ResourceMap createResourceMap(String fromUri, IdentifierType type) throws IllegalArgumentException, HttpException { 
+	public ResourceMap createResourceMap(String fromUri, IdentifierType type) throws Exception { 
 		Collection coll = createCollection(fromUri, type);
 		String versionId = coll.getLatestVersionId();
 		return createResourceMap(new ResourceMap(apiBase, fromUri, type, versionId));
@@ -397,7 +394,7 @@ public class Dm2eApiClient {
 		else collection.read();
 		return collection;
 	}
-	public Collection createCollection(String fromUri, IdentifierType type) {
+	public Collection createCollection(String fromUri, IdentifierType type) throws Exception {
 		Collection newCollection;
 		try {
 			newCollection = new Collection(apiBase, fromUri, type);

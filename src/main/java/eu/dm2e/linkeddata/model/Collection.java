@@ -75,7 +75,7 @@ public class Collection extends BaseModel implements Serializable {
 	 */
 	// NOTE make sure the collection model is actually read!
 	public Set<String> listVersionIds() {
-		HashSet<String> set = new HashSet<>();
+		HashSet<String> set = new HashSet<String>();
 		StmtIterator iter = getModel().listStatements(
 				getCollectionResource(),
 				getModel().createProperty(NS.DM2E_UNOFFICIAL.PROP_HAS_VERSION),
@@ -92,7 +92,7 @@ public class Collection extends BaseModel implements Serializable {
 	 * @return Set of VersionedDatasets
 	 */
 	public Set<VersionedDataset> listVersions() {
-		Set<VersionedDataset> versionedDatasetSet = new HashSet<>();
+		Set<VersionedDataset> versionedDatasetSet = new HashSet<VersionedDataset>();
 		Set<String> versionIds = listVersionIds();
 		for (String versionId : versionIds) {
 			versionedDatasetSet.add(getVersion(versionId));
@@ -106,7 +106,7 @@ public class Collection extends BaseModel implements Serializable {
 	 */
 	public String getLatestVersionId() {
 		Set<String> setOfVersions = this.listVersionIds();
-		ArrayList<String> listOfVersions = new ArrayList<>(setOfVersions);
+		ArrayList<String> listOfVersions = new ArrayList<String>(setOfVersions);
 		Collections.sort(listOfVersions);
 		return listOfVersions.get(listOfVersions.size() - 1);
 	}

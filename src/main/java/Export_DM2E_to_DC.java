@@ -49,7 +49,7 @@ public class Export_DM2E_to_DC {
 	
 	private String endpoint;
 	private String outputDirectory;
-	private Set<String> exportedTypes = new HashSet<>();
+	private Set<String> exportedTypes = new HashSet<String>();
 	private static String sparqlDm2eOaiSelect;
 	private static String sparqlDm2eOaiConstruct;
 	private static String sparqlListMatchingAggregations;
@@ -71,7 +71,12 @@ public class Export_DM2E_to_DC {
 			SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 			Schema schema = schemaFactory.newSchema(schemaFile);
 			validator = schema.newValidator();
-		} catch (IOException | SAXException e) {
+		} catch (IOException e) {
+			slog.error(e.getMessage());
+			// here we should just fail but cannot X(
+			e.printStackTrace();
+		}
+		catch (SAXException e) {
 			slog.error(e.getMessage());
 			// here we should just fail but cannot X(
 			e.printStackTrace();
@@ -118,7 +123,7 @@ public class Export_DM2E_to_DC {
 		Logger log = LoggerFactory.getLogger(getClass().getName());
 		
 		// get list of matching Chos/Aggregations
-		Set<Resource> aggSet = new HashSet<>();
+		Set<Resource> aggSet = new HashSet<Resource>();
 		{
 			ParameterizedSparqlString sb = new ParameterizedSparqlString();
 			sb.append(sparqlListMatchingAggregations);
@@ -248,27 +253,26 @@ public class Export_DM2E_to_DC {
 			RDFNode obj = stmt.getObject();
 			Namespace thisElemNs;
 			Element thisElem = null;
-			switch (pred.getURI().toString()) {
-			case NS.RDF.PROP_TYPE:
+			final String predUrl = pred.getURI().toString();
+			if (NS.RDF.PROP_TYPE.equals(predUrl)) {
 				String objUri = obj.asResource().getURI();
 				if (objUri.equals(NS.EDM.CLASS_PROVIDED_CHO)) {
 					continue;
 				}
 				thisElem = new Element("type", ns.get("rdf"));
 				thisElem.setAttribute(new Attribute("resource", obj.asResource().getURI(), ns.get("rdf")));
-				break;
-			case NS.DC.PROP_TYPE:
+			}else if(NS.DC.PROP_TYPE.equals(predUrl)) {
 				if (obj.isResource()) {
 					thisElem = new Element("type", ns.get("rdf"));
 					thisElem.setAttribute(new Attribute("resource", obj.asResource().getURI(), ns.get("rdf")));
 				}
-				break;
+			} else if (NS.PRO.PROP_AUTHOR.equals(predUrl)) {
 			// Fall-thru cases:
-			case NS.PRO.PROP_AUTHOR:
+				// TODO this is not fall-thru anymore
 				Element addElem = new Element("creator", ns.get("dcterms"));
 				addElem.addContent(obj.asResource().getURI());
 				oaiDcDc.addContent(addElem);
-			default:
+			} else {
 //				 generic mapping
 //				log.warn("Unhandled Predicate: " + pred);
 //				continue;
@@ -295,22 +299,19 @@ public class Export_DM2E_to_DC {
 			// manual mapping
 			Namespace thisElemNs;
 			Element thisElem = null;
-			switch (pred.getURI().toString()) {
-			case NS.EDM.PROP_IS_SHOWN_BY:
+			final String predUrl = pred.getURI().toString();
+			if (NS.EDM.PROP_IS_SHOWN_BY.equals(predUrl)) {
 				thisElem = new Element("identifier", ns.get("dc"));
 				thisElem.setText(obj.asResource().getURI());
 				thisElem.setAttribute("linktype", "fulltext");
-				break;
-			case NS.EDM.PROP_IS_SHOWN_AT:
+			} else if (NS.EDM.PROP_IS_SHOWN_AT.equals(predUrl)) {
 				thisElem = new Element("identifier", ns.get("dc"));
 				thisElem.setText(obj.asResource().getURI());
 				thisElem.setAttribute("linktype", "thumbnail");
-				break;
-			case NS.DM2E.PROP_HAS_ANNOTABLE_VERSION_AT:
+			} else if (NS.DM2E.PROP_HAS_ANNOTABLE_VERSION_AT.equals(predUrl)) {
 				thisElem = new Element("identifier", ns.get("dc"));
 				thisElem.setText(obj.asResource().getURI());
 				thisElem.setAttribute("linktype", "thumbnail");
-				break;
 			}
 			if (null != thisElem) oaiDcDc.addContent(thisElem);
 		}

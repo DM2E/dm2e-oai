@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.Resources;
 
+import eu.dm2e.linkeddata.Config;
 import eu.dm2e.linkeddata.Dm2eApiClient;
 import eu.dm2e.linkeddata.model.BaseModel.IdentifierType;
 import eu.dm2e.linkeddata.model.Collection;
@@ -67,6 +68,14 @@ public class Dm2eOaiService {
 		set,
 		metadataPrefix,
 	}
+	enum OaiVerb {
+		Identify,
+		ListMetadataFormats,
+		ListIdentifiers,
+		ListRecords,
+		ListSets,
+		GetRecord
+	}
 	
 	/**
 	 * OAI-PMH error codes
@@ -83,7 +92,7 @@ public class Dm2eOaiService {
 	}
 
 	// Caching client, hence static (so it's instantiated only once)
-	private static final String apiBase = "http://lelystad.informatik.uni-mannheim.de:3000/direct";
+	private static final String apiBase = Config.API_BASE;
 	private static Dm2eApiClient api = new Dm2eApiClient(apiBase, true);
 
 	public Dm2eOaiService() {
@@ -137,8 +146,8 @@ public class Dm2eOaiService {
 	}
 
 	private Response oaiHandler(MultivaluedMap<String, String> multiValueMap) {
-		List<String> illegalKeys = new ArrayList<>();
-		Map<OaiKey,String> kvPairs = new HashMap<>();
+		List<String> illegalKeys = new ArrayList<String>();
+		Map<OaiKey,String> kvPairs = new HashMap<OaiKey, String>();
 		for (Entry<String, List<String>> entry : multiValueMap.entrySet()) {
 			try {
 				OaiKey oaiKey = OaiKey.valueOf(entry.getKey());
@@ -153,13 +162,14 @@ public class Dm2eOaiService {
 		if (null == kvPairs.get(OaiKey.verb)) return errorMissingParameter(kvPairs, OaiKey.verb);
 
 		// GetRecord, Identify, ListIdentifiers, ListMetadataFormats, ListRecords, ListSets
-		switch(kvPairs.get(OaiKey.verb)) {
-			case "Identify": return oaiIdentify(kvPairs);
-			case "ListMetadataFormats": return oaiListMetadataFormats(kvPairs);
-			case "ListIdentifiers": return oaiListIdentifiersOrRecords(kvPairs, true);
-			case "ListRecords": return oaiListIdentifiersOrRecords(kvPairs, false);
-			case "ListSets": return oaiListSets(kvPairs);
-			case "GetRecord": return oaiGetRecord(kvPairs);
+		OaiVerb selectedVerb = OaiVerb.valueOf(kvPairs.get(OaiKey.verb));
+		switch(selectedVerb) {
+			case Identify: return oaiIdentify(kvPairs);
+			case ListMetadataFormats: return oaiListMetadataFormats(kvPairs);
+			case ListIdentifiers: return oaiListIdentifiersOrRecords(kvPairs, true);
+			case ListRecords: return oaiListIdentifiersOrRecords(kvPairs, false);
+			case ListSets: return oaiListSets(kvPairs);
+			case GetRecord: return oaiGetRecord(kvPairs);
 			default: return errorUnknownVerb(kvPairs);
 		}
 	}
@@ -172,7 +182,7 @@ public class Dm2eOaiService {
 		return jdomDocumentToCleanString(request);
 	}
 	private Response oaiError(Map<OaiKey,String> kvPairs, Response.Status httpStatus, OaiError errorCode, String errorDescription) {
-		Map<String,String> valuesMap = new HashMap<>();
+		Map<String,String> valuesMap = new HashMap<String, String>();
 		valuesMap.put("request", oaiRequest(kvPairs));
 		valuesMap.put("responseDate", api.nowOaiFormatted());
 		valuesMap.put("errorCode", errorCode.name());
@@ -228,7 +238,7 @@ public class Dm2eOaiService {
 	
 	
 	private Response oaiListMetadataFormats(Map<OaiKey,String> kvPairs) {
-		Map<String,Object> valuesMap = new HashMap<>();
+		Map<String,Object> valuesMap = new HashMap<String, Object>();
 		valuesMap.put("responseDate", api.nowOaiFormatted());
 		valuesMap.put("baseURI", uriInfo.getBaseUri() + "/oai");
 		valuesMap.put("xsdBaseURI", uriInfo.getBaseUri() + "/static");
@@ -241,7 +251,7 @@ public class Dm2eOaiService {
 					;	}
 
 	private Response oaiIdentify(Map<OaiKey,String> kvPairs) {
-		Map<String,Object> valuesMap = new HashMap<>();
+		Map<String,Object> valuesMap = new HashMap<String, Object>();
 		valuesMap.put("responseDate", api.nowOaiFormatted());
 		valuesMap.put("baseURI", uriInfo.getBaseUri() + "/oai");
 		StrSubstitutor sub = new StrSubstitutor(valuesMap);
@@ -253,7 +263,7 @@ public class Dm2eOaiService {
 					;
 	}
 	private Response oaiListSets(Map<OaiKey,String> kvPairs) {
-		Map<String,Object> valuesMap = new HashMap<>();
+		Map<String,Object> valuesMap = new HashMap<String, Object>();
 		
 		Element listSets = new Element("ListSets");
 		listSets.setNamespace(Namespace.NO_NAMESPACE);
@@ -319,11 +329,12 @@ public class Dm2eOaiService {
 			log.debug(rm.getProvidedCHO_Uri());
 			log.debug("" + rm.getModel().size());
 		} catch (IllegalArgumentException e) { return errorBadIdentifier(kvPairs);
-		} catch (HttpException e) { return errorNotFound(kvPairs); }
+		} catch (HttpException e) { return errorNotFound(kvPairs);
+		} catch (Exception e) { return errorNotFound(kvPairs); }
 		
 		Document record = api.resourceMapToOaiRecord(rm, metadataPrefix);
 
-		Map<String,Object> valuesMap = new HashMap<>();
+		Map<String,Object> valuesMap = new HashMap<String, Object>();
 		valuesMap.put("responseDate", api.nowOaiFormatted());
 		valuesMap.put("request", oaiRequest(kvPairs));
 		valuesMap.put("record", jdomDocumentToCleanString(record));
@@ -365,7 +376,7 @@ public class Dm2eOaiService {
 		int start = Integer.parseInt(resumptionTokenSegments[1]);
 
 		// Handle setSpec, if not provided use all datasets
-		Set<VersionedDataset> datasets = new HashSet<>();
+		Set<VersionedDataset> datasets = new HashSet<VersionedDataset>();
 		if (null==set) {
 			log.debug("Iterating all collections");
 			for (Collection coll : api.listCollections()) {
@@ -380,7 +391,7 @@ public class Dm2eOaiService {
 				Collection createCollection;
 				try {
 					createCollection = api.createCollection(set, IdentifierType.OAI_SET_SPEC);
-				} catch (IllegalArgumentException e) {
+				} catch (Exception e) {
 					return errorBadSet(kvPairs);
 				}
 				log.debug(createCollection.getProviderId());
@@ -399,7 +410,7 @@ public class Dm2eOaiService {
 		}
 		
 		// Determine resource maps
-		List<ResourceMap> resourceMaps = new ArrayList<>();
+		List<ResourceMap> resourceMaps = new ArrayList<ResourceMap>();
 		StringBuilder headersSB = new StringBuilder();
 		for (VersionedDataset dummyDs : datasets) {
 			log.debug("Retrieving dataset " + dummyDs.getVersionedDatasetUri());
@@ -448,7 +459,7 @@ public class Dm2eOaiService {
 		}
 
 		log.debug("All dataset/resourcemap id tuples retrieved retrieved");
-		Map<String,Object> valuesMap = new HashMap<>();
+		Map<String,Object> valuesMap = new HashMap<String, Object>();
 		valuesMap.put("responseDate", api.nowOaiFormatted());
 		valuesMap.put("request", oaiRequest(kvPairs));
 		valuesMap.put("list", headersSB.toString());

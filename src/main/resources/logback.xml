@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-		<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
-			<layout class="info.aduna.logging.file.logback.StackTracePatternLayout"/>
-		</encoder>
-	</appender>
-        <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-            <file>/tmp/dm2e-oaipmh.log</file>
-            <append>true</append>
-            <encoder>
-                <pattern>%-5relative %-5level %logger{35} - %msg%n</pattern>
-            </encoder>
-        </appender>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%-5relative %-5level %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>/tmp/dm2e-oaipmh.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%-5relative %-5level %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
 
-	<root>
-		<level value="DEBUG" />
-		<appender-ref ref="STDOUT" />
-		<appender-ref ref="FILE" />
-	</root>
+    <root>
+        <level value="DEBUG" />
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
+    </root>
     <logger name="org.apache.http" level="WARN" />
 </configuration>

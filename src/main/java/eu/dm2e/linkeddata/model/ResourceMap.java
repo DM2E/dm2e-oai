@@ -1,15 +1,10 @@
 package eu.dm2e.linkeddata.model;
 
 import java.io.Serializable;
-import java.io.StringReader;
-import java.io.StringWriter;
 
-import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
-
+import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;

@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -21,17 +20,17 @@ import com.google.common.io.Resources;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
+import eu.dm2e.linkeddata.model.BaseModel.IdentifierType;
 import eu.dm2e.linkeddata.model.Collection;
 import eu.dm2e.linkeddata.model.ResourceMap;
 import eu.dm2e.linkeddata.model.VersionedDataset;
-import eu.dm2e.linkeddata.model.BaseModel.IdentifierType;
 
 
 
 
 public class Dm2eApiClientTest {
 	
-	final String apiBase = "http://lelystad.informatik.uni-mannheim.de:3000/direct";
+	final String apiBase = Config.API_BASE;
 	Dm2eApiClient api;
 	Collection randomCollection;
 	Logger log = LoggerFactory.getLogger(getClass().getName());
@@ -47,8 +46,8 @@ public class Dm2eApiClientTest {
 	
 	private void setRandomDatasetId() {
 		Set<Collection> colSet = api.listCollections();
-		List<Collection> colList = new ArrayList<>(colSet);
-		Collections.shuffle(colList);
+		List<Collection> colList = new ArrayList<Collection>(colSet);
+//		Collections.shuffle(colList);
 		randomCollection = colList.get(0);
 	}
 	
@@ -90,6 +89,7 @@ public class Dm2eApiClientTest {
 	public void testListResourceMaps() {
 		setRandomDatasetId();
 		VersionedDataset ds1 = randomCollection.getLatestVersion();
+		log.debug(ds1.getVersionedDatasetUri());
 		Set<ResourceMap> set = ds1.listResourceMaps();
 		log.debug("Number of ResourceMaps: " + set.size());
 		assertThat(set.size(), greaterThan(0));
@@ -99,7 +99,10 @@ public class Dm2eApiClientTest {
 	public void testGetResourceMap() {
 		setRandomDatasetId();
 		VersionedDataset ds1 = randomCollection.getLatestVersion();
+		log.debug(ds1.getCollectionId());
+		log.debug(ds1.getVersionId());
 		Set<ResourceMap> set = ds1.listResourceMaps();
+
 		ResourceMap resMap = new ArrayList<ResourceMap>(set).get(0);
 		log.debug("ResourceMap aggregation " + resMap.getAggregationUri());
 		log.debug("ResourceMap size " + resMap.getModel().size());
@@ -119,10 +122,10 @@ public class Dm2eApiClientTest {
 	public void testResourceMapModel() {
 		{
 			log.debug("Test fromUri");
-			final String testUri1 = "http://lelystad.informatik.uni-mannheim.de:3000/direct/item/bbaw/dta/20863/1386762086592";
+			final String testUri1 = Config.API_BASE + "/item/bbaw/dta/20863/1386762086592";
 			ResourceMap rm1 = new ResourceMap(apiBase, testUri1, IdentifierType.URL, "1386762086592");
 			assertEquals(rm1.getProvidedCHO_Uri(), testUri1.replaceFirst("/1386762086592", ""));
-			final String testUri2 = "http://lelystad.informatik.uni-mannheim.de:3000/direct/item/bbaw/dta/20863/foo/bar/1386762086592";
+			final String testUri2 = Config.API_BASE + "/item/bbaw/dta/20863/foo/bar/1386762086592";
 			ResourceMap rm2 = new ResourceMap(apiBase, testUri2, IdentifierType.URL, "1386762086592");
 			assertEquals(rm2.getProvidedCHO_Uri(), testUri2.replaceFirst("/1386762086592", ""));
 		}
