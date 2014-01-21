@@ -253,7 +253,6 @@ public class Dm2eApiClient {
 			} else if (NS.DC.PROP_SUBJECT.equals(predUrl)) {
 				el = new Element("subject", jdomNS.get("dc"));
 				addContentOrPrefLabelToElement(obj, el);
-//				addGenericElement = true;
 			} else if (NS.DCTERMS.PROP_ISSUED.equals(predUrl)) {
 				el = new Element("date", jdomNS.get("dc"));
 				el.addContent(obj.asLiteral().toString());
@@ -289,22 +288,26 @@ public class Dm2eApiClient {
 			Property pred = stmt.getPredicate();
 			RDFNode obj = stmt.getObject();
 			// manual mapping
-			Element thisElem = null;
+			Element el = null;
 			final String predUrl = pred.getURI().toString();
 			if (NS.EDM.PROP_IS_SHOWN_BY.equals(predUrl)) {
-				thisElem = new Element("identifier", jdomNS.get("dc"));
-				thisElem.setText(obj.asResource().getURI());
-				thisElem.setAttribute("linktype", "fulltext");
+				el = new Element("identifier", jdomNS.get("dc"));
+				el.setText(obj.asResource().getURI());
+				el.setAttribute("linktype", "fulltext");
 			} else if (NS.EDM.PROP_IS_SHOWN_AT.equals(predUrl)) {
-				thisElem = new Element("identifier", jdomNS.get("dc"));
-				thisElem.setText(obj.asResource().getURI());
-				thisElem.setAttribute("linktype", "thumbnail");
+				el = new Element("identifier", jdomNS.get("dc"));
+				el.setText(obj.asResource().getURI());
+				el.setAttribute("linktype", "thumbnail");
 			} else if (NS.DM2E.PROP_HAS_ANNOTABLE_VERSION_AT.equals(predUrl)) {
-				thisElem = new Element("identifier", jdomNS.get("dc"));
-				thisElem.setText(obj.asResource().getURI());
-				thisElem.setAttribute("linktype", "thumbnail");
+				el = new Element("identifier", jdomNS.get("dc"));
+				el.setText(obj.asResource().getURI());
+				el.setAttribute("linktype", "thumbnail");
+				Element punditEl = new Element("identifier", jdomNS.get("dc"));
+				punditEl.setAttribute("linktype", "annotate");
+				punditEl.setText(obj.asResource().getURI());
+				oaiDcDc.addContent(punditEl);
 			}
-			if (null != thisElem) oaiDcDc.addContent(thisElem);
+			if (null != el) oaiDcDc.addContent(el);
 		}
 
 		return doc;
