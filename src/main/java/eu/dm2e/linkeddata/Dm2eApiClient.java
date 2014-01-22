@@ -18,6 +18,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -179,7 +180,7 @@ public class Dm2eApiClient {
 			log.debug(prefix);
 		}
 
-		// header, about, metadata
+	// header, about, metadata
 		Element oaiHeader = resourceMapToOaiHeader(resMap);
 		Element oaiMetadata = new Element("metadata", jdomNS.get(""));
 		oaiMetadata.setNamespace(Namespace.NO_NAMESPACE);
@@ -212,6 +213,46 @@ public class Dm2eApiClient {
 		// Handle ProvidedCHO
 		Element oaiDcDc = new Element("dc", jdomNS.get("oai_dc"));
 		oaiMetadata.addContent(oaiDcDc);
+		
+		// First page Link (Thumbnail)
+		{
+			Element el = new Element("identifier", jdomNS.get("dc"));
+			el.setAttribute("linktype", "thumbnail");
+			el.setText(String.format(Config.PUNDIT_FMT_STRING, resMap.getThumbnailLink()));
+			oaiDcDc.addContent(el);
+		}
+
+		// PunditLink
+		// http://demo.feed.thepund.it/?dm2e=http://lelystad.informatik.uni-mannheim.de:3000/direct/item/bbaw/dta/16821/f0001&conf=timeline-demo.js
+		{
+			Element el = new Element("identifier", jdomNS.get("dc"));
+			el.setAttribute("linktype", "annotate");
+			el.setText(String.format(Config.PUNDIT_FMT_STRING, resMap.getFirstPageLink()));
+			oaiDcDc.addContent(el);
+		}
+		
+		// Provider ID
+		{
+			Element el = new Element("dataProvider", jdomNS.get("edm"));
+			el.setText(resMap.getProviderId());
+			oaiDcDc.addContent(el);
+		}
+		
+		// #create-title
+		{
+			QuerySolution titles = resMap.getAllTitles();
+			StringBuilder sb = new StringBuilder();
+			sb.append(titles.get("dcterms_title").toString());
+			if (null != titles.get("dm2e_subtitle")) {
+				sb.append(" -- ");
+				sb.append(titles.get("dm2e_subtitle"));
+			}
+			Element el = new Element("title", jdomNS.get("dc"));
+			el.setText(sb.toString());
+			oaiDcDc.addContent(el);
+		}
+
+
 //		log.debug(dumpModel(resMap.getModel()));
 		StmtIterator choIter = resMap.getModel().listStatements(resMap.getProvidedCHO_Resource(), null, (RDFNode)null);
 		log.debug("CHO Statements???? " + choIter.hasNext());
@@ -219,6 +260,7 @@ public class Dm2eApiClient {
 			Statement stmt = choIter.next();
 			Property pred = stmt.getPredicate();
 			RDFNode obj = stmt.getObject();
+
 			Namespace thisElemNs;
 			Element el = null;
 			final String predUrl = pred.getURI().toString();
@@ -237,10 +279,8 @@ public class Dm2eApiClient {
 					el.setAttribute(new Attribute("resource", obj.asResource().getURI(), jdomNS.get("rdf")));
 				}
 				addGenericElement = true;
-			} else if (NS.DCTERMS.PROP_TITLE.equals(predUrl)) {
-				el = new Element("title", jdomNS.get("dc"));
-				el.addContent(obj.asLiteral().getValue().toString());
-				addGenericElement = true;
+			} else if (NS.DCTERMS.PROP_TITLE.equals(predUrl) || NS.DM2E.PROP_SUBTITLE.equals(predUrl)) {
+				// NOTE don't take the title but create a title from all the subtitles above #create-title
 			} else if (NS.DC.PROP_PUBLISHER.equals(predUrl)) {
 				el = new Element("publisher", jdomNS.get("dc"));
 				addContentOrPrefLabelToElement(obj, el);
@@ -250,12 +290,19 @@ public class Dm2eApiClient {
 			} else if (NS.PRO.PROP_AUTHOR.equals(predUrl)) {
 				el = new Element("creator", jdomNS.get("dc"));
 				addContentOrPrefLabelToElement(obj, el);
+			} else if (NS.BIBO.PROP_EDITOR.equals(predUrl)) {
+				el = new Element("creator", jdomNS.get("dc"));
+				addContentOrPrefLabelToElement(obj, el);
 			} else if (NS.DC.PROP_SUBJECT.equals(predUrl)) {
 				el = new Element("subject", jdomNS.get("dc"));
 				addContentOrPrefLabelToElement(obj, el);
 			} else if (NS.DCTERMS.PROP_ISSUED.equals(predUrl)) {
 				el = new Element("date", jdomNS.get("dc"));
-				el.addContent(obj.asLiteral().toString());
+				if (obj.isLiteral())
+					el.addContent(obj.asLiteral().toString());
+				else {
+					// TODO handle timespans
+				}
 				addGenericElement = true;
 			} else {
 				addGenericElement = true;
@@ -294,18 +341,18 @@ public class Dm2eApiClient {
 				el = new Element("identifier", jdomNS.get("dc"));
 				el.setText(obj.asResource().getURI());
 				el.setAttribute("linktype", "fulltext");
-			} else if (NS.EDM.PROP_IS_SHOWN_AT.equals(predUrl)) {
-				el = new Element("identifier", jdomNS.get("dc"));
-				el.setText(obj.asResource().getURI());
-				el.setAttribute("linktype", "thumbnail");
-			} else if (NS.DM2E.PROP_HAS_ANNOTABLE_VERSION_AT.equals(predUrl)) {
-				el = new Element("identifier", jdomNS.get("dc"));
-				el.setText(obj.asResource().getURI());
-				el.setAttribute("linktype", "thumbnail");
-				Element punditEl = new Element("identifier", jdomNS.get("dc"));
-				punditEl.setAttribute("linktype", "annotate");
-				punditEl.setText(obj.asResource().getURI());
-				oaiDcDc.addContent(punditEl);
+//			} else if (NS.EDM.PROP_IS_SHOWN_AT.equals(predUrl)) {
+//				el = new Element("identifier", jdomNS.get("dc"));
+//				el.setText(obj.asResource().getURI());
+//				el.setAttribute("linktype", "thumbnail");
+//			} else if (NS.EDM.PROP_OBJECT.equals(predUrl)) {
+//				el = new Element("identifier", jdomNS.get("dc"));
+//				el.setText(obj.asResource().getURI());
+//				el.setAttribute("linktype", "thumbnail");
+//			} else if (NS.DM2E.PROP_HAS_ANNOTABLE_VERSION_AT.equals(predUrl)) {
+//				el = new Element("identifier", jdomNS.get("dc"));
+//				el.setText(obj.asResource().getURI());
+//				el.setAttribute("linktype", "thumbnail");
 			}
 			if (null != el) oaiDcDc.addContent(el);
 		}
