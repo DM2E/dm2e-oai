@@ -3,12 +3,15 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
 import org.jdom2.Document;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
@@ -23,6 +26,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import eu.dm2e.linkeddata.model.BaseModel.IdentifierType;
 import eu.dm2e.linkeddata.model.Collection;
 import eu.dm2e.linkeddata.model.ResourceMap;
+import eu.dm2e.linkeddata.model.ThingWithPrefLabel;
 import eu.dm2e.linkeddata.model.VersionedDataset;
 
 
@@ -36,10 +40,13 @@ public class Dm2eApiClientTest {
 	Logger log = LoggerFactory.getLogger(getClass().getName());
 	XMLOutputter xmlOutput = new XMLOutputter();
 	
-	private ResourceMap createSampleResourceMap() throws IOException {
-		URL dinglerURL = Resources.getResource("dingler_example.ttl");
+	private ResourceMap createSampleResourceMap(String testTurtle) throws IOException {
 		Model m = ModelFactory.createDefaultModel();
-		m.read(dinglerURL.openStream(), "", "TURTLE");
+		URL dinglerURL = Resources.getResource(testTurtle);
+		final InputStream openStream = dinglerURL.openStream();
+		String dinglerStr = IOUtils.toString(openStream);
+		dinglerStr = dinglerStr.replaceAll("http://data.dm2e.eu/data", Config.API_BASE);
+		m.read(new StringReader(dinglerStr), "", "TURTLE");
 		log.debug("Statements read: " + m.size());
 		return new ResourceMap(apiBase, m, "uber", "dingler", "issue/pj001", "0");
 	}
@@ -107,11 +114,26 @@ public class Dm2eApiClientTest {
 		log.debug("ResourceMap aggregation " + resMap.getAggregationUri());
 		log.debug("ResourceMap size " + resMap.getModel().size());
 	}
+	
+	@Test
+	public void testThumbnail() throws IOException {
+		ResourceMap resMap = createSampleResourceMap("dingler_example.ttl");
+		resMap.getThumbnailLink();
+	}
+	@Test
+	public void testFirstPageLink() throws IOException {
+		ResourceMap resMap = createSampleResourceMap("dingler_example.ttl");
+		resMap.getFirstPageLink();
+	}
 
 	@Test
 	public void testResourceMapToOaiRecord_oai_dc() throws Exception {
-		ResourceMap resMap = createSampleResourceMap();
+		ResourceMap resMap = createSampleResourceMap("dingler_example.ttl");
+		resMap.getThumbnailLink();
 		log.debug(resMap.getItemId());
+		log.debug(resMap.getProvidedCHO_Uri());
+		log.debug("CHO Res: " + resMap.getProvidedCHO_Resource());
+		log.debug(resMap.getProvidedCHO_Uri());
 		Document el = api.resourceMapToOaiRecord(resMap, "oai_dc");
 		StringWriter strwriter = new StringWriter();
 		xmlOutput.output(el, strwriter);
@@ -134,5 +156,18 @@ public class Dm2eApiClientTest {
 	@Test
 	public void testCaching() {
 		// TODO
+		final String uri = Config.API_BASE + "/place/bbaw/dta/Berlin";
+		long withCaching, withoutCaching;
+		{
+			long t0 = System.currentTimeMillis();
+			ThingWithPrefLabel it = new ThingWithPrefLabel(Config.API_BASE, null, uri);
+			withoutCaching = System.currentTimeMillis() - t0;
+		}
+		{
+			long t0 = System.currentTimeMillis();
+			ThingWithPrefLabel it = new ThingWithPrefLabel(Config.API_BASE, null, uri);
+			withCaching = System.currentTimeMillis() - t0;
+		}
+		assertThat(withCaching, lessThan(withoutCaching));
 	}
 }

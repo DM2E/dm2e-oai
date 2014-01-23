@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
+import eu.dm2e.linkeddata.Config;
+
 public abstract class BaseModel implements Comparable<BaseModel>{
 	
 	public enum IdentifierType {
@@ -52,7 +54,7 @@ public abstract class BaseModel implements Comparable<BaseModel>{
 			Element cachedObj = cache.get(uri);
 			if (cachedObj != null) {
 				log.debug("Found in cache: '" + uri + "'.");
-				model.read(new StringReader((String) cachedObj.getObjectValue()), "", "RDF/XML");
+				model.read(new StringReader((String) cachedObj.getObjectValue()), "", Config.CACHE_SERIALIZATION);
 				log.debug("Return from read(cache) right away");
 				isRead = true;
 				return;
@@ -63,7 +65,7 @@ public abstract class BaseModel implements Comparable<BaseModel>{
 		}
 		CloseableHttpClient httpClient = HttpClients.createDefault();
 		HttpGet get = new HttpGet(uri);
-		get.setHeader("Accept", "application/rdf+xml");
+		get.setHeader("Accept", Config.CACHE_MEDIATYPE);
 		CloseableHttpResponse resp;
 		try {
 			long t0 = System.currentTimeMillis();
@@ -77,7 +79,7 @@ public abstract class BaseModel implements Comparable<BaseModel>{
 			IOUtils.copy(is, sw, "UTF-8");
 			String modelSerialized = sw.toString();
 			long t1 = System.currentTimeMillis();
-			model.read(new StringReader(modelSerialized), "", "RDF/XML");
+			model.read(new StringReader(modelSerialized), "", Config.CACHE_SERIALIZATION);
 			log.debug(String.format("Reading the VersionedDataset '%s' took %sms", uri, (t1-t0)));
 			if (cache != null) {
 				log.debug("Caching response under '" + uri + "'.");

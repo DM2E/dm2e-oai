@@ -81,6 +81,7 @@
     edm:dataProvider <http://data.dm2e.eu/data/agent/uber/dingler/Humboldt-Universität> ;
     edm:isShownAt <http://dingler.culture.hu-berlin.de/journal/pj001/> ;
     edm:provider <http://data.dm2e.eu/data/agent/uber/dingler/DM2E> ;
+    edm:object <http://www.polytechnischesjournal.de/fileadmin/data/32258227Z/32258227Z_tif/jpegs/00000017.tif.medium.jpg> ;
     edm:rights <http://creativecommons.org/licenses/by-nc-sa/3.0/> ;
     a ore:Aggregation .
 
@@ -505,8 +506,8 @@
 
 <http://data.dm2e.eu/data/item/uber/dingler/article/pj001/ar001001>
     dm2e:hasAnnotatableVersionAt <http://dingler.culture.hu-berlin.de/article/pj001/ar001001> ;
-    dm2e:hasPartCHO <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb001>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb002>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb003>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb004>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb005>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb006>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb008>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb009>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb010>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb011>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb012>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb013>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb015>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb017>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb019>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb021>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb022>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb023>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb025>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb027>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb030>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb032>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb034> ;
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001>, <http://data.dm2e.eu/data/item/uber/dingler/journal/32258227Z> ;
+    dc:hasPart <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb001>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb002>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb003>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb004>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb005>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb006>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb008>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb009>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb010>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb011>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb012>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb013>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb015>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb017>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb019>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb021>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb022>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb023>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb025>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb027>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb030>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb032>, <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb034> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001>, <http://data.dm2e.eu/data/item/uber/dingler/journal/32258227Z> ;
     dc:language "ger" ;
     dc:subject "engineering and natural sciences (19th century)"@eng ;
     dc:type <http://purl.org/spar/fabio/Article> ;
@@ -553,8 +554,8 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001>
-    dm2e:hasPartCHO <http://data.dm2e.eu/data/item/uber/dingler/article/pj001/ar001001> ;
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/journal/32258227Z> ;
+    dc:hasPart <http://data.dm2e.eu/data/item/uber/dingler/article/pj001/ar001001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/journal/32258227Z> ;
     dm2e:publishedAt <http://data.dm2e.eu/data/place/uber/dingler/Stuttgart> ;
     dm2e:subtitle "Band 1, Jahrgang 1820"@ger ;
     dc:identifier "pj001" ;
@@ -569,7 +570,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/journal/32258227Z>
-    dm2e:hasPartCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:hasPart <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dm2e:publishedAt <http://data.dm2e.eu/data/place/uber/dingler/Stuttgart> ;
     dc:identifier "32258227Z" ;
     dc:language "ger" ;
@@ -583,7 +584,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb001>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001>, <http://data.dm2e.eu/data/item/uber/dingler/journal/32258227Z> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001>, <http://data.dm2e.eu/data/item/uber/dingler/journal/32258227Z> ;
     dc:language "ger" ;
     dc:subject "engineering and natural sciences (19th century)"@eng ;
     dc:type dm2e:Page ;
@@ -596,7 +597,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb002>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle ""@ger ;
@@ -608,7 +609,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb003>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle """4. Naͤhere Beziehung dieser Praͤmissen auf
@@ -621,7 +622,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb004>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle ""@ger ;
@@ -633,7 +634,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb005>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle """6. Wesentliche Bestandtheile einer hydraulischen
@@ -646,7 +647,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb006>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle ""@ger ;
@@ -658,7 +659,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb007>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle "8. Einige Folgerungen aus diesen Saͤzen."@ger ;
@@ -670,7 +671,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb008>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle ""@ger ;
@@ -682,7 +683,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb009>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle """10. Der Druck eines Druckkolbens läßt sich auf die
@@ -696,7 +697,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb010>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle ""@ger ;
@@ -708,7 +709,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb011>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle ""@ger ;
@@ -720,7 +721,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb012>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle ""@ger ;
@@ -732,7 +733,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb013>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle """11. Scheinbare Anomalie zwischen der Wirkung des
@@ -745,7 +746,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb014>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle """12. Methoden, die Wirksamkeit hydraulischer Pressen zu
@@ -758,7 +759,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb015>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle "14. Zweite Methode."@ger ;
@@ -770,7 +771,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb016>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle """15. Berechnung der Momente, aus welchen sich die Kraft
@@ -783,7 +784,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb017>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle """16. Schuzmittel gegen die Wirkungen einer zu großen
@@ -796,7 +797,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb018>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle """17. Schaͤzungsmittel fuͤr die jedesmalige
@@ -809,7 +810,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb019>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle ""@ger ;
@@ -821,7 +822,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb020>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle """19. Neuer Druckmesser vom Verfasser dieser
@@ -834,7 +835,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb021>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle """21. Nothwendige Bestimmung des Maximums der Wirkung der
@@ -847,7 +848,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb022>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle "22. Bestimmung des Maximums der Preßkraft."@ger ;
@@ -859,7 +860,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb023>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle "23. Bestimmung des Durchmessers des Kolbenrohrs."@ger ;
@@ -871,7 +872,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb024>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle ""@ger ;
@@ -883,7 +884,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb025>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle """25. Bestimmung der Laͤnge des Hebelarms der
@@ -896,7 +897,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb026>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle ""@ger ;
@@ -908,7 +909,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb027>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle """27. Methode, die Grade fuͤr die Eintheilung des
@@ -921,7 +922,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb028>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle "29. Lage des Druckrohrs."@ger ;
@@ -933,7 +934,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb029>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle """32. Theil der Presse, der die zu pressenden Materien
@@ -946,7 +947,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb030>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle "33. Presse, die nach unten zu wirkt."@ger ;
@@ -958,7 +959,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb031>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle """34. Beschreibung einer Presse, die nach oben zu
@@ -971,7 +972,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb032>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle """34. Beschreibung einer Presse, die nach oben zu
@@ -984,7 +985,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb033>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle ""@ger ;
@@ -996,7 +997,7 @@
     a edm:ProvidedCHO .
 
 <http://data.dm2e.eu/data/item/uber/dingler/page/pj001_pb034>
-    dm2e:isPartOfCHO <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
+    dc:isPartOf <http://data.dm2e.eu/data/item/uber/dingler/issue/pj001> ;
     dc:language "ger" ;
     dc:type dm2e:Page ;
     dcterms:subtitle ""@ger ;
