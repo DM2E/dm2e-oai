@@ -53,10 +53,12 @@ public class Dm2eApiClientTest {
 	}
 	
 	private void setRandomDatasetId() {
-		Set<Collection> colSet = api.listCollections();
-		List<Collection> colList = new ArrayList<Collection>(colSet);
+//		Set<Collection> colSet = api.listCollections();
+//		List<Collection> colList = new ArrayList<Collection>(colSet);
 //		Collections.shuffle(colList);
-		randomCollection = colList.get(0);
+//		randomCollection = colList.get(0);
+		randomCollection = new Collection(apiBase, null, "bbaw", "dta");
+		randomCollection.read();
 	}
 	
 	public Dm2eApiClientTest() {
