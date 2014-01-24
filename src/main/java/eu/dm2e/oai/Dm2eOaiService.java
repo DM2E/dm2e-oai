@@ -381,7 +381,8 @@ public class Dm2eOaiService {
 			log.debug("Iterating all collections");
 			for (Collection coll : api.listCollections()) {
 				log.debug("Adding all datasets in collection " + coll.getCollectionUri());
-				datasets.add(api.createVersionedDataset(coll.getLatestVersion()));
+				final VersionedDataset latestVersion = coll.getLatestVersion();
+				if (null != latestVersion) datasets.add(api.createVersionedDataset(latestVersion));
 			}
 		} else {
 			// TODO
@@ -396,14 +397,16 @@ public class Dm2eOaiService {
 				}
 				log.debug(createCollection.getProviderId());
 				log.debug(createCollection.getCollectionId());
-				datasets.add(api.createVersionedDataset(createCollection.getLatestVersion()));
+				final VersionedDataset latestVersion = createCollection.getLatestVersion();
+				if (null != latestVersion) datasets.add(api.createVersionedDataset(latestVersion));
 			} else {
 				// provider:onb
 				String provider = set.split(":")[1];
 				Set<Collection> collectionList = api.listCollections();
 				for (Collection collection:collectionList) {
 					if (collection.getProviderId().equals(provider)) {
-						datasets.add(api.createVersionedDataset(collection.getLatestVersion()));
+						final VersionedDataset latestVersion = collection.getLatestVersion();
+						if (null != latestVersion) datasets.add(api.createVersionedDataset(latestVersion));
 					}
 				}
 			}

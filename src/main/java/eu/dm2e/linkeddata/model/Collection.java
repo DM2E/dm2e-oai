@@ -108,12 +108,18 @@ public class Collection extends BaseModel implements Serializable {
 		Set<String> setOfVersions = this.listVersionIds();
 		ArrayList<String> listOfVersions = new ArrayList<String>(setOfVersions);
 		Collections.sort(listOfVersions);
+		if (listOfVersions.size() == 0) {
+			return null;
+		}
 		return listOfVersions.get(listOfVersions.size() - 1);
 	}
 	public VersionedDataset getLatestVersion() {
 		return getVersion(getLatestVersionId());
 	}
 	public VersionedDataset getVersion(String versionId) {
+		if (null == versionId) {
+			return null;
+		}
 		return new VersionedDataset(apiBase, null, providerId, collectionId, versionId);
 	}
 }
