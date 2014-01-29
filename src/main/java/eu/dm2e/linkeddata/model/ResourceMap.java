@@ -96,6 +96,10 @@ public class ResourceMap extends BaseModel implements Serializable{
 	public Resource getProvidedCHO_Resource() { return this.getModel().createResource(getProvidedCHO_Uri()); }
 	public Resource getAggregationResource() { return this.getModel().createResource(getAggregationUri()); }
 
+	@Override
+	public String toString() {
+		return "ResourceMap " + getResourceMapUri();
+	}
 
 	@Override
 	public String getRetrievalUri() { return getResourceMapUri(); }

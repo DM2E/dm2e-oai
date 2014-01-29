@@ -244,6 +244,10 @@ public class Dm2eApiClient {
 		// #create-title
 		{
 			QuerySolution titles = resMap.getAllTitles();
+			if (null == titles) {
+				log.error("Couldn't determine title for " + resMap + ". Bailing out.");
+				return null;
+			}
 			StringBuilder sb = new StringBuilder();
 			sb.append(titles.get("dcterms_title").toString());
 			if (null != titles.get("dm2e_subtitle")) {
