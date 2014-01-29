@@ -113,7 +113,7 @@ public class ResourceMap extends BaseModel implements Serializable{
 		ParameterizedSparqlString sb = new ParameterizedSparqlString();
 		sb.setNsPrefixes(prefixMap);
 		sb.setParam("cho", getProvidedCHO_Resource());
-		sb.append("SELECT ?dcterms_title ?dm2e_subtitle WHERE {  \n");
+		sb.append("SELECT ?dcterms_title ?dm2e_subtitle ?dc_title WHERE {  \n");
 		sb.append("   OPTIONAL { ?cho dcterms:title ?dcterms_title . }  \n");
 		sb.append("   OPTIONAL { ?cho dc:title ?dc_title . }  \n");
 		sb.append("   OPTIONAL { ?cho dm2e:subtitle ?dm2e_subtitle . }  \n");
