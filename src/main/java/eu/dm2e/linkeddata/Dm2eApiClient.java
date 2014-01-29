@@ -249,11 +249,17 @@ public class Dm2eApiClient {
 				return null;
 			}
 			final RDFNode dcterms_title_node = titles.get("dcterms_title");
-			if (null == dcterms_title_node) {
-				log.error("Couldn't determine dcterms:title for " + resMap + ". Bailing out.");
+			final RDFNode dc_title_node = titles.get("dc_title");
+
+			StringBuilder sb = new StringBuilder();
+			if (null != dcterms_title_node) {
+				sb.append(dcterms_title_node.toString());
+			} else if (null != dc_title_node) {
+				sb.append(dc_title_node.toString());
+			} else {
+				log.error("Couldn't determine dcterms:title or dc:title for " + resMap + ". Bailing out.");
 				return null;
 			}
-			StringBuilder sb = new StringBuilder();
 			sb.append(dcterms_title_node.toString());
 			if (null != titles.get("dm2e_subtitle")) {
 				sb.append(" -- ");
