@@ -115,7 +115,7 @@ public class ResourceMap extends BaseModel implements Serializable{
 		sb.setParam("cho", getProvidedCHO_Resource());
 		sb.append("SELECT ?dcterms_title ?dm2e_subtitle WHERE {  \n");
 		sb.append("   OPTIONAL { ?cho dcterms:title ?dcterms_title . }  \n");
-		sb.append("   OPTIONAL { ?cho dc_title ?dc_title . }  \n");
+		sb.append("   OPTIONAL { ?cho dc:title ?dc_title . }  \n");
 		sb.append("   OPTIONAL { ?cho dm2e:subtitle ?dm2e_subtitle . }  \n");
 		sb.append(" } ");
 		Query query = QueryFactory.create(sb.toString());
