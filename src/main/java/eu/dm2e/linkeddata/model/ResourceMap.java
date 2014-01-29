@@ -150,7 +150,8 @@ public class ResourceMap extends BaseModel implements Serializable{
 			} finally { qexec.close() ; }
 		}
 		Collections.sort(pageLinks);
-		final String firstPageLink = pageLinks.get(0);
+		String firstPageLink = null;
+		if (pageLinks.size() > 0) firstPageLink = pageLinks.get(0);
 		log.debug("First Page: " + firstPageLink);
 		return firstPageLink;
 	}

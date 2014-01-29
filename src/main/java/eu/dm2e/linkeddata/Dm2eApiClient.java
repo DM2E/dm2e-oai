@@ -225,10 +225,13 @@ public class Dm2eApiClient {
 		// PunditLink
 		// http://demo.feed.thepund.it/?dm2e=http://lelystad.informatik.uni-mannheim.de:3000/direct/item/bbaw/dta/16821/f0001&conf=timeline-demo.js
 		{
-			Element el = new Element("identifier", jdomNS.get("dc"));
-			el.setAttribute("linktype", "annotate");
-			el.setText(String.format(Config.PUNDIT_FMT_STRING, resMap.getFirstPageLink()));
-			oaiDcDc.addContent(el);
+			String firstPageLink = resMap.getFirstPageLink();
+			if (null != firstPageLink) {
+				Element el = new Element("identifier", jdomNS.get("dc"));
+				el.setAttribute("linktype", "annotate");
+				el.setText(String.format(Config.PUNDIT_FMT_STRING, resMap.getFirstPageLink()));
+				oaiDcDc.addContent(el);
+			}
 		}
 		
 		// Provider ID
