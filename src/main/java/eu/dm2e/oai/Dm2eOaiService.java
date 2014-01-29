@@ -18,6 +18,7 @@ import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
@@ -333,6 +334,9 @@ public class Dm2eOaiService {
 		} catch (Exception e) { return errorNotFound(kvPairs); }
 		
 		Document record = api.resourceMapToOaiRecord(rm, metadataPrefix);
+		if (null == record) {
+			return oaiError(kvPairs, Status.NO_CONTENT, OaiError.idDoesNotExist, "Error converting RDF to " + metadataPrefix);
+		}
 
 		Map<String,Object> valuesMap = new HashMap<String, Object>();
 		valuesMap.put("responseDate", api.nowOaiFormatted());
@@ -447,9 +451,11 @@ public class Dm2eOaiService {
 			}
 			log.debug("getUri matches: " + (resourceMaps.get(i).getRetrievalUri().equals(resourceMap.getRetrievalUri())));
 			if (headersOnly) {
-				headersSB.append(jdomDocumentToCleanString(api.resourceMapToOaiHeader(resourceMap)));
+				final Element oaiHead = api.resourceMapToOaiHeader(resourceMap);
+				if (null != oaiHead) headersSB.append(jdomDocumentToCleanString(oaiHead));
 			} else {
-				headersSB.append(jdomDocumentToCleanString(api.resourceMapToOaiRecord(resourceMap, "oai_dc")));
+				final Document oaiRec = api.resourceMapToOaiRecord(resourceMap, "oai_dc");
+				if (null != oaiRec) headersSB.append(jdomDocumentToCleanString(oaiRec));
 			}
 		}
 
