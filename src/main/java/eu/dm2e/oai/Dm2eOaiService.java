@@ -433,6 +433,7 @@ public class Dm2eOaiService {
 		int completeListSize = resourceMaps.size();
 		boolean isFinished = false;
 		log.debug("Listing from " + start + " to " + (start + limit));
+		RECORD_LOOP:
 		for (int i = start ; i < start + limit ; i++ ) {
 			log.debug("Retrieving dataset/resourcemap tuple #" + i);
 			if (i >= resourceMaps.size()) {
@@ -447,7 +448,8 @@ public class Dm2eOaiService {
 				resourceMap = api.createResourceMap(resourceMaps.get(i));
 			} catch (HttpException e) {
 				log.error("Error retrieving resource map " + resourceMaps.get(i).getRetrievalUri());
-				return errorNotFound(kvPairs);
+				continue RECORD_LOOP;
+//				return errorNotFound(kvPairs);
 			}
 			log.debug("getUri matches: " + (resourceMaps.get(i).getRetrievalUri().equals(resourceMap.getRetrievalUri())));
 			if (headersOnly) {
