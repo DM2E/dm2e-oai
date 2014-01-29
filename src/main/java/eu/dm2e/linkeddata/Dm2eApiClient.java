@@ -260,7 +260,6 @@ public class Dm2eApiClient {
 				log.error("Couldn't determine dcterms:title or dc:title for " + resMap + ". Bailing out.");
 				return null;
 			}
-			sb.append(dcterms_title_node.toString());
 			if (null != titles.get("dm2e_subtitle")) {
 				sb.append(" -- ");
 				sb.append(titles.get("dm2e_subtitle"));
