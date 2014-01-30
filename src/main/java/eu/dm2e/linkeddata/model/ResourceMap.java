@@ -21,6 +21,7 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.util.FileManager;
 
 import eu.dm2e.ws.NS;
 
@@ -48,7 +49,8 @@ public class ResourceMap extends BaseModel implements Serializable{
 	private String	itemId;
 	public String getItemId() { return this.itemId; }
 
-	public ResourceMap(String apiBase, Model model, String providerId, String datasetId, String itemId, String versionId) {
+	public ResourceMap(FileManager fileManager, String apiBase, Model model, String providerId, String datasetId, String itemId, String versionId) {
+		super(fileManager);
 		this.apiBase = apiBase;
 		this.model = null  != model ? model : ModelFactory.createDefaultModel();
 		this.providerId = providerId;
@@ -57,7 +59,8 @@ public class ResourceMap extends BaseModel implements Serializable{
 		this.versionId = versionId;
 	}
 	
-	public ResourceMap(String apiBase, String fromUri, IdentifierType type, String versionId) {
+	public ResourceMap(FileManager fileManager, String apiBase, String fromUri, IdentifierType type, String versionId) {
+		super(fileManager);
 		this.apiBase = apiBase;
 		this.model = ModelFactory.createDefaultModel();
 		this.versionId = versionId;
@@ -86,7 +89,6 @@ public class ResourceMap extends BaseModel implements Serializable{
 		} else {
 			throw new NotImplementedException();
 		}
-		
 	}
 	
 	public String getResourceMapUri()  { return String.format("%s/resourcemap/%s/%s/%s/%s",	apiBase, providerId, collectionId, itemId, versionId); }

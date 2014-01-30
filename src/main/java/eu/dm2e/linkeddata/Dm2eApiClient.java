@@ -5,8 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.sf.ehcache.CacheManager;
-
+import org.apache.jena.riot.RiotNotFoundException;
 import org.eclipse.jetty.http.HttpException;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
@@ -26,7 +25,9 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.util.FileManager;
 
+import eu.dm2e.jena.MapdbFileManager;
 import eu.dm2e.linkeddata.model.BaseModel;
 import eu.dm2e.linkeddata.model.BaseModel.IdentifierType;
 import eu.dm2e.linkeddata.model.Collection;
@@ -37,27 +38,29 @@ import eu.dm2e.ws.NS;
 
 public class Dm2eApiClient {
 
-	private static final String	CACHE_NAME	= "dm2e-oai";
-
 	Logger log = LoggerFactory.getLogger(getClass().getName());
-
 
 //	private Map<String,ResourceMap> resourceMapCache = new HashMap<>();
 //	private Map<String,VersionedDataset> datasetCache = new HashMap<>();
 	private String	apiBase;
 	private HashMap<String, Namespace>	jdomNS	= new HashMap<String, Namespace>();
 	public DateTimeFormatter oaiDateFormatter = DateTimeFormat.forPattern("YYYY-MM-dd'T'HH:mm:ss'Z'");
-	private boolean useCaching = false;
-	private static CacheManager cacheMgr = CacheManager.create();
+
+	private FileManager fileManager;
 
 	public Dm2eApiClient(String apiBase) {
-		this.apiBase = apiBase;
-		setNamespaces();
+		this(apiBase, false);
 	}
 	public Dm2eApiClient(String apiBase, boolean useCaching) {
 		this.apiBase = apiBase;
-		this.useCaching = useCaching;
+		this.fileManager = Dm2eApiClient.setupFileManager();
 		setNamespaces();
+	}
+	
+	public static FileManager setupFileManager() {
+		FileManager fm = new MapdbFileManager();
+		fm.setModelCaching(true);
+		return fm;
 	}
 
 	public String nowOaiFormatted() {
@@ -387,8 +390,12 @@ public class Dm2eApiClient {
 			el.addContent(obj.asLiteral().getValue().toString());
 		} else {
 			// derefrence
-			ThingWithPrefLabel thingWithPrefLabel = new ThingWithPrefLabel(apiBase, null, obj.asResource().toString());
-			thingWithPrefLabel.read(cacheMgr.getCache(CACHE_NAME));
+			ThingWithPrefLabel thingWithPrefLabel = new ThingWithPrefLabel(fileManager, apiBase, null, obj.asResource().toString());
+			try {
+				thingWithPrefLabel.read();
+			} catch (RiotNotFoundException e) {
+				log.error("Undereferencable thing '{}', skipping", thingWithPrefLabel.getRetrievalUri());
+			}
 			el.addContent(thingWithPrefLabel.getPrefLabel());
 		}
 	}
@@ -415,7 +422,7 @@ public class Dm2eApiClient {
 			Resource collectionRes = collectionIter.next().getObject().asResource();
 			String idStr = collectionRes.toString().replace(apiBase + "/dataset/", "");
 			String[] idStrSegments = idStr.split("/");
-			Collection coll = createCollection(new Collection(apiBase, null, idStrSegments[0], idStrSegments[1]));
+			Collection coll = createCollection(new Collection(fileManager, apiBase, null, idStrSegments[0], idStrSegments[1]));
 			set.add(coll);
 		}
 		return set;
@@ -427,16 +434,15 @@ public class Dm2eApiClient {
 	 */
 	// http://lelystad.informatik.uni-mannheim.de:3000/direct/dataset/bbaw/dta/1386762086592
 	public BaseModel createVersionedDataset(String providerId, String datasetId, String versionId) {
-		final VersionedDataset vds = new VersionedDataset(apiBase, null, providerId, datasetId, versionId);
+		final VersionedDataset vds = new VersionedDataset(fileManager, apiBase, null, providerId, datasetId, versionId);
 		return createVersionedDataset(vds);
 	}
 	public VersionedDataset createVersionedDataset(final VersionedDataset dataset) {
-		if (useCaching) dataset.read(cacheMgr.getCache(CACHE_NAME));
-		else dataset.read();
+		dataset.read();
 		return dataset;
 	}
 	public ResourceMap createResourceMap(String providerId, String datasetId, String itemId, String versionId) throws IllegalArgumentException, HttpException {
-		final ResourceMap resourceMap = new ResourceMap(apiBase, null, providerId, datasetId, itemId, versionId);
+		final ResourceMap resourceMap = new ResourceMap(fileManager, apiBase, null, providerId, datasetId, itemId, versionId);
 		return createResourceMap(resourceMap);
 	}
 //	public VersionedDataset createVersionedDataset(String fromUri, IdentifierType type) throws IllegalArgumentException, HttpException { 
@@ -449,8 +455,7 @@ public class Dm2eApiClient {
 //		return createVersionedDataset(newVersionedDataset);
 //	}
 	public ResourceMap createResourceMap(final ResourceMap resourceMap) throws IllegalArgumentException, HttpException {
-		if (useCaching) resourceMap.read(cacheMgr.getCache(CACHE_NAME));
-		else resourceMap.read();
+		resourceMap.read();
 		if (! resourceMap.isRead) {
 			throw new HttpException(404);
 		}
@@ -460,17 +465,16 @@ public class Dm2eApiClient {
 	public ResourceMap createResourceMap(String fromUri, IdentifierType type) throws Exception { 
 		Collection coll = createCollection(fromUri, type);
 		String versionId = coll.getLatestVersionId();
-		return createResourceMap(new ResourceMap(apiBase, fromUri, type, versionId));
+		return createResourceMap(new ResourceMap(fileManager, apiBase, fromUri, type, versionId));
 	}
 	public Collection createCollection(final Collection collection) {
-		if (useCaching) collection.read(cacheMgr.getCache(CACHE_NAME));
-		else collection.read();
+		collection.read();
 		return collection;
 	}
 	public Collection createCollection(String fromUri, IdentifierType type) throws Exception {
 		Collection newCollection;
 		try {
-			newCollection = new Collection(apiBase, fromUri, type);
+			newCollection = new Collection(fileManager, apiBase, fromUri, type);
 		} catch (Exception e) {
 			throw e;
 		}

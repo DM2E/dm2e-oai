@@ -1,24 +1,10 @@
 package eu.dm2e.linkeddata.model;
 
-import java.io.InputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.jena.atlas.web.HttpException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hp.hpl.jena.rdf.model.Model;
-
-import eu.dm2e.linkeddata.Config;
+import com.hp.hpl.jena.util.FileManager;
 
 public abstract class BaseModel implements Comparable<BaseModel>{
 	
@@ -34,65 +20,26 @@ public abstract class BaseModel implements Comparable<BaseModel>{
 
 	public Model getModel() { return model; }
 
-	public boolean	isRead;
+	public boolean	isRead = false;
+	protected FileManager fileManager;
+	
+	private BaseModel() { }
 
-	public BaseModel() {
-		super();
+	public BaseModel(FileManager fm) {
+		this.fileManager = fm;
 	}
-
-	public void read(Cache cache) {
-		log.trace("List of cached objects: ");
-		if (isRead) {
-			log.debug("Already read, return right away.");
-			return;
-		}
-		final String uri = getRetrievalUri();
-		if (cache != null) {
-			for (Object x : cache.getKeys()) {
-				log.trace("  * {}", x);
-			}
-			Element cachedObj = cache.get(uri);
-			if (cachedObj != null) {
-				log.debug("Found in cache: '" + uri + "'.");
-				model.read(new StringReader((String) cachedObj.getObjectValue()), "", Config.CACHE_SERIALIZATION);
-				log.debug("Return from read(cache) right away");
-				isRead = true;
-				return;
-			} else {
-				log.debug("NOT Found in cache: '" + uri + "'.");
-				isRead = false;
-			}
-		}
-		CloseableHttpClient httpClient = HttpClients.createDefault();
-		HttpGet get = new HttpGet(uri);
-		get.setHeader("Accept", Config.CACHE_MEDIATYPE);
-		CloseableHttpResponse resp;
-		try {
-			long t0 = System.currentTimeMillis();
-			resp = httpClient.execute(get);
-			if (resp.getStatusLine().getStatusCode() >= 400) {
-				throw new HttpException("HTTP Error: " + resp.getStatusLine() );
-			}
-			assert(resp.getEntity() != null);
-			InputStream is = resp.getEntity().getContent();
-			StringWriter sw = new StringWriter();
-			IOUtils.copy(is, sw, "UTF-8");
-			String modelSerialized = sw.toString();
-			long t1 = System.currentTimeMillis();
-			model.read(new StringReader(modelSerialized), "", Config.CACHE_SERIALIZATION);
-			log.debug(String.format("Reading the VersionedDataset '%s' took %sms", uri, (t1-t0)));
-			if (cache != null) {
-				log.debug("Caching response under '" + uri + "'.");
-				cache.put(new Element(uri, modelSerialized));
-			}
-			isRead = true;
-		} catch (Exception e) {
-			log.debug("Error retrieving '" + uri + "': ", e);
-			isRead = false;
+	
+	public void read() {
+		if (isRead) return;
+		if (fileManager.hasCachedModel(getRetrievalUri())){
+			model = fileManager.getFromCache(getRetrievalUri());
+		} else {
+			fileManager.readModel(model, getRetrievalUri());
+			fileManager.addCacheModel(getRetrievalUri(), model);
 		}
 	}
 
-	public void read() { read(null); }
+//	public void read() { read(null); }
 
 	abstract public String getRetrievalUri();
 
