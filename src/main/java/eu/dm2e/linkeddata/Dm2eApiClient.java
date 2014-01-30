@@ -125,11 +125,17 @@ public class Dm2eApiClient {
 		dateStamp.setNamespace(Namespace.NO_NAMESPACE);
 		Statement aggDateStmt = resMap.getAggregationResource().getProperty(resMap.getModel().createProperty(NS.DCTERMS.PROP_CREATED));
 		if (null != aggDateStmt) {
-			dateStamp.addContent(oaiDateFormatter.print(DateTime.parse(aggDateStmt
-					.getObject()
-					.asLiteral()
-					.getValue()
-					.toString())));
+			DateTime parsedDate;
+			try {
+				parsedDate = DateTime.parse(aggDateStmt
+						.getObject()
+						.asLiteral()
+						.getValue()
+						.toString());
+				dateStamp.addContent(oaiDateFormatter.print(parsedDate));
+			} catch (IllegalArgumentException e) {
+				log.error("ResourceMap " + resMap + " has an illegal Date: ", e);
+			}
 		} else {
 			dateStamp.addContent(oaiDateFormatter.print(DateTime.now()));
 
