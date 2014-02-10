@@ -27,14 +27,82 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.util.FileManager;
 
-import eu.dm2e.jena.MapdbFileManager;
+import eu.dm2e.NS;
+import eu.dm2e.grafeo.jena.MapdbFileManager;
 import eu.dm2e.linkeddata.model.BaseModel;
 import eu.dm2e.linkeddata.model.BaseModel.IdentifierType;
 import eu.dm2e.linkeddata.model.Collection;
 import eu.dm2e.linkeddata.model.ResourceMap;
 import eu.dm2e.linkeddata.model.ThingWithPrefLabel;
 import eu.dm2e.linkeddata.model.VersionedDataset;
-import eu.dm2e.ws.NS;
+
+
+/**
+ * 
+ * Only if:
+ * - ?cho dm2e:displayLevel "true" (will be ?agg)
+ * 
+ * Fields that reference Places (throw away if not is-a edm:Place):
+ * - dm2e:isPrintedAt : edm:Place
+ * - dcterms:spatial : edm:Place
+ * - dcterms:publishedAt : edm:Place | edm:WebResource
+ * - edm:currentLocation : edm:Place | Literal 
+ * - dc:subject : edm:Place
+ * 
+ * Fields that reference people (throw away not is-a foaf:Person)
+ * - dc:creator
+ * - dm2e:refersTo foaf:Person
+ * - dm2e:wasStudiedBy / dm2e:wasTaughBy foaf:Person
+ * - dm2e:mentioned : edm:Agent (foaf:Person / foaf:Organization)
+ * - dc:subject : edm:Agent foaf:Person
+ * - [dc:publisher : edm:Agent => don't know whether foaf:Person or foaf:Organization, skip for now]
+ * - dm2e:artist
+ * - pro:author
+ * - dm2e:composer
+ * - dc:contributor
+ * - bibo:editor 
+ * - dm2e:honoree 
+ * - pro:illustrator 
+ * - dm2e:mentioned 
+ * - dm2e:portrayed 
+ * - dm2e:misattributed 
+ * - dm2e:painter
+ * - dm2e:patron
+ * - bibo:recipient
+ * - pro:translator
+ * - dm2e:writer
+ * 
+ * Title fields
+ * - dc:title
+ * - dm2e:subTitle
+ * - dcterms:alternative
+ * 
+ * Format / Medium
+ * - dc:format
+ * - dcterms:medium
+ * 
+ * Timespan / Dates: 
+ * - dcterms:created	}		ignore		  parse			edm:begin -> year
+ * - dcterms:issued		} -> [xsd:string], xsd:dateTime oder edm:TimeSpan
+ * - dcterms:temporal	}
+ * - dc:subject (nur wenn is-a edm:Timespan
+ * 
+ * Genre:
+ * - dm2e:genre : skos:Concept
+ * 
+ * Table Of Contents
+ * - dcterms:tableOfContents
+ * 
+ * Language:
+ * - dc:language -> dc:language
+ * 
+ * Links:
+ * - Pundit: dm2e:hasAnnotatableVersionAt
+ * - Thumbnail: edm:object ; edm:isShownBy
+ * - Erste Seite: SPARQL (Liste alle Seiten, sortiere nach URL, nimm erste)
+ * - 
+ * 
+ */
 
 public class Dm2eApiClient {
 
@@ -457,7 +525,7 @@ public class Dm2eApiClient {
 	public ResourceMap createResourceMap(final ResourceMap resourceMap) throws IllegalArgumentException, HttpException {
 		resourceMap.read();
 		if (! resourceMap.isRead) {
-			throw new HttpException(404);
+			throw new HttpException(404, "404 NOT FOUND");
 		}
 		log.debug("Model size: " + resourceMap.getModel().size());
 		return resourceMap;

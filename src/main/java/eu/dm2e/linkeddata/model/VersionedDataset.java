@@ -11,7 +11,7 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.util.FileManager;
 
-import eu.dm2e.ws.NS;
+import eu.dm2e.NS;
 
 /**
  * Encapsulating a dataset including the RDF model of the dataset and it's

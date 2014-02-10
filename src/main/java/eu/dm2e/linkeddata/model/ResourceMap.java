@@ -23,7 +23,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.util.FileManager;
 
-import eu.dm2e.ws.NS;
+import eu.dm2e.NS;
 
 /**
  * Encapsulating a resource map with references to the "main" Aggregation and CHO of this resource map

@@ -12,7 +12,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.util.FileManager;
 
-import eu.dm2e.ws.NS;
+import eu.dm2e.NS;
 
 public class Collection extends BaseModel implements Serializable {
 
