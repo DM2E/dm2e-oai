@@ -105,30 +105,11 @@ public class ResourceMap extends BaseModel implements Serializable{
 
 	@Override
 	public String getRetrievalUri() { return getResourceMapUri(); }
-	public QuerySolution getAllTitles() {
-		Map<String,String> prefixMap = new HashMap<>();
-		prefixMap.put("dm2e", NS.DM2E.BASE);
-		prefixMap.put("dc", NS.DC.BASE);
-		prefixMap.put("rdf", NS.RDF.BASE);
-		prefixMap.put("edm", NS.EDM.BASE);
-		prefixMap.put("dcterms", NS.DCTERMS.BASE);
-		ParameterizedSparqlString sb = new ParameterizedSparqlString();
-		sb.setNsPrefixes(prefixMap);
-		sb.setParam("cho", getProvidedCHO_Resource());
-		sb.append("SELECT ?dcterms_title ?dm2e_subtitle ?dc_title WHERE {  \n");
-		sb.append("   OPTIONAL { ?cho dcterms:title ?dcterms_title . }  \n");
-		sb.append("   OPTIONAL { ?cho dc:title ?dc_title . }  \n");
-		sb.append("   OPTIONAL { ?cho dm2e:subtitle ?dm2e_subtitle . }  \n");
-		sb.append(" } ");
-		Query query = QueryFactory.create(sb.toString());
-		QueryExecution qexec = QueryExecutionFactory.create(query, model) ;
-		QuerySolution soln = null;
-		try {
-			ResultSet results = qexec.execSelect() ;
-			if (results.hasNext()) soln = results.nextSolution();
-		} finally { qexec.close(); }
-		return soln;
+	
+	public String getDcTitle() {
+		return getLiteralPropValue(getProvidedCHO_Resource(), NS.DC.PROP_TITLE);
 	}
+
 	public String getFirstPageLink() {
 		Map<String,String> prefixMap = new HashMap<>();
 		prefixMap.put("dm2e", NS.DM2E.BASE);

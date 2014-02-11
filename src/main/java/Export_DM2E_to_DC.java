@@ -43,7 +43,7 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
 
-import eu.dm2e.ws.NS;
+import eu.dm2e.NS;
 
 public class Export_DM2E_to_DC {
 	
