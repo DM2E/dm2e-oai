@@ -1,5 +1,6 @@
 package eu.dm2e.oai; 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,17 +19,13 @@ import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.eclipse.jetty.http.HttpException;
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.jdom2.Namespace;
-import org.jdom2.output.Format;
-import org.jdom2.output.XMLOutputter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,10 +33,15 @@ import com.google.common.io.Resources;
 
 import eu.dm2e.linkeddata.Config;
 import eu.dm2e.linkeddata.Dm2eApiClient;
+import eu.dm2e.linkeddata.export.OaiDublinCoreHeader;
+import eu.dm2e.linkeddata.export.OaiDublinCoreMetadata;
 import eu.dm2e.linkeddata.model.BaseModel.IdentifierType;
 import eu.dm2e.linkeddata.model.Collection;
 import eu.dm2e.linkeddata.model.ResourceMap;
 import eu.dm2e.linkeddata.model.VersionedDataset;
+import eu.dm2e.oai.protocol.OaiError;
+import eu.dm2e.oai.protocol.OaiKey;
+import eu.dm2e.oai.protocol.OaiVerb;
 
 @Path("oai")
 public class Dm2eOaiService {
@@ -55,52 +57,12 @@ public class Dm2eOaiService {
 	                tplListIdentifiers,
 	                tplError,
 	                tplListRecords;
-	XMLOutputter xmlOutput = new XMLOutputter();
 	
-	/**
-	 * Allowed keys for key=value pairs in GET/POST requests
-	 */
-	enum OaiKey {
-		verb,
-		identifier,
-		resumptionToken,
-		from,
-		until,
-		set,
-		metadataPrefix,
-	}
-	enum OaiVerb {
-		Identify,
-		ListMetadataFormats,
-		ListIdentifiers,
-		ListRecords,
-		ListSets,
-		GetRecord
-	}
-	
-	/**
-	 * OAI-PMH error codes
-	 */
-	enum OaiError {
-		badArgument,
-		badResumptionToken,
-		badVerb,
-		cannotDisseminateFormat,
-		idDoesNotExist,
-		noRecordsMatch,
-		noMetadataFormats,
-		noSetHierarchy
-	}
-
 	// Caching client, hence static (so it's instantiated only once)
 	private static final String apiBase = Config.API_BASE;
 	private static Dm2eApiClient api = new Dm2eApiClient(apiBase, true);
 
 	public Dm2eOaiService() {
-		// pretty print xml
-		final Format jdomFormat = Format.getPrettyFormat();
-		jdomFormat.setOmitDeclaration(true);
-		xmlOutput.setFormat(jdomFormat);
 		try {
 			tplIdentify = Resources.toString(
 					Resources.getResource("/Identify.xml"),
@@ -169,18 +131,27 @@ public class Dm2eOaiService {
 			case ListMetadataFormats: return oaiListMetadataFormats(kvPairs);
 			case ListIdentifiers: return oaiListIdentifiersOrRecords(kvPairs, true);
 			case ListRecords: return oaiListIdentifiersOrRecords(kvPairs, false);
-			case ListSets: return oaiListSets(kvPairs);
+//			case ListSets: return oaiListSets(kvPairs);
 			case GetRecord: return oaiGetRecord(kvPairs);
 			default: return errorUnknownVerb(kvPairs);
 		}
 	}
 	public String oaiRequest(Map<OaiKey,String> kvPairs) {
-		Element request = new Element("request");
-		for (Entry<OaiKey, String> kv : kvPairs.entrySet()) {
-			request.setAttribute(kv.getKey().name(), kv.getValue());
+		StringWriter sw = new StringWriter();
+		try {
+			XMLStreamWriter xmlStreamWriter = Dm2eApiClient.getIndentingXMLStreamWriter(sw);
+			xmlStreamWriter.writeStartElement("request");
+			for (Entry<OaiKey, String> kv : kvPairs.entrySet()) {
+				xmlStreamWriter.writeAttribute(kv.getKey().name(), kv.getValue());
+			}
+			xmlStreamWriter.writeCharacters(uriInfo.getBaseUri() + "/oai");
+			xmlStreamWriter.writeEndElement();
+			xmlStreamWriter.close();
+			sw.close();
+		} catch (XMLStreamException | IOException e) {
+			log.error("BOO");
 		}
-		request.addContent(uriInfo.getBaseUri() + "/oai");
-		return jdomDocumentToCleanString(request);
+		return sw.toString();
 	}
 	private Response oaiError(Map<OaiKey,String> kvPairs, Response.Status httpStatus, OaiError errorCode, String errorDescription) {
 		Map<String,String> valuesMap = new HashMap<String, String>();
@@ -264,58 +235,58 @@ public class Dm2eOaiService {
 					;
 	}
 
-	private Response oaiListSets(Map<OaiKey,String> kvPairs) {
-		Map<String,Object> valuesMap = new HashMap<String, Object>();
-		
-		Element listSets = new Element("ListSets");
-		listSets.setNamespace(Namespace.NO_NAMESPACE);
-		// TODO
-		for (Collection collection : api.listCollections()) {
-			{
-				String setId = String.format("provider:%s",
-						collection.getProviderId());
-				Element set = new Element("set");
-				set.setNamespace(Namespace.NO_NAMESPACE);
-				Element setSpec = new Element("setSpec");
-				setSpec.setNamespace(Namespace.NO_NAMESPACE);
-				Element setName = new Element("setName");
-				setName.setNamespace(Namespace.NO_NAMESPACE);
-				set.addContent(setSpec);
-				set.addContent(setName);
-				setSpec.addContent(setId);
-				setName.addContent("Provider " + setId);
-				listSets.addContent(set);
-			}
-			{
-				String setId = String.format("collection:%s:%s",
-						collection.getProviderId(),
-						collection.getCollectionId());
-				Element set = new Element("set");
-				set.setNamespace(Namespace.NO_NAMESPACE);
-				Element setSpec = new Element("setSpec");
-				setSpec.setNamespace(Namespace.NO_NAMESPACE);
-				Element setName = new Element("setName");
-				setName.setNamespace(Namespace.NO_NAMESPACE);
-				set.addContent(setSpec);
-				set.addContent(setName);
-				setSpec.addContent(setId);
-				setName.addContent("Collection " + setId);
-				listSets.addContent(set);
-			}
-		}
-		
-		valuesMap.put("responseDate", api.nowOaiFormatted());
-		valuesMap.put("baseURI", uriInfo.getBaseUri() + "/oai");
-		valuesMap.put("request", oaiRequest(kvPairs));
-		valuesMap.put("ListSets", jdomDocumentToCleanString(listSets));
-		StrSubstitutor sub = new StrSubstitutor(valuesMap);
-		return Response
-					.ok()
-					.entity(sub.replace(tplListSets))
-					.type(MediaType.TEXT_XML)
-					.build()
-					;
-	}
+//	private Response oaiListSets(Map<OaiKey,String> kvPairs) {
+//		Map<String,Object> valuesMap = new HashMap<String, Object>();
+//		
+//		Element listSets = new Element("ListSets");
+//		listSets.setNamespace(Namespace.NO_NAMESPACE);
+//		// TODO
+//		for (Collection collection : api.listCollections()) {
+//			{
+//				String setId = String.format("provider:%s",
+//						collection.getProviderId());
+//				Element set = new Element("set");
+//				set.setNamespace(Namespace.NO_NAMESPACE);
+//				Element setSpec = new Element("setSpec");
+//				setSpec.setNamespace(Namespace.NO_NAMESPACE);
+//				Element setName = new Element("setName");
+//				setName.setNamespace(Namespace.NO_NAMESPACE);
+//				set.addContent(setSpec);
+//				set.addContent(setName);
+//				setSpec.addContent(setId);
+//				setName.addContent("Provider " + setId);
+//				listSets.addContent(set);
+//			}
+//			{
+//				String setId = String.format("collection:%s:%s",
+//						collection.getProviderId(),
+//						collection.getCollectionId());
+//				Element set = new Element("set");
+//				set.setNamespace(Namespace.NO_NAMESPACE);
+//				Element setSpec = new Element("setSpec");
+//				setSpec.setNamespace(Namespace.NO_NAMESPACE);
+//				Element setName = new Element("setName");
+//				setName.setNamespace(Namespace.NO_NAMESPACE);
+//				set.addContent(setSpec);
+//				set.addContent(setName);
+//				setSpec.addContent(setId);
+//				setName.addContent("Collection " + setId);
+//				listSets.addContent(set);
+//			}
+//		}
+//		
+//		valuesMap.put("responseDate", api.nowOaiFormatted());
+//		valuesMap.put("baseURI", uriInfo.getBaseUri() + "/oai");
+//		valuesMap.put("request", oaiRequest(kvPairs));
+//		valuesMap.put("ListSets", jdomDocumentToCleanString(listSets));
+//		StrSubstitutor sub = new StrSubstitutor(valuesMap);
+//		return Response
+//					.ok()
+//					.entity(sub.replace(tplListSets))
+//					.type(MediaType.TEXT_XML)
+//					.build()
+//					;
+//	}
 
 	
 	private Response oaiGetRecord(Map<OaiKey,String> kvPairs) {
@@ -334,15 +305,25 @@ public class Dm2eOaiService {
 		} catch (HttpException e) { return errorNotFound(kvPairs);
 		} catch (Exception e) { return errorNotFound(kvPairs); }
 		
-		Document record = api.resourceMapToOaiRecord(rm, metadataPrefix);
-		if (null == record) {
-			return oaiError(kvPairs, Status.NO_CONTENT, OaiError.idDoesNotExist, "Error converting RDF to " + metadataPrefix);
+		StringWriter stringWriter = new StringWriter();
+		try {
+			XMLStreamWriter xmlStreamWriter = Dm2eApiClient.getIndentingXMLStreamWriter(stringWriter);
+			api.resourceMapToOaiRecord(rm, metadataPrefix, xmlStreamWriter);
+			xmlStreamWriter.close();
+			stringWriter.close();
+		} catch (XMLStreamException e) {
+			log.error("FNORK");
+		} catch (IOException e) {
+			log.error("BLORK");
 		}
+//		if (null == record) {
+//			return oaiError(kvPairs, Status.NO_CONTENT, OaiError.idDoesNotExist, "Error converting RDF to " + metadataPrefix);
+//		}
 
 		Map<String,Object> valuesMap = new HashMap<String, Object>();
 		valuesMap.put("responseDate", api.nowOaiFormatted());
 		valuesMap.put("request", oaiRequest(kvPairs));
-		valuesMap.put("record", jdomDocumentToCleanString(record));
+		valuesMap.put("record", stringWriter.toString());
 		StrSubstitutor sub = new StrSubstitutor(valuesMap);
 		return Response
 					.ok()
@@ -350,12 +331,6 @@ public class Dm2eOaiService {
 					.type(MediaType.TEXT_XML)
 					.build()
 					;
-	}
-
-	private String jdomDocumentToCleanString(Document el) { return cleanNamespaces(xmlOutput.outputString(el)); }
-	private String jdomDocumentToCleanString(Element el) { return cleanNamespaces(xmlOutput.outputString(el)); }
-	private String cleanNamespaces(String s) { 
-		return s.replaceAll(" xmlns:[a-zA-Z0-9]+=\"[^\"]+\">", ">");
 	}
 
 	// TODO Resumption Token Magic to improve performance
@@ -390,7 +365,6 @@ public class Dm2eOaiService {
 				if (null != latestVersion) datasets.add(api.createVersionedDataset(latestVersion));
 			}
 		} else {
-			// TODO
 			String setType = set.split(":")[0];
 			if (setType.equals("collection")) {
 				// collection:onb:codices
@@ -453,21 +427,40 @@ public class Dm2eOaiService {
 //				return errorNotFound(kvPairs);
 			}
 			log.debug("getUri matches: " + (resourceMaps.get(i).getRetrievalUri().equals(resourceMap.getRetrievalUri())));
-			if (headersOnly) {
-				final Element oaiHead = api.resourceMapToOaiHeader(resourceMap);
-				if (null != oaiHead) headersSB.append(jdomDocumentToCleanString(oaiHead));
-			} else {
-				final Document oaiRec = api.resourceMapToOaiRecord(resourceMap, "oai_dc");
-				if (null != oaiRec) headersSB.append(jdomDocumentToCleanString(oaiRec));
+			try {
+				StringWriter stringWriter = new StringWriter();
+				XMLStreamWriter xmlWriter = Dm2eApiClient.getIndentingXMLStreamWriter(stringWriter);
+				if (headersOnly) {
+					Dm2eApiClient.getExporter(OaiDublinCoreHeader.class).writeResourceMapToXML(resourceMap, xmlWriter);
+				} else {
+					Dm2eApiClient.getExporter(OaiDublinCoreMetadata.class).writeResourceMapToXML(resourceMap, xmlWriter);
+				}
+				xmlWriter.close();
+				stringWriter.close();
+				headersSB.append(stringWriter.toString());
+			} catch (XMLStreamException e) {
+				log.error("XML writing exception: ", e);
+			} catch (IOException e) {
+				log.error("String writing exception: ", e);
 			}
 		}
 
 		// resumptiontoken
-		Element newResumptionToken = new Element("resumptionToken");
-		if (! isFinished) {
-			newResumptionToken.setAttribute("cursor", Integer.toString(start));
-			newResumptionToken.setAttribute("completeListSize", Integer.toString(completeListSize));
-			newResumptionToken.addContent(set + "__" + (start + limit));
+		String newResumptionToken = null;
+		StringWriter sw = new StringWriter();
+		try {
+			XMLStreamWriter xmlStreamWriter = Dm2eApiClient.getIndentingXMLStreamWriter(sw);
+			if (! isFinished) {
+				xmlStreamWriter.writeAttribute("cursor", Integer.toString(start));
+				xmlStreamWriter.writeAttribute("completeListSize", Integer.toString(completeListSize));
+				xmlStreamWriter.writeCharacters(set + "__" + (start + limit));
+			}
+			xmlStreamWriter.close();
+			sw.close();
+			newResumptionToken = sw.toString();
+		} catch (XMLStreamException | IOException e) {
+			log.error("SCHPPLOINK");
+			e.printStackTrace();
 		}
 
 		log.debug("All dataset/resourcemap id tuples retrieved retrieved");
@@ -475,7 +468,7 @@ public class Dm2eOaiService {
 		valuesMap.put("responseDate", api.nowOaiFormatted());
 		valuesMap.put("request", oaiRequest(kvPairs));
 		valuesMap.put("list", headersSB.toString());
-		valuesMap.put("resumptionToken", jdomDocumentToCleanString(newResumptionToken));
+		valuesMap.put("resumptionToken", newResumptionToken);
 		StrSubstitutor sub = new StrSubstitutor(valuesMap);
 		String tplToUse = headersOnly ? tplListIdentifiers : tplListRecords;
 		return Response

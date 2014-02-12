@@ -1,11 +1,15 @@
 package eu.dm2e.linkeddata;
 
 import java.io.StringWriter;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javanet.staxutils.IndentingXMLStreamWriter;
+
+import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
@@ -115,37 +119,72 @@ public class Dm2eApiClient {
 		exporters.put(OaiDublinCoreHeader.class, new OaiDublinCoreHeader());
 		exporters.put(OaiDublinCoreMetadata.class, new OaiDublinCoreMetadata());
 	}
-
-	public Dm2eApiClient(String apiBase) {
-		this(apiBase, false);
+	
+	public static BaseXMLExporter getExporter(Class<? extends BaseXMLExporter> clazz) {
+		return exporters.get(clazz);
 	}
+
+	/**
+	 * @see {@link BaseXMLExporter#getXMLOutputFactory()}
+	 */
+	public static XMLOutputFactory getXMLOutputFactory() {
+		return BaseXMLExporter.getXMLOutputFactory();
+	}
+
+	/**
+	 * @see {@link BaseXMLExporter#getIndentingXMLStreamWriter(Writer)}
+	 */
+	public static XMLStreamWriter getIndentingXMLStreamWriter(Writer writer) throws XMLStreamException {
+		return BaseXMLExporter.getIndentingXMLStreamWriter(writer);
+	}
+
+	/**
+	 * @see {@link BaseXMLExporter#getXMLStreamWriter(Writer)}
+	 */
+	private static XMLStreamWriter getXMLStreamWriter(Writer writer) throws XMLStreamException {
+		return BaseXMLExporter.getXMLStreamWriter(writer);
+	}
+
+	/**
+	 * @see {@link BaseXMLExporter#setNamespaces(XMLStreamWriter)}
+	 * @throws XMLStreamException 
+	 */
+	public static void setNamespaces(XMLStreamWriter xml) throws XMLStreamException {
+		BaseXMLExporter.setNamespaces(xml);
+	}
+
+	/**
+	 * @see BaseExporter#nowOaiFormatted()
+	 */
+	public String nowOaiFormatted() {
+		return BaseExporter.nowOaiFormatted();
+	}
+
+	/**
+	 * @param apiBase the base URI for the DM2E Linked Data API
+	 */
+	public Dm2eApiClient(String apiBase) {
+		this(apiBase, true);
+	}
+
+	/**
+	 * @param apiBase the base URI for the DM2E Linked Data API
+	 * @param useCaching whether to use caching
+	 */
 	public Dm2eApiClient(String apiBase, boolean useCaching) {
 		this.apiBase = apiBase;
-		this.fileManager = Dm2eApiClient.setupFileManager();
+		if (useCaching) {
+			this.fileManager = Dm2eApiClient.setupFileManager();
+		}
 	}
 	
+	/**
+	 * @return a {@link MapdbFileManager} backed Jena {@link FileManager}
+	 */
 	public static FileManager setupFileManager() {
 		FileManager fm = new MapdbFileManager();
 		fm.setModelCaching(true);
 		return fm;
-	}
-
-	/**
-	 * @param xml the {@link XMLStreamWriter} to set prefixes for
-	 * @throws XMLStreamException
-	 */
-	public static void setNamespaces(XMLStreamWriter xml) throws XMLStreamException {
-		xml.setPrefix("oai", NS.OAI.BASE);
-		xml.setPrefix("oai_dc", NS.OAI_DC.BASE);
-		xml.setPrefix("rights", NS.OAI_RIGHTS.BASE);
-		xml.setPrefix("dcterms", NS.DCTERMS.BASE);
-		xml.setPrefix("dc", NS.DC.BASE);
-		xml.setPrefix("edm", NS.EDM.BASE);
-		xml.setPrefix("rdf", NS.RDF.BASE);
-		xml.setPrefix("dm2e", NS.DM2E.BASE);
-		xml.setPrefix("pro", NS.PRO.BASE);
-		xml.setPrefix("bibo", NS.BIBO.BASE);
-		xml.setPrefix("owl", NS.OWL.BASE);
 	}
 
 	/**
@@ -244,10 +283,5 @@ public class Dm2eApiClient {
 		}
 	}
 
-	/**
-	 * @see BaseExporter#nowOaiFormatted()
-	 */
-	public String nowOaiFormatted() {
-		return BaseExporter.nowOaiFormatted();
-	}
+
 }

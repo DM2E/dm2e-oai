@@ -10,9 +10,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Set;
 
-import javanet.staxutils.IndentingXMLStreamWriter;
-
-import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.io.IOUtils;
@@ -146,20 +143,7 @@ public class Dm2eApiClientTest {
 	public void testResourceMapToOaiRecord_oai_dc() throws Exception {
 		ResourceMap resMap = createSampleResourceMap("dingler_example.ttl");
 		StringWriter stringWriter = new StringWriter();
-
-//		XMLOutputFactory factory = new WstxOutputFactory();
-		XMLOutputFactory factory = XMLOutputFactory.newInstance();
-		XMLStreamWriter xml = factory.createXMLStreamWriter(stringWriter);
-		xml = new IndentingXMLStreamWriter(xml);
-
-//		Processor p = new net.sf.saxon.s9api.Processor(false);
-//		Serializer s = p.newSerializer();
-//		s.setOutputProperty(Property.METHOD, "xml");
-//		s.setOutputProperty(Property.INDENT, "yes");
-//		s.setOutputWriter(stringWriter);
-//		XMLStreamWriter xml = s.getXMLStreamWriter();
-
-		api.setNamespaces(xml);
+		XMLStreamWriter xml = Dm2eApiClient.getIndentingXMLStreamWriter(stringWriter);
 		resMap.getThumbnailLink();
 		log.debug(resMap.getItemId());
 		log.debug(resMap.getProvidedCHO_Uri());
