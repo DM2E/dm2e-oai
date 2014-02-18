@@ -48,6 +48,8 @@ public class ResourceMap extends BaseModel implements Serializable{
 	public String getVersionId() { return versionId; }
 	private String	itemId;
 	public String getItemId() { return this.itemId; }
+	private boolean displayLevel;
+	public boolean getDisplayLevel() { return this.displayLevel; }
 
 	public ResourceMap(FileManager fileManager, String apiBase, Model model, String providerId, String datasetId, String itemId, String versionId) {
 		super(fileManager);

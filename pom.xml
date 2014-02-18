@@ -128,6 +128,14 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Better assertThat -->
+        <dependency>
+            <groupId>org.easytesting</groupId>
+            <artifactId>fest-assert</artifactId>
+            <version>1.4</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>net.java.dev.stax-utils</groupId>
             <artifactId>stax-utils</artifactId>

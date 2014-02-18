@@ -33,8 +33,6 @@ import com.google.common.io.Resources;
 
 import eu.dm2e.linkeddata.Config;
 import eu.dm2e.linkeddata.Dm2eApiClient;
-import eu.dm2e.linkeddata.export.OaiDublinCoreHeader;
-import eu.dm2e.linkeddata.export.OaiDublinCoreMetadata;
 import eu.dm2e.linkeddata.model.BaseModel.IdentifierType;
 import eu.dm2e.linkeddata.model.Collection;
 import eu.dm2e.linkeddata.model.ResourceMap;
@@ -423,6 +421,7 @@ public class Dm2eOaiService {
 				resourceMap = api.createResourceMap(resourceMaps.get(i));
 			} catch (HttpException e) {
 				log.error("Error retrieving resource map " + resourceMaps.get(i).getRetrievalUri());
+				e.printStackTrace();
 				continue RECORD_LOOP;
 //				return errorNotFound(kvPairs);
 			}
@@ -431,17 +430,19 @@ public class Dm2eOaiService {
 				StringWriter stringWriter = new StringWriter();
 				XMLStreamWriter xmlWriter = Dm2eApiClient.getIndentingXMLStreamWriter(stringWriter);
 				if (headersOnly) {
-					Dm2eApiClient.getExporter(OaiDublinCoreHeader.class).writeResourceMapToXML(resourceMap, xmlWriter);
+					api.resourceMapToOaiHeader(resourceMap, "oai_dc", xmlWriter);
 				} else {
-					Dm2eApiClient.getExporter(OaiDublinCoreMetadata.class).writeResourceMapToXML(resourceMap, xmlWriter);
+					api.resourceMapToOaiRecord(resourceMap, "oai_dc", xmlWriter);
 				}
 				xmlWriter.close();
 				stringWriter.close();
 				headersSB.append(stringWriter.toString());
 			} catch (XMLStreamException e) {
 				log.error("XML writing exception: ", e);
+				e.printStackTrace();
 			} catch (IOException e) {
 				log.error("String writing exception: ", e);
+				e.printStackTrace();
 			}
 		}
 
@@ -450,11 +451,13 @@ public class Dm2eOaiService {
 		StringWriter sw = new StringWriter();
 		try {
 			XMLStreamWriter xmlStreamWriter = Dm2eApiClient.getIndentingXMLStreamWriter(sw);
+			xmlStreamWriter.writeStartElement("resumptionToken");
 			if (! isFinished) {
 				xmlStreamWriter.writeAttribute("cursor", Integer.toString(start));
 				xmlStreamWriter.writeAttribute("completeListSize", Integer.toString(completeListSize));
 				xmlStreamWriter.writeCharacters(set + "__" + (start + limit));
 			}
+			xmlStreamWriter.writeEndElement();
 			xmlStreamWriter.close();
 			sw.close();
 			newResumptionToken = sw.toString();

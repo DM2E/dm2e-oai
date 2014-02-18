@@ -14,9 +14,75 @@ import eu.dm2e.linkeddata.Config;
 import eu.dm2e.linkeddata.model.ResourceMap;
 import eu.dm2e.linkeddata.util.ScrubbingStringBuilder;
 
-public class OaiDublinCoreMetadata extends BaseXMLExporter {
+/**
+ * 
+ * Only if:
+ * - ?cho dm2e:displayLevel "true" (will be ?agg)
+ * 
+ * Fields that reference Places (throw away if not is-a edm:Place):
+ * - dm2e:isPrintedAt : edm:Place
+ * - dcterms:spatial : edm:Place
+ * - dcterms:publishedAt : edm:Place | edm:WebResource
+ * - edm:currentLocation : edm:Place | Literal 
+ * - dc:subject : edm:Place
+ * 
+ * Fields that reference people (throw away not is-a foaf:Person)
+ * - dc:creator
+ * - dm2e:refersTo foaf:Person
+ * - dm2e:wasStudiedBy / dm2e:wasTaughBy foaf:Person
+ * - dm2e:mentioned : edm:Agent (foaf:Person / foaf:Organization)
+ * - dc:subject : edm:Agent foaf:Person
+ * - [dc:publisher : edm:Agent => don't know whether foaf:Person or foaf:Organization, skip for now]
+ * - dm2e:artist
+ * - pro:author
+ * - dm2e:composer
+ * - dc:contributor
+ * - bibo:editor 
+ * - dm2e:honoree 
+ * - pro:illustrator 
+ * - dm2e:mentioned 
+ * - dm2e:portrayed 
+ * - dm2e:misattributed 
+ * - dm2e:painter
+ * - dm2e:patron
+ * - bibo:recipient
+ * - pro:translator
+ * - dm2e:writer
+ * 
+ * Title fields
+ * - dc:title
+ * - dm2e:subTitle
+ * - dcterms:alternative
+ * 
+ * Format / Medium
+ * - dc:format
+ * - dcterms:medium
+ * 
+ * Timespan / Dates: 
+ * - dcterms:created	}		ignore		  parse			edm:begin -> year
+ * - dcterms:issued		} -> [xsd:string], xsd:dateTime oder edm:TimeSpan
+ * - dcterms:temporal	}
+ * - dc:subject (nur wenn is-a edm:Timespan
+ * 
+ * Genre:
+ * - dm2e:genre : skos:Concept
+ * 
+ * Table Of Contents
+ * - dcterms:tableOfContents
+ * 
+ * Language:
+ * - dc:language -> dc:language
+ * 
+ * Links:
+ * - Pundit: dm2e:hasAnnotatableVersionAt
+ * - Thumbnail: edm:object ; edm:isShownBy
+ * - Erste Seite: SPARQL (Liste alle Seiten, sortiere nach URL, nimm erste)
+ * - 
+ * 
+ */
+public class OaiDublinCoreRecord extends BaseXMLExporter {
 
-	private static final Logger log = LoggerFactory.getLogger(OaiDublinCoreMetadata.class);
+	private static final Logger log = LoggerFactory.getLogger(OaiDublinCoreRecord.class);
 	
 	private static OaiDublinCoreHeader oaiDublinCoreHeader = new OaiDublinCoreHeader();
 	
@@ -43,7 +109,8 @@ public class OaiDublinCoreMetadata extends BaseXMLExporter {
 			{
 				xml.writeStartElement(NS.DC.BASE, "identifier");
 				xml.writeAttribute("linktype", "thumbnail");
-				xml.writeCharacters(String.format(Config.PUNDIT_FMT_STRING, resMap.getThumbnailLink()));
+				String thumbnailLink = resMap.getThumbnailLink();
+				xml.writeCharacters(String.format(Config.PUNDIT_FMT_STRING, thumbnailLink));
 				xml.writeEndElement();
 			}
 	
