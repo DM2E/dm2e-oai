@@ -233,6 +233,7 @@ public class Dm2eOaiService {
 					;
 	}
 
+	// TODO FIXME
 //	private Response oaiListSets(Map<OaiKey,String> kvPairs) {
 //		Map<String,Object> valuesMap = new HashMap<String, Object>();
 //		
@@ -358,9 +359,11 @@ public class Dm2eOaiService {
 		if (null==set) {
 			log.debug("Iterating all collections");
 			for (Collection coll : api.listCollections()) {
-				log.debug("Adding all datasets in collection " + coll.getCollectionUri());
+				long t0 = System.nanoTime();
+				log.debug("Adding latest dataset in collection " + coll.getCollectionUri());
 				final VersionedDataset latestVersion = coll.getLatestVersion();
 				if (null != latestVersion) datasets.add(api.createVersionedDataset(latestVersion));
+				log.debug("Adding latest dataset in collection took {} ms.", (System.nanoTime() - t0) / 1000000);
 			}
 		} else {
 			String setType = set.split(":")[0];
@@ -390,6 +393,7 @@ public class Dm2eOaiService {
 		}
 		
 		// Determine resource maps
+		// TODO handle displayLevel unless Pubby handles it
 		List<ResourceMap> resourceMaps = new ArrayList<ResourceMap>();
 		StringBuilder headersSB = new StringBuilder();
 		for (VersionedDataset dummyDs : datasets) {

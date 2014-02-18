@@ -51,4 +51,13 @@ public class ThingWithPrefLabel extends BaseModel {
 		return prefLabel;
 	}
 
+	public String getRdfType() {
+		StmtIterator stmtIter = this.model.listStatements(
+				getConceptResource(), 
+				getModel().createProperty(NS.RDF.PROP_TYPE),
+				(Literal) null);
+		if (! stmtIter.hasNext()) return NS.OWL.THING;
+		return stmtIter.next().getObject().asResource().getURI();
+	}
+
 }

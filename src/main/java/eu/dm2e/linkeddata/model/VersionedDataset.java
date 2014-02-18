@@ -75,7 +75,7 @@ public class VersionedDataset extends BaseModel implements Serializable {
 //			log.debug("ResourceMap: " + resMapUri);
 //			log.debug("versioneddataseturi: " + getVersionedDatasetUri());
 			String resMapId = resMapUri.replaceFirst(".*/([^/?]+).*", "$1");
-			log.debug("ResourceId: " + resMapId);
+//			log.debug("ResourceId: " + resMapId);
 			ResourceMap resMap = new ResourceMap(this.fileManager, apiBase, null, providerId, collectionId, resMapId, versionId);
 			set.add(resMap);
 		}

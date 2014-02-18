@@ -148,12 +148,13 @@ public class Dm2eApiClient {
 		String uri = apiBase + "/list";
 		HashSet<Collection> set = new HashSet<Collection>();
 		Model model = ModelFactory.createDefaultModel();
-		long t0 = System.currentTimeMillis();
+		long t0 = System.nanoTime();
 		// TODO cache
 		model.read(uri);
-		long t1 = System.currentTimeMillis();
-		log.debug(String.format("Reading the list of Datasets took %sms", (t1-t0)));
-		log.trace("list collections response: " + dumpModel(model));
+		long t1 = System.nanoTime();
+		log.debug(String.format("Reading the list of Collections took %sms", (t1-t0)/1000000));
+		if (log.isTraceEnabled())
+			log.trace("list collections response: " + dumpModel(model));
 		StmtIterator collectionIter = model.listStatements(
 				model.createResource(uri),
 				model.createProperty(NS.DM2E_UNOFFICIAL.PROP_HAS_COLLECTION),
@@ -162,7 +163,12 @@ public class Dm2eApiClient {
 			Resource collectionRes = collectionIter.next().getObject().asResource();
 			String idStr = collectionRes.toString().replace(apiBase + "/dataset/", "");
 			String[] idStrSegments = idStr.split("/");
+			t0 = System.nanoTime();
+			String shortId = String.format("%s/%s", idStrSegments[0], idStrSegments[1]);
+			log.debug("Instantiating Collection '{}'", shortId);
 			Collection coll = createCollection(new Collection(fileManager, apiBase, null, idStrSegments[0], idStrSegments[1]));
+			t1 = System.nanoTime();
+			log.debug("Instantiating Collection '{}' took {} ms", shortId, (t1-t0)/1000000);
 			set.add(coll);
 		}
 		return set;

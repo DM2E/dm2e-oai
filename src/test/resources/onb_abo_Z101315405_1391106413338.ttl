@@ -1,0 +1,58 @@
+@prefix edm:     <http://www.europeana.eu/schemas/edm/> .
+@prefix dm2e:    <http://onto.dm2e.eu/schemas/dm2e/> .
+@prefix ore:     <http://www.openarchives.org/ore/terms/> .
+@prefix geonames:  <http://www.geonames.org/ontology#> .
+@prefix meta:    <http://example.org/metadata#> .
+@prefix dcterms:  <http://purl.org/dc/terms/> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix prvTypes:  <http://purl.org/net/provenance/types#> .
+@prefix tei2edm:  <http://sbb.spk-berlin.de/dm2e/tei2edm> .
+@prefix dbpedia:  <http://localhost:8080/resource/> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dm2e11:  <http://onto.dm2e.eu/schemas/dm2e/1.1/> .
+@prefix prv:     <http://purl.org/net/provenance/ns#> .
+@prefix dc:      <http://purl.org/dc/elements/1.1/> .
+@prefix ir:      <http://www.ontologydesignpatterns.org/cp/owl/informationrealization.owl#> .
+@prefix geo:     <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix yago:    <http://localhost:8080/class/yago/> .
+@prefix void:    <http://rdfs.org/ns/void#> .
+@prefix units:   <http://dbpedia.org/units/> .
+@prefix dct:     <http://purl.org/dc/terms/> .
+@prefix p:       <http://localhost:8080/property/> .
+@prefix bibo:    <http://purl.org/ontology/bibo/> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix wgs84:   <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix doap:    <http://usefulinc.com/ns/doap#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xalan:   <http://xml.apache.org/xalan> .
+
+<http://data.dm2e.eu/data/item/onb/abo/%2BZ101315405>
+      a       <http://example.org/resourcemap> , edm:ProvidedCHO ;
+      dm2e11:displayLevel "True" ;
+      dm2e11:genre <http://data.dm2e.eu/data/concept/onb/abo/Quelle> , <http://data.dm2e.eu/data/concept/onb/abo/Datensammlung> ;
+      dm2e11:illustration "graph. Darst." ;
+      dm2e11:printedAt <http://data.dm2e.eu/data/place/onb/abo/Wien> ;
+      dm2e11:shelfmarkLocation
+              "308168-B" ;
+      dc:language "ger" ;
+      dc:subject <http://data.dm2e.eu/data/concept/onb/authority_gnd/4039305-7> , <http://data.dm2e.eu/data/concept/onb/abo/Geschichte_1849> , <http://data.dm2e.eu/data/concept/onb/authority_gnd/4058940-7> , <http://data.dm2e.eu/data/place/onb/authority_gnd/4043271-3> , <http://data.dm2e.eu/data/concept/onb/authority_gnd/4073817-6> , <http://data.dm2e.eu/data/concept/onb/authority_gnd/4473972-2> , <http://data.dm2e.eu/data/concept/onb/authority_gnd/4126116-1> , <http://data.dm2e.eu/data/concept/onb/authority_gnd/4114599-9> , <http://data.dm2e.eu/data/concept/onb/authority_gnd/4457537-3> , <http://data.dm2e.eu/data/concept/onb/authority_gnd/4045242-6> , <http://data.dm2e.eu/data/concept/onb/authority_gnd/4169951-8> , <http://data.dm2e.eu/data/concept/onb/authority_gnd/4139582-7> , <http://data.dm2e.eu/data/timespan/onb/abo/1849-01-01T000000UG_1849-12-31T235959UG> , <http://data.dm2e.eu/data/concept/onb/authority_gnd/4129552-3> , <http://data.dm2e.eu/data/concept/onb/authority_gnd/4203217-9> , <http://data.dm2e.eu/data/concept/onb/authority_gnd/4057952-9> ;
+      dc:title "Ueber die Kenntniß der drei Waffen und ihre Verwendung" ;
+      dc:type bibo:Book ;
+      dct:issued <http://data.dm2e.eu/data/timespan/onb/abo/1849-01-01T000000UG_1849-12-31T235959UG> ;
+      bibo:numPages "XIV, 175 S., 7 mehrf. gef. Bl." ;
+      <http://purl.org/spar/pro/printer>
+              <http://data.dm2e.eu/data/agent/onb/abo/K._K._Hof-_u._Staatsdruckerei> ;
+      edm:hasMet <http://data.dm2e.eu/data/agent/onb/abo/B._S.> ;
+      edm:type "TEXT" .
+
+<http://data.dm2e.eu/data/aggregation/onb/abo/%2BZ101315405>
+      a       ore:Aggregation , <http://example.org/resourcemap> ;
+      dct:created "2007-09-24T00:00:00"^^<xsd:dateTime> ;
+      dct:modified "2007-10-04T00:00:00"^^<xsd:dateTime> ;
+      edm:aggregatedCHO <http://data.dm2e.eu/data/item/onb/abo/%2BZ101315405> ;
+      edm:dataProvider <http://data.dm2e.eu/data/agent/onb/abo/Austrian_National_Library> ;
+      edm:isShownAt <http://data.onb.ac.at/ABO/%2BZ101315405> ;
+      edm:provider <http://data.dm2e.eu/data/agent/onb/abo/DM2E> ;
+      edm:rights <http://www.europeana.eu/rights/out-of-copyright-non-commercial.html> .

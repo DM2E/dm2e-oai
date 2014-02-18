@@ -107,11 +107,15 @@ public class OaiDublinCoreRecord extends BaseXMLExporter {
 			
 			// <dc:identifier linktype="thumbnail">
 			{
-				xml.writeStartElement(NS.DC.BASE, "identifier");
-				xml.writeAttribute("linktype", "thumbnail");
 				String thumbnailLink = resMap.getThumbnailLink();
-				xml.writeCharacters(String.format(Config.PUNDIT_FMT_STRING, thumbnailLink));
-				xml.writeEndElement();
+				if (null != thumbnailLink) {
+					// <dc:identifier>
+					xml.writeStartElement(NS.DC.BASE, "identifier"); 
+					xml.writeAttribute("linktype", "thumbnail");
+					xml.writeCharacters(thumbnailLink);
+					// </dc:identifier>
+					xml.writeEndElement(); // </dc:identifier>
+				}
 			}
 	
 			// PunditLink
@@ -120,17 +124,21 @@ public class OaiDublinCoreRecord extends BaseXMLExporter {
 			{
 				String firstPageLink = resMap.getFirstPageLink();
 				if (null != firstPageLink) {
+					// <dc:identifier>
 					xml.writeStartElement(NS.DC.BASE, "identifier");
 					xml.writeAttribute("linktype", "annotate");
 					xml.writeCharacters(String.format(Config.PUNDIT_FMT_STRING, firstPageLink));
+					// </dc:identifier>
 					xml.writeEndElement();
 				}
 			}
 			
 			// <edm:dataProvider>
 			{
+				// <edm:dataProvider>
 				xml.writeStartElement(NS.EDM.BASE, "dataProvider");
 				xml.writeCharacters(resMap.getProviderId());
+				// </edm:dataProvider>
 				xml.writeEndElement();
 			}
 			
@@ -147,8 +155,10 @@ public class OaiDublinCoreRecord extends BaseXMLExporter {
 				if (null != dctermsAlternative)
 					sb.append(" -- ").append(dctermsAlternative);
 				if (sb.length() > 0) {
+					// <dc:title>
 					xml.writeStartElement(NS.DC.BASE, "title");
 					xml.writeCharacters(sb.toString());
+					// </dc:title>
 					xml.writeEndElement();
 				}
 			}
@@ -160,35 +170,72 @@ public class OaiDublinCoreRecord extends BaseXMLExporter {
 				final String prefLabel = resMap.dereferenceAndGetPrefLabel(resMap.getProvidedCHO_Resource(), theProp);
 				if (null == prefLabel)
 					continue;
+				// <dc:creator>
 				xml.writeStartElement(NS.DC.BASE, "creator");
 				xml.writeCharacters(prefLabel);
+				// </dc:creator>
 				xml.writeEndElement();
 			}
 	
-			// <dc:contributor>
+			// <dc:contributor></dc:contributor>
 			for (String theProp : getChoContributorProperties()) {
 				log.debug(resMap.getProvidedCHO_Uri());
 				log.debug(theProp);
 				final String prefLabel = resMap.dereferenceAndGetPrefLabel(resMap.getProvidedCHO_Resource(), theProp);
 				if (null == prefLabel)
 					continue;
-				xml.writeStartElement(NS.DC.BASE, "creator");
+				// <dc:contributor>
+				xml.writeStartElement(NS.DC.BASE, "contributor");
 				xml.writeCharacters(prefLabel);
+				// <dc:contributor>
 				xml.writeEndElement();
 			}
 			
-			// <dc:date>
+			// <dc:date></dc:date>
 			for (String theProp : getChoDateProperties()) {
 				DateTime dateTime = resMap.getDateTimeForProp(resMap.getProvidedCHO_Resource(), theProp);
 				if (null != dateTime) {
+					// <dc:date>
 					xml.writeStartElement(NS.DC.BASE, "date");
 					xml.writeCharacters(oaiDateFormatter.print(dateTime));
+					// </dc:date>
 					xml.writeEndElement();
 				}
 			}
 			
-			// <dc:subject>
-		
+			// <dc:subject></dc:subject>
+			{
+				for (String subject : resMap.getLiteralSubjects(NS.SKOS.CLASS_CONCEPT)) {
+					// <dc:subject>
+					xml.writeStartElement(NS.DC.BASE, "subject");
+					xml.writeCharacters(subject);
+					// </dc:subject>
+					xml.writeEndElement();
+				}
+			}
+			
+			// <dc:language></dc:language>
+			{
+				// <dc:language>
+				xml.writeStartElement(NS.DC.BASE, "language");
+				xml.writeCharacters(resMap.getLanguage());
+				// </dc:language>
+				xml.writeEndElement();
+			}
+			
+			// <dc:description></dc:description>
+			{
+				// <dc:description>
+				for (String desc : resMap.getDescriptions()) {
+					xml.writeStartElement(NS.DC.BASE, "description");
+					xml.writeCharacters(desc);
+					// </dc:description>
+					xml.writeEndElement();
+				}
+			}
+			
+			
+			// TODO <dc:spatial></dc:spatial>
 			
 	//
 	//
@@ -295,6 +342,9 @@ public class OaiDublinCoreRecord extends BaseXMLExporter {
 	//			}
 	//			if (null != el) oaiDcDc.addContent(el);
 	//		}
+
+			// </oai_dc:dc>
+			xml.writeEndElement(); 
 	
 			// </oai:metadata>
 			xml.writeEndElement(); 

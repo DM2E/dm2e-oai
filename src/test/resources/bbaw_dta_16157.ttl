@@ -1,0 +1,271 @@
+@prefix edm:     <http://www.europeana.eu/schemas/edm/> .
+@prefix dm2e:    <http://onto.dm2e.eu/schemas/dm2e/> .
+@prefix ore:     <http://www.openarchives.org/ore/terms/> .
+@prefix geonames:  <http://www.geonames.org/ontology#> .
+@prefix meta:    <http://example.org/metadata#> .
+@prefix dcterms:  <http://purl.org/dc/terms/> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix prvTypes:  <http://purl.org/net/provenance/types#> .
+@prefix tei2edm:  <http://sbb.spk-berlin.de/dm2e/tei2edm> .
+@prefix dbpedia:  <http://localhost:8080/resource/> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dm2e11:  <http://onto.dm2e.eu/schemas/dm2e/1.1/> .
+@prefix prv:     <http://purl.org/net/provenance/ns#> .
+@prefix dc:      <http://purl.org/dc/elements/1.1/> .
+@prefix ir:      <http://www.ontologydesignpatterns.org/cp/owl/informationrealization.owl#> .
+@prefix geo:     <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix yago:    <http://localhost:8080/class/yago/> .
+@prefix void:    <http://rdfs.org/ns/void#> .
+@prefix units:   <http://dbpedia.org/units/> .
+@prefix dct:     <http://purl.org/dc/terms/> .
+@prefix p:       <http://localhost:8080/property/> .
+@prefix bibo:    <http://purl.org/ontology/bibo/> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix wgs84:   <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix doap:    <http://usefulinc.com/ns/doap#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xalan:   <http://xml.apache.org/xalan> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0038>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0023>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0050>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0013>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0028>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0047>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0033>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0004>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0008>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0018>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0014>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0043>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0037>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157>
+      a       <http://example.org/resourcemap> , edm:ProvidedCHO ;
+      dm2e11:displayLevel "true" ;
+      dm2e11:genre <http://data.dm2e.eu/data/concept/bbaw/dta/Wissenschaft> , <http://data.dm2e.eu/data/concept/bbaw/dta/Fachtext> ;
+      dm2e11:levelOfHierarchy
+              "1" ;
+      dm2e11:printedAt <http://data.dm2e.eu/data/place/bbaw/dta/Leipzig> ;
+      dm2e11:shelfmarkLocation
+              "SBB-PK, in: Lc6853-5=241.1878" ;
+      dc:identifier "16157" ;
+      dc:language "de" ;
+      dc:publisher <http://data.dm2e.eu/data/agent/bbaw/dta/Barth> ;
+      dc:subject <http://data.dm2e.eu/data/concept/bbaw/dta/Physik> ;
+      dc:title "Ueber eine besondere Art der Tonerregung"@de ;
+      dc:type bibo:Book ;
+      dct:alternative "Strouhal, Vincent: Ueber eine besondere Art der Tonerregung. In: Annalen der Physik und Chemie. NF. Bd. V, H. 10, S. 216-251."@de ;
+      dct:issued <http://data.dm2e.eu/data/timespan/bbaw/dta/1878-01-01T00%3A00%3A00UG_1878-12-31T23%3A59%3A59UG> ;
+      dct:tableOfContents "Neuntes Heft. | Seite | I. W. Beetz. Ueber die Electricitätserregung beim Contact fester und gasförmiger Körper 1 | II. E. Dorn. Ueber die galvanischen Ströme, welche beim Strömen von Flüssigkeiten durch Röhren erzeugt werden 20 | III. G. Wiedemann. Ueber die Dissociation der gelösten Eisenoxydsalze 45 | IV. L. Hermann. Versuche über das Verhalten der Phase und der Klangzusammensetzung bei der telephonischen Uebertragung 83 | V. A. Winkelmann. Ueber die Abweichung einiger Gase vom Boyle’schen Gesetze bei 0° und 100° 92 | VI. Ph. von Jolly. Die Anwendung der Waage auf Probleme der Gravitation 112 | VII. J. Fröhlich. Ein neuer Satz in der Theorie der Diffrac- tion und dessen Anwendung 134 | VIII. E. Wiedemann. Ueber die Beziehung zwischen Refrac- tionsäquivalent und Weglänge 142 | IX. H. Fritsch. Ueber die Erregung der Electricität durch Druck und Reibung 143 | Geschlossen am 5. August 1878. | Zehntes Heft. | Seite | I. F. Narr. Ueber das Verhalten der Electricität in ver- dünnten Gasen 145 | II. A. L. Holz. Ueber die Coercitivkraft des Magneteisen- steines und des glasharten Stahles 169 | III. F. Braun. Ueber die Electricitätsentwickelung als Aequi- valent chemischer Prozesse 182 | IV. V. Strouhal. Ueber eine besondere Art der Tonerregung 216 | V. K. R. Koch. Ueber die Bestimmung des Elasticitäts- coëfficienten aus der Biegung kurzer Stäbchen 251 | VI. R. Schneider. Bemerkungen, das Atomgewicht des An- timons betreffend 265 | VII. L. Ditscheiner. Ueber den galvanischen Widerstand eines ebenen Ringes 282 | VIII. H. Haga. Erwiderungen auf Hrn. Prof. Edlund’s „Be- merkungen über die beim Ausströmen der Flüssigkeiten durch Röhren entstehende electromotorische Kraft“ 287 | Geschlossen am 1. October 1878. | Elftes Heft. | I. F. Auerbach. Der Durchgang des galvanischen Stromes durch das Eisen 289 | II. C. Fromme. Magnetische Experimentaluntersuchungen 345 | III. F. Exner. Ueber die galvanische Polarisation des Platins in Wasser 388 | IV. A. Ritter. Untersuchungen über die Höhe der Atmo- sphäre und die Constitution gasförmiger Weltkörper 405 | V. F. Koláček. Ueber den Einfluss des capillaren Oberflächendruckes auf die Fortpflanzungsgeschwindig- keit von Wasserwellen 425 | VI. L. Boltzmann. Zur Theorie der elastischen Nachwir- kung 430 | Geschlossen am 8. November 1877. | Zwölftes Heft. | Seite | I. F. Niemöller. Electrodynamische Versuche mit defor- mirbaren Stromleitern 433 | II. H. Helmholtz. Telephon und Klangfarbe 448 | III. R. Nahrwold. Ueber die Luftelectricität 460 | IV. E. Wiedemann. Untersuchungen über die Natur der Spectra (1. Theorie. 2. Spectra gemischter Gase) 500 | V. D. J. Korteweg. Ueber die Fortpflanzungsgeschwindig- keit des Schalles in elastischen Röhren 525 | VI. A. Ritter. Untersuchungen über die Höhe der Atmo- sphäre und die Constitution gasförmiger Weltkörper 543 | VII. R. Rühlmann. Ableitung der Formeln für Messungen der Meerestiefen mit Hülfe des Manometers 558 | VIII. E. Wundt. Krystallographische Untersuchungen des Methenylorthophenylendiamins 566 | IX. A. Sadebeck. Optische Untersuchung der Krystalle des Methenylorthophenylendiamins 572 | X. A. Sadebeck. Krystallform der Salicylsäure 574 | XI. A. Sadebeck. Zwei neue regelmässige Verwachsungen verschiedener Mineralien 576 | Berichtigungen 580 | Namenregister zum Jahrgang 1878 581 | Geschlossen am 1. December 1878. | "@de ;
+      <http://purl.org/ontology/bibonumPages>
+              "51" ;
+      <http://purl.org/spar/pro/author>
+              <http://data.dm2e.eu/data/agent/bbaw/authority_gnd/102001987> ;
+      edm:currentLocation <http://data.dm2e.eu/data/agent/bbaw/dta/Staatsbibliothek%20zu%20Berlin%20%E2%80%93%20Preu%C3%9Fischer%20Kulturbesitz> ;
+      edm:type "TEXT" .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0039>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0022>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0051>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0029>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0012>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0032>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0046>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0009>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0019>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0036>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0015>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0005>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0042>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0041>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/aggregation/bbaw/dta/16157>
+      a       ore:Aggregation , <http://example.org/resourcemap> ;
+      dc:contributor <http://data.dm2e.eu/data/agent/bbaw/dta/Jakob%20Steinmann> , <http://data.dm2e.eu/data/agent/bbaw/dta/Frank%20Wiegand> , <http://data.dm2e.eu/data/agent/bbaw/authority_gnd/1019062681> , <http://data.dm2e.eu/data/agent/bbaw/authority_gnd/115266127> , <http://data.dm2e.eu/data/agent/bbaw/dta/Matthias%20Schulz> , <http://data.dm2e.eu/data/agent/bbaw/authority_gnd/1018099549> , <http://data.dm2e.eu/data/agent/bbaw/dta/Christian%20Thomas> ;
+      dc:rights "Distributed under the Creative Commons Attribution-NonCommercial 3.0 Unported License." ;
+      dct:created "2014-01-09T23:24:14Z" ;
+      edm:aggregatedCHO <http://data.dm2e.eu/data/item/bbaw/dta/16157> ;
+      edm:dataProvider <http://data.dm2e.eu/data/agent/bbaw/dta/Deutsches%20Textarchiv> ;
+      edm:hasView <http://www.deutschestextarchiv.de/strouhal_tonerregung_1878> ;
+      edm:isShownAt <http://www.deutschestextarchiv.de/strouhal_tonerregung_1878> ;
+      edm:object <http://media.dwds.de/dta/images/strouhal_tonerregung_1878/strouhal_tonerregung_1878_0007_1600px.jpg> ;
+      edm:provider <http://data.dm2e.eu/data/agent/DM2E> ;
+      edm:rights <http://creativecommons.org/licenses/by-nc/3.0/> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0026>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0025>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0021>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0011>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0006>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0016>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0002>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0031>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0035>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0049>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0045>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0024>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0027>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0020>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0010>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0007>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0001>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0048>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0003>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0030>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0017>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0044>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0034>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
+
+<http://data.dm2e.eu/data/item/bbaw/dta/16157_f0040>
+      a       <http://example.org/resourcemap> ;
+      dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .

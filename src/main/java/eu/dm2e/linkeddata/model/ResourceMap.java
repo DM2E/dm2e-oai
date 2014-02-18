@@ -21,6 +21,8 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.shared.JenaException;
 import com.hp.hpl.jena.util.FileManager;
 
 import eu.dm2e.NS;
@@ -48,8 +50,6 @@ public class ResourceMap extends BaseModel implements Serializable{
 	public String getVersionId() { return versionId; }
 	private String	itemId;
 	public String getItemId() { return this.itemId; }
-	private boolean displayLevel;
-	public boolean getDisplayLevel() { return this.displayLevel; }
 
 	public ResourceMap(FileManager fileManager, String apiBase, Model model, String providerId, String datasetId, String itemId, String versionId) {
 		super(fileManager);
@@ -113,29 +113,27 @@ public class ResourceMap extends BaseModel implements Serializable{
 	}
 
 	public String getFirstPageLink() {
-		Map<String,String> prefixMap = new HashMap<>();
-		prefixMap.put("dm2e", NS.DM2E.BASE);
-		prefixMap.put("dc", NS.DC.BASE);
-		prefixMap.put("rdf", NS.RDF.BASE);
-		prefixMap.put("edm", NS.EDM.BASE);
-		prefixMap.put("edm", NS.EDM.BASE);
+		Map<String, String> prefixMap = buildPrefixes();
 		List<String> pageLinks = new ArrayList<>();
 		{
 			ParameterizedSparqlString sb = new ParameterizedSparqlString();
 			sb.setNsPrefixes(prefixMap);
 			sb.setParam("parentCHO", getProvidedCHO_Resource());
-			sb.append("SELECT DISTINCT ?pageCHO WHERE {  \n");
-			sb.append("   ?cho dc:isPartOf* ?parentCHO .  \n");
-			sb.append("   ?pageCHO dc:type dm2e:Page .  \n");
-			sb.append(" } ");
+			sb.append("SELECT DISTINCT ?cho WHERE {  \n");
+			sb.append("   ?cho dcterms:isPartOf* ?parentCHO .  \n");
+			sb.append("   FILTER(?cho != ?parentCHO)   \n");
+// TODO dirty data
+//			sb.append("   ?agg edm:aggregatedCHO ?cho .   \n")
+//			sb.append("   ?agg dc:type dm2e:Page   \n")
+			sb.append(" } ORDER BY STR(?cho)   \n");
+			sb.append("   LIMIT 1  \n ");
 			Query query = QueryFactory.create(sb.toString());
 			QueryExecution qexec = QueryExecutionFactory.create(query, model) ;
 			try {
 				ResultSet results = qexec.execSelect() ;
 				for ( ; results.hasNext() ; ) {
 					QuerySolution soln = results.nextSolution() ;
-					pageLinks.add(soln.get("pageCHO").toString());
-//					log.debug("Page found: " + soln.get("pageCHO"));
+					pageLinks.add(soln.get("cho").toString());
 				}
 			} finally { qexec.close() ; }
 		}
@@ -147,61 +145,162 @@ public class ResourceMap extends BaseModel implements Serializable{
 	}
 
 	public String getThumbnailLink() {
+		Map<String, String> prefixMap = buildPrefixes();
+
+		ParameterizedSparqlString sb = new ParameterizedSparqlString();
+		sb.setNsPrefixes(prefixMap);
+		sb.setParam("agg", getAggregationResource());
+		sb.append("SELECT ?thumbnail WHERE {  \n");
+		sb.append("   { ?agg edm:object ?thumbnail .}  \n");
+		sb.append("   UNION  \n");
+		sb.append("   { ?agg dm2e:hasAnnotatableVersionAt ?thumbnail .}  \n");
+		sb.append("   UNION  \n");
+		sb.append("   { ?agg dm2e11:hasAnnotatableVersionAt ?thumbnail .}  \n");
+		sb.append("   UNION  \n");
+		sb.append("   { ?agg edm:isShownBy ?thumbnail .}  \n");
+// TODO dirty data, better leave this even though it's wrong
+//		sb.append("   ?thumbnail dc:format ?mime_type .  \n");
+//		sb.append("   FILTER STRSTARTS(STR(?mime_type), \"image\")  \n");
+		sb.append(" } LIMIT 1 ");
+		Query query = QueryFactory.create(sb.toString());
+		
+		String thumbnail = null;
+		QueryExecution qexec = QueryExecutionFactory.create(query, getModel()) ;
+		try {
+			ResultSet results = qexec.execSelect() ;
+			for ( ; results.hasNext() ; ) {
+				QuerySolution soln = results.nextSolution() ;
+				thumbnail = soln.get("thumbnail").toString();
+			}
+		} finally { qexec.close(); }
+		return thumbnail;
+	}
+
+	public List<String> getLiteralSubjects(String... subjectTypes) {
+		
+		List<String> ret = new ArrayList<>();
+
+		Map<String, String> prefixMap = buildPrefixes();
+
+		ParameterizedSparqlString sb = new ParameterizedSparqlString();
+		sb.setNsPrefixes(prefixMap);
+		sb.setParam("cho", getProvidedCHO_Resource());
+		sb.append("SELECT ?subject WHERE {  \n");
+		sb.append("   ?cho dc:subject ?subject .  \n");
+		sb.append(" }  ");
+		Query query = QueryFactory.create(sb.toString());
+		
+		QueryExecution qexec = QueryExecutionFactory.create(query, getModel()) ;
+		try {
+			ResultSet results = qexec.execSelect() ;
+			for ( ; results.hasNext() ; ) {
+				QuerySolution soln = results.nextSolution() ;
+				String subjectUri;
+				String literalSubject = null;
+				try {
+					subjectUri = soln.get("subject").asResource().getURI();
+
+					// dereference and get skos:prefLabel
+					ThingWithPrefLabel subjectThing = new ThingWithPrefLabel(fileManager, apiBase, model, subjectUri);
+					subjectThing.read();
+					for (String subjectType : subjectTypes) {
+						if (subjectType.equals(subjectThing.getRdfType())) {
+							literalSubject = subjectThing.getPrefLabel();
+							if (null == literalSubject) {
+								literalSubject = subjectUri.substring(subjectUri.lastIndexOf('/') + 1);
+							}
+						}
+					}
+				} catch (JenaException e) {
+					log.error(this + " contains a literal dc:subject!");
+					literalSubject = soln.get("subject").asLiteral().getLexicalForm();
+				}
+				if (null != literalSubject)
+					ret.add(literalSubject);
+			}
+		} finally { qexec.close(); }
+		return ret;
+	}
+
+	public String getLanguage() {
+		StmtIterator languageIter = getProvidedCHO_Resource().listProperties(model.createProperty(NS.DC.PROP_LANGUAGE));
+		if (! languageIter.hasNext()) {
+			return "unknown";
+		}
+		return languageIter.next().getObject().asLiteral().getLexicalForm();
+	}
+
+	public List<String> getDescriptions() {
+		List<String> ret = new ArrayList<>();
+
+		Map<String, String> prefixMap = buildPrefixes();
+
+		ParameterizedSparqlString sb = new ParameterizedSparqlString();
+		sb.setNsPrefixes(prefixMap);
+		sb.setParam("cho", getProvidedCHO_Resource());
+		sb.append("SELECT ?description WHERE {  \n");
+		sb.append("   { ?cho dcterms:tableOfContents ?description . }  \n");
+		sb.append("   UNION  \n");
+		sb.append("   { ?cho dc:description ?description . }  \n");
+		sb.append(" }  ");
+		Query query = QueryFactory.create(sb.toString());
+		
+		QueryExecution qexec = QueryExecutionFactory.create(query, getModel()) ;
+		try {
+			ResultSet results = qexec.execSelect() ;
+			for ( ; results.hasNext() ; ) {
+				QuerySolution soln = results.nextSolution() ;
+				if (null == soln.get("description")) {
+					continue;
+				}
+				try {
+					String description = soln.get("description").asLiteral().getLexicalForm();
+					ret.add(description);
+				} catch (JenaException e) {
+					log.error(this + " contains a non-literal description!");
+					continue;
+				}
+			}
+		} finally { qexec.close(); }
+		return ret;
+	}
+	
+	public boolean isDisplayLevelTrue() {
+		boolean ret = false;
+
+		Map<String, String> prefixMap = buildPrefixes();
+
+		ParameterizedSparqlString sb = new ParameterizedSparqlString();
+		sb.setNsPrefixes(prefixMap);
+		sb.setParam("agg", getProvidedCHO_Resource());
+		sb.append("ASK {  \n");
+		sb.append("   { ?agg dm2e:displayLevel \"true\"^^xsd:boolean . }  \n");
+		sb.append("   UNION  \n");
+		sb.append("   { ?agg dm2e11:displayLevel \"true\"^^xsd:boolean . }  \n");
+		sb.append("   UNION  \n");
+		sb.append("   { ?agg dm2e:displayLevel \"True\" . }  \n");
+		sb.append("   UNION  \n");
+		sb.append("   { ?agg dm2e11:displayLevel \"True\" . }  \n");
+		sb.append(" }  ");
+		Query query = QueryFactory.create(sb.toString());
+		
+		QueryExecution qexec = QueryExecutionFactory.create(query, getModel()) ;
+		try {
+			ret = qexec.execAsk();
+		} finally { qexec.close(); }
+		return ret;
+	}
+
+	private Map<String, String> buildPrefixes() {
 		Map<String,String> prefixMap = new HashMap<>();
-		prefixMap.put("dm2e", NS.DM2E.BASE);
+		prefixMap.put("dm2e11", NS.DM2E.BASE);
+		prefixMap.put("dm2e", NS.DM2E_UNVERSIONED.BASE);
 		prefixMap.put("dc", NS.DC.BASE);
+		prefixMap.put("xsd", NS.XSD.BASE);
+		prefixMap.put("dcterms", NS.DCTERMS.BASE);
 		prefixMap.put("rdf", NS.RDF.BASE);
 		prefixMap.put("edm", NS.EDM.BASE);
 		prefixMap.put("edm", NS.EDM.BASE);
-		List<Query> queries = new ArrayList<>();
-		{
-			ParameterizedSparqlString sb = new ParameterizedSparqlString();
-			sb.setNsPrefixes(prefixMap);
-			sb.setParam("parentCHO", getProvidedCHO_Resource());
-			sb.append("SELECT ?thumbnail WHERE {  \n");
-			sb.append("   ?cho dc:isPartOf* ?parentCHO .  \n");
-			sb.append("   ?cho dc:type dm2e:Page .  \n");
-			sb.append("   ?agg edm:object ?thumbnail .  \n");
-			sb.append(" } ");
-			queries.add(QueryFactory.create(sb.toString()));
-		}
-		{
-			ParameterizedSparqlString sb = new ParameterizedSparqlString();
-			sb.setNsPrefixes(prefixMap);
-			sb.setParam("parentCHO", getProvidedCHO_Resource());
-			sb.append("SELECT ?thumbnail WHERE {  \n");
-			sb.append("   ?cho dc:isPartOf* ?parentCHO .  \n");
-			sb.append("   ?cho dc:type dm2e:Page .  \n");
-			sb.append("   ?agg dm2e:hasAnnotatableVersionAt ?thumbnail .  \n");
-			sb.append(" } ");
-			queries.add(QueryFactory.create(sb.toString()));
-		}
-		{
-			ParameterizedSparqlString sb = new ParameterizedSparqlString();
-			sb.setNsPrefixes(prefixMap);
-			sb.setParam("parentCHO", getProvidedCHO_Resource());
-			sb.append("SELECT ?thumbnail WHERE {  \n");
-			sb.append("   ?cho dc:isPartOf* ?parentCHO .  \n");
-			sb.append("   ?cho dc:type dm2e:Page .  \n");
-			sb.append("   ?agg edm:isShownBy ?thumbnail .  \n");
-			sb.append(" } ");
-			queries.add(QueryFactory.create(sb.toString()));
-		}
-		
-		String thumbnail = null;
-		QUERY_LOOP:
-		for (Query query : queries ) {
-			QueryExecution qexec = QueryExecutionFactory.create(query, model) ;
-			try {
-				ResultSet results = qexec.execSelect() ;
-				for ( ; results.hasNext() ; ) {
-					QuerySolution soln = results.nextSolution() ;
-					thumbnail = soln.get("thumbnail").toString();
-					log.debug("Thumbnail found: " + soln.get("?thumbnail"));
-					break QUERY_LOOP;
-				}
-			} finally { qexec.close() ; }
-		}
-		return thumbnail;
+		return prefixMap;
 	}
 }

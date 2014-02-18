@@ -33,7 +33,7 @@ public class Dm2eApiClientTest {
 	Dm2eApiClient api;
 	Collection randomCollection;
 	Logger log = LoggerFactory.getLogger(getClass().getName());
-	FileManager testFM;
+	protected FileManager testFM;
 
 	public Dm2eApiClientTest() {
 		api = new Dm2eApiClient(apiBase);

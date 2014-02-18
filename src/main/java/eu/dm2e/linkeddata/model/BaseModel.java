@@ -45,6 +45,7 @@ public abstract class BaseModel implements Comparable<BaseModel>{
 			fileManager.readModel(model, getRetrievalUri());
 			fileManager.addCacheModel(getRetrievalUri(), model);
 		}
+		isRead = true;
 	}
 
 //	public void read() { read(null); }
@@ -68,7 +69,6 @@ public abstract class BaseModel implements Comparable<BaseModel>{
 	public String dereferenceAndGetPrefLabel(final Resource theResource, final String theProp) {
 		Statement stmt = theResource.getProperty(getModel().createProperty(theProp));
 		ScrubbingStringBuilder ret = new ScrubbingStringBuilder();
-		log.debug("Statment " + stmt);
 		if (null != stmt && stmt.getObject().isURIResource()) {
 			// derefrence
 			ThingWithPrefLabel thingWithPrefLabel = new ThingWithPrefLabel(fileManager, apiBase, null, stmt.getObject().asResource().getURI());
@@ -83,19 +83,15 @@ public abstract class BaseModel implements Comparable<BaseModel>{
 	}
 	
 	public DateTime getDateTimeForProp(final Resource theResource, final String theProp) {
-		log.debug("PROPPPP" + theProp);
 		Statement stmt = theResource.getProperty(getModel().createProperty(theProp));
 		if (null == stmt)
 			return null;
 
 		RDFNode obj = stmt.getObject();
-		log.debug("OBJ : " + obj);
 		String toParse = null;
 		if (obj.isLiteral()) {
 			toParse = obj.asLiteral().getLexicalForm();
 		} else if (obj.isURIResource()) {
-			log.info("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx"
-					+ "\nXXXXXXXXXXXXXXXXXXXX");
 			try {
 				getModel().read(obj.asResource().getURI());
 				Statement beginStmt = obj.asResource().getProperty(getModel().createProperty(NS.EDM.PROP_BEGIN));
