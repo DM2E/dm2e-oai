@@ -7,4 +7,5 @@ public class Config {
 	public static final String CACHE_SERIALIZATION = "RDF/XML";
 	public static final String CACHE_MEDIATYPE	= "application/rdf+xml";
 	public static final String PUNDIT_FMT_STRING = "http://demo.feed.thepund.it/?dm2e=%s&conf=timeline-demo.js";
+	public static final String DEFAULT_THUMBNAIL = "http://openclipart.org/image/100px/svg_to_png/147409/1309149032.png";
 }
