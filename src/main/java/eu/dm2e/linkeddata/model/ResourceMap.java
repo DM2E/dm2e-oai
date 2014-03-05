@@ -47,11 +47,11 @@ public class ResourceMap extends BaseModel implements Serializable{
 
 	private static final HashMap<String, Set<String>> dcToDm2eProperties = new HashMap<>();
 	static {
-		final Set<String> dcSpatialPropertyUrls = new HashSet<>();
-		dcSpatialPropertyUrls.add(NS.DM2E_UNVERSIONED.PROP_PRINTED_AT);
-		dcSpatialPropertyUrls.add(NS.DM2E_UNVERSIONED.PROP_PUBLISHED_AT);
-		dcSpatialPropertyUrls.add(NS.DM2E_UNVERSIONED.PROP_WRITTEN_AT);
-		dcToDm2eProperties.put(NS.DCTERMS.PROP_SPATIAL, dcSpatialPropertyUrls);
+		final Set<String> dcCoveragePropertyUrls = new HashSet<>();
+		dcCoveragePropertyUrls.add(NS.DM2E_UNVERSIONED.PROP_PRINTED_AT);
+		dcCoveragePropertyUrls.add(NS.DM2E_UNVERSIONED.PROP_PUBLISHED_AT);
+		dcCoveragePropertyUrls.add(NS.DM2E_UNVERSIONED.PROP_WRITTEN_AT);
+		dcToDm2eProperties.put(NS.DC.PROP_COVERAGE, dcCoveragePropertyUrls);
 
 		final Set<String> dcCreatorPropertyUrls = new HashSet<>();
 		dcCreatorPropertyUrls.add(NS.DC.PROP_CREATOR);
@@ -71,6 +71,10 @@ public class ResourceMap extends BaseModel implements Serializable{
 		final Set<String> dcSubjectPropertyUrls = new HashSet<String>();
 		dcSubjectPropertyUrls.add(NS.DC.PROP_SUBJECT);
 		dcToDm2eProperties.put(NS.DC.PROP_SUBJECT, dcSubjectPropertyUrls);
+
+		final Set<String> dcPublisherPropertyUrls = new HashSet<String>();
+		dcPublisherPropertyUrls.add(NS.DC.PROP_PUBLISHER);
+		dcToDm2eProperties.put(NS.DC.PROP_PUBLISHER, dcPublisherPropertyUrls);
 	}
 
 	Logger log = LoggerFactory.getLogger(getClass().getName());
@@ -379,16 +383,21 @@ public class ResourceMap extends BaseModel implements Serializable{
 			}
 		}
 		HashSet<String> ret = new HashSet<String>();
-		for (Resource thisThing : thingResources) {
-			ThingWithPrefLabel placeThing = new ThingWithPrefLabel(fileManager, apiBase, model, thisThing.getURI());
+		for (Resource thisThingResource : thingResources) {
+			ThingWithPrefLabel thisThing = new ThingWithPrefLabel(fileManager, apiBase, model, thisThingResource.getURI());
 //			if (! model.contains(thisThing, model.createProperty(NS.RDF.PROP_TYPE))) {
 //				placeThing.read();
 //			}
-			final String prefLabel = placeThing.getPrefLabel();
+			final String prefLabel = thisThing.getPrefLabel();
 			if (prefLabel != null) {
-				if (null == rdfType || placeThing.getRdfType().equals(rdfType)) {
+				if (null == rdfType || thisThing.getRdfType().equals(rdfType)) {
 					ret.add(prefLabel);
 				}
+			} else {
+				log.debug("RESOURCE WITHOUT PREFLABEL??? {} ", thisThingResource);
+//				StringWriter sw = new StringWriter();
+//				getModel().write(sw);
+//				log.debug(sw.toString());
 			}
 		}
 		return ret;
