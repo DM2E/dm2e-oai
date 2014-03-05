@@ -10,10 +10,11 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.util.FileManager;
 
-import eu.dm2e.ws.NS;
+import eu.dm2e.NS;
 
-public class Collection extends BaseModel implements Serializable {
+public class AbstractDataset extends BaseModel implements Serializable {
 
 	/**
 	 * 
@@ -24,13 +25,15 @@ public class Collection extends BaseModel implements Serializable {
 	public String getProviderId() { return providerId; }
 	private String collectionId;
 	public String getCollectionId() { return collectionId; }
-	public Collection(String apiBase, Model model, String providerId, String collectionId) {
+	public AbstractDataset(FileManager fm, String apiBase, Model model, String providerId, String collectionId) {
+		super(fm);
 		this.apiBase = apiBase;
 		this.model = null != model ? model : ModelFactory.createDefaultModel();
 		this.providerId = providerId;
 		this.collectionId = collectionId;
 	}
-	public Collection(String apiBase, String fromUri, IdentifierType type) {
+	public AbstractDataset(FileManager fm, String apiBase, String fromUri, IdentifierType type) {
+		super(fm);
 		this.model = ModelFactory.createDefaultModel();
 		this.apiBase = apiBase;
 
@@ -78,7 +81,7 @@ public class Collection extends BaseModel implements Serializable {
 		HashSet<String> set = new HashSet<String>();
 		StmtIterator iter = getModel().listStatements(
 				getCollectionResource(),
-				getModel().createProperty(NS.DM2E_UNOFFICIAL.PROP_HAS_VERSION),
+				getModel().createProperty(NS.DM2E_UNVERSIONED.PROP_HAS_VERSION),
 				(Resource) null);
 		while (iter.hasNext()) {
 			Resource res = iter.next().getObject().asResource();
@@ -120,6 +123,6 @@ public class Collection extends BaseModel implements Serializable {
 		if (null == versionId) {
 			return null;
 		}
-		return new VersionedDataset(apiBase, null, providerId, collectionId, versionId);
+		return new VersionedDataset(this.fileManager, apiBase, null, providerId, collectionId, versionId);
 	}
 }

@@ -12,6 +12,9 @@ import org.slf4j.LoggerFactory;
 import eu.dm2e.grafeo.jaxrs.GrafeoMessageBodyWriter;
 
 public class Dm2eOaiApplication extends Application {
+
+	@SuppressWarnings("unused")
+	private static final Logger log = LoggerFactory.getLogger(Dm2eOaiApplication.class);
 	
 	static {
 //		GrafeoImpl.addStaticNamespace("fff", NS.FFF.BASE);
@@ -19,7 +22,6 @@ public class Dm2eOaiApplication extends Application {
 	
     @Override
     public Set<Class<?>> getClasses() {
-    	Logger log = LoggerFactory.getLogger(Dm2eOaiApplication.class);
         Set<Class<?>> s = new HashSet<Class<?>>();
         s.add(Dm2eOaiService.class);
 

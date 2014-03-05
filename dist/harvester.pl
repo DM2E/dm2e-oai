@@ -6,6 +6,7 @@ use Net::OAI::Harvester;
 use Time::HiRes;
 
 my $baseURL = 'http://data.dm2e.eu/dm2e-oai/oai';
+# my $baseURL = 'http://localhost:7777/oai';
 
 print "Harvesting from $baseURL\n";
 ## create a harvester for the Library of Congress

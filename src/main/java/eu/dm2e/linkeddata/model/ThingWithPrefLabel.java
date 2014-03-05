@@ -5,8 +5,9 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.util.FileManager;
 
-import eu.dm2e.ws.NS;
+import eu.dm2e.NS;
 
 public class ThingWithPrefLabel extends BaseModel {
 
@@ -17,8 +18,8 @@ public class ThingWithPrefLabel extends BaseModel {
 	private String	conceptUri;
 	public Resource getConceptResource() { return getModel().createResource(getConceptUri()); }
 	
-	public ThingWithPrefLabel(String apiBase, Model model, String providerId, String datasetId, String uriLabel) {
-		// TODO Auto-generated constructor stub
+	public ThingWithPrefLabel(FileManager fm, String apiBase, Model model, String providerId, String datasetId, String uriLabel) {
+		super(fm);
 		this.apiBase = apiBase;
 		this.model = null != model ? model : ModelFactory.createDefaultModel();
 		this.providerId = providerId;
@@ -26,7 +27,8 @@ public class ThingWithPrefLabel extends BaseModel {
 		this.uriLabel = uriLabel;
 	}
 	
-	public ThingWithPrefLabel(String apiBase, Model model, String retrievalUri) {
+	public ThingWithPrefLabel(FileManager fm, String apiBase, Model model, String retrievalUri) {
+		super(fm);
 		this.apiBase = apiBase;
 		this.model = null != model ? model : ModelFactory.createDefaultModel();
 		this.retrievalUri = retrievalUri;
@@ -47,6 +49,15 @@ public class ThingWithPrefLabel extends BaseModel {
 		if (! stmtIter.hasNext()) return null;
 		String prefLabel = stmtIter.next().getObject().asLiteral().getValue().toString();
 		return prefLabel;
+	}
+
+	public String getRdfType() {
+		StmtIterator stmtIter = this.model.listStatements(
+				getConceptResource(), 
+				getModel().createProperty(NS.RDF.PROP_TYPE),
+				(Literal) null);
+		if (! stmtIter.hasNext()) return NS.OWL.THING;
+		return stmtIter.next().getObject().asResource().getURI();
 	}
 
 }
