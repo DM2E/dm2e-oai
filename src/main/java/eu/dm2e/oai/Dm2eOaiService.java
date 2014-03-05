@@ -33,8 +33,8 @@ import com.google.common.io.Resources;
 
 import eu.dm2e.linkeddata.Config;
 import eu.dm2e.linkeddata.Dm2eApiClient;
+import eu.dm2e.linkeddata.model.AbstractDataset;
 import eu.dm2e.linkeddata.model.BaseModel.IdentifierType;
-import eu.dm2e.linkeddata.model.Collection;
 import eu.dm2e.linkeddata.model.ResourceMap;
 import eu.dm2e.linkeddata.model.VersionedDataset;
 import eu.dm2e.oai.protocol.OaiError;
@@ -48,6 +48,7 @@ public class Dm2eOaiService {
 
 //	private String	baseURI = "http://localhost:7777/oai";
 	@Context UriInfo uriInfo;
+	@SuppressWarnings("unused")
 	private String tplIdentify,
 	                tplListMetadataFormats,
 	                tplListSets,
@@ -358,7 +359,7 @@ public class Dm2eOaiService {
 		Set<VersionedDataset> datasets = new HashSet<VersionedDataset>();
 		if (null==set) {
 			log.debug("Iterating all collections");
-			for (Collection coll : api.listCollections()) {
+			for (AbstractDataset coll : api.listCollections()) {
 				long t0 = System.nanoTime();
 				log.debug("Adding latest dataset in collection " + coll.getCollectionUri());
 				final VersionedDataset latestVersion = coll.getLatestVersion();
@@ -369,7 +370,7 @@ public class Dm2eOaiService {
 			String setType = set.split(":")[0];
 			if (setType.equals("collection")) {
 				// collection:onb:codices
-				Collection createCollection;
+				AbstractDataset createCollection;
 				try {
 					createCollection = api.createCollection(set, IdentifierType.OAI_SET_SPEC);
 				} catch (Exception e) {
@@ -382,10 +383,10 @@ public class Dm2eOaiService {
 			} else {
 				// provider:onb
 				String provider = set.split(":")[1];
-				Set<Collection> collectionList = api.listCollections();
-				for (Collection collection:collectionList) {
-					if (collection.getProviderId().equals(provider)) {
-						final VersionedDataset latestVersion = collection.getLatestVersion();
+				Set<AbstractDataset> collectionList = api.listCollections();
+				for (AbstractDataset abstractDataset:collectionList) {
+					if (abstractDataset.getProviderId().equals(provider)) {
+						final VersionedDataset latestVersion = abstractDataset.getLatestVersion();
 						if (null != latestVersion) datasets.add(api.createVersionedDataset(latestVersion));
 					}
 				}
@@ -422,6 +423,7 @@ public class Dm2eOaiService {
 			// NOTE
 			ResourceMap resourceMap;
 			try {
+				log.debug("XXX {}", resourceMaps.get(i));
 				resourceMap = api.createResourceMap(resourceMaps.get(i));
 			} catch (HttpException e) {
 				log.error("Error retrieving resource map " + resourceMaps.get(i).getRetrievalUri());

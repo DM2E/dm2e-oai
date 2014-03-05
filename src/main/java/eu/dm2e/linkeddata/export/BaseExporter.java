@@ -41,6 +41,7 @@ public abstract class BaseExporter {
 		choDateProperties.add(NS.DCTERMS.PROP_TEMPORAL);
 		choDateProperties.add(NS.DCTERMS.PROP_ISSUED);
 		choDateProperties.add(NS.DCTERMS.PROP_CREATED);
+		choDateProperties.add(NS.EDM.PROP_CURRENT_LOCATION);
 	}
 
 	public static List<String> getAggregationDateProperties() {

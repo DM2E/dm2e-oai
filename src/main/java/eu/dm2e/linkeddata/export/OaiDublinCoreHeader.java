@@ -19,7 +19,7 @@ public class OaiDublinCoreHeader extends BaseXMLExporter {
 		xml.writeStartElement("header");
 		String id = String.format("oai:dm2e:%s:%s:%s",
 				resMap.getProviderId(),
-				resMap.getCollectionId(),
+				resMap.getDatasetId(),
 				resMap.getItemId()
 				);
 		xml.writeStartElement("identifier");
@@ -43,7 +43,7 @@ public class OaiDublinCoreHeader extends BaseXMLExporter {
 	
 		// <setSpec> Collection
 		xml.writeStartElement("setSpec");
-		xml.writeCharacters(String.format("collection:%s:%s", resMap.getProviderId(), resMap.getCollectionId()));
+		xml.writeCharacters(String.format("collection:%s:%s", resMap.getProviderId(), resMap.getDatasetId()));
 		xml.writeEndElement();
 		
 		// </oai:header>

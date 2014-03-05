@@ -104,6 +104,25 @@ public class OaiDublinCoreRecord extends BaseXMLExporter {
 			
 			// <oai_dc:dc>
 			xml.writeStartElement(NS.OAI_DC.BASE, "dc");
+
+			// <dc:type>
+			{
+				// <dc:type>
+				xml.writeStartElement(NS.DC.BASE, "type"); 
+				xml.writeCharacters(lastUriSegment(resMap.getDcType()));
+				// </dc:type>
+				xml.writeEndElement(); // </dc:type>
+			}
+
+			// <dc:type>
+			{
+				// <dc:identifier>
+				xml.writeStartElement(NS.DC.BASE, "identifier"); 
+				xml.writeAttribute("linktype", "rdf");
+				xml.writeCharacters(resMap.getResourceMapUri());
+				// </dc:identifier>
+				xml.writeEndElement(); // </dc:identifier>
+			}
 			
 			// <dc:identifier linktype="thumbnail">
 			{
@@ -164,30 +183,20 @@ public class OaiDublinCoreRecord extends BaseXMLExporter {
 			}
 			
 			// <dc:creator>
-			for (String theProp : getChoCreatorProperties()) {
-				log.debug(resMap.getProvidedCHO_Uri());
-				log.debug(theProp);
-				final String prefLabel = resMap.dereferenceAndGetPrefLabel(resMap.getProvidedCHO_Resource(), theProp);
-				if (null == prefLabel)
-					continue;
+			for (String value : resMap.getLiteralValues(NS.DC.PROP_CREATOR, null)) {
 				// <dc:creator>
 				xml.writeStartElement(NS.DC.BASE, "creator");
-				xml.writeCharacters(prefLabel);
+				xml.writeCharacters(value);
 				// </dc:creator>
 				xml.writeEndElement();
 			}
 	
 			// <dc:contributor></dc:contributor>
-			for (String theProp : getChoContributorProperties()) {
-				log.debug(resMap.getProvidedCHO_Uri());
-				log.debug(theProp);
-				final String prefLabel = resMap.dereferenceAndGetPrefLabel(resMap.getProvidedCHO_Resource(), theProp);
-				if (null == prefLabel)
-					continue;
+			for (String value : resMap.getLiteralValues(NS.DC.PROP_CONTRIBUTOR, NS.FOAF.CLASS_PERSON)) {
 				// <dc:contributor>
 				xml.writeStartElement(NS.DC.BASE, "contributor");
-				xml.writeCharacters(prefLabel);
-				// <dc:contributor>
+				xml.writeCharacters(value);
+				// </dc:contributor>
 				xml.writeEndElement();
 			}
 			
@@ -205,7 +214,7 @@ public class OaiDublinCoreRecord extends BaseXMLExporter {
 			
 			// <dc:subject></dc:subject>
 			{
-				for (String subject : resMap.getLiteralSubjects(NS.SKOS.CLASS_CONCEPT)) {
+				for (String subject : resMap.getLiteralValues(NS.DC.PROP_SUBJECT, NS.SKOS.CLASS_CONCEPT)) {
 					// <dc:subject>
 					xml.writeStartElement(NS.DC.BASE, "subject");
 					xml.writeCharacters(subject);
@@ -230,6 +239,16 @@ public class OaiDublinCoreRecord extends BaseXMLExporter {
 					xml.writeStartElement(NS.DC.BASE, "description");
 					xml.writeCharacters(desc);
 					// </dc:description>
+					xml.writeEndElement();
+				}
+			}
+			// <dc:spatial></dc:spatial>
+			{
+				// <dc:spatial>
+				for (String place : resMap.getLiteralValues(NS.DCTERMS.PROP_SPATIAL, null)) {
+					xml.writeStartElement(NS.DCTERMS.BASE, "spatial");
+					xml.writeCharacters(place);
+					// </dc:spatial>
 					xml.writeEndElement();
 				}
 			}
@@ -368,4 +387,9 @@ public class OaiDublinCoreRecord extends BaseXMLExporter {
 			xml.writeEndElement();
 		}
 
+	public String lastUriSegment(String uri) {
+		uri = uri.replaceAll("\\?.*$", "");
+		final int lastSlashIndex = uri.lastIndexOf('/') + 1;
+		return lastSlashIndex > 0 ? uri.substring(lastSlashIndex)  : "";
+	}
 }

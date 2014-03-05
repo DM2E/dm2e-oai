@@ -14,7 +14,7 @@ import com.hp.hpl.jena.util.FileManager;
 
 import eu.dm2e.NS;
 
-public class Collection extends BaseModel implements Serializable {
+public class AbstractDataset extends BaseModel implements Serializable {
 
 	/**
 	 * 
@@ -25,14 +25,14 @@ public class Collection extends BaseModel implements Serializable {
 	public String getProviderId() { return providerId; }
 	private String collectionId;
 	public String getCollectionId() { return collectionId; }
-	public Collection(FileManager fm, String apiBase, Model model, String providerId, String collectionId) {
+	public AbstractDataset(FileManager fm, String apiBase, Model model, String providerId, String collectionId) {
 		super(fm);
 		this.apiBase = apiBase;
 		this.model = null != model ? model : ModelFactory.createDefaultModel();
 		this.providerId = providerId;
 		this.collectionId = collectionId;
 	}
-	public Collection(FileManager fm, String apiBase, String fromUri, IdentifierType type) {
+	public AbstractDataset(FileManager fm, String apiBase, String fromUri, IdentifierType type) {
 		super(fm);
 		this.model = ModelFactory.createDefaultModel();
 		this.apiBase = apiBase;
@@ -81,7 +81,7 @@ public class Collection extends BaseModel implements Serializable {
 		HashSet<String> set = new HashSet<String>();
 		StmtIterator iter = getModel().listStatements(
 				getCollectionResource(),
-				getModel().createProperty(NS.DM2E_UNOFFICIAL.PROP_HAS_VERSION),
+				getModel().createProperty(NS.DM2E_UNVERSIONED.PROP_HAS_VERSION),
 				(Resource) null);
 		while (iter.hasNext()) {
 			Resource res = iter.next().getObject().asResource();

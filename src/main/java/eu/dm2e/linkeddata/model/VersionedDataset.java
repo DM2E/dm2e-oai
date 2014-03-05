@@ -66,7 +66,7 @@ public class VersionedDataset extends BaseModel implements Serializable {
 	public Set<ResourceMap> listResourceMaps() {
 		StmtIterator resMapIter = getModel().listStatements(
 				getVersionedDatasetResource(),
-				getModel().createProperty(NS.DM2E_UNOFFICIAL.PROP_CONTAINS_CHO),
+				getModel().createProperty(NS.DM2E_UNVERSIONED.PROP_CONTAINS_CHO),
 				(Resource) null);
 		Set<ResourceMap> set = new HashSet<ResourceMap>();
 		while (resMapIter.hasNext()) {
@@ -76,7 +76,8 @@ public class VersionedDataset extends BaseModel implements Serializable {
 //			log.debug("versioneddataseturi: " + getVersionedDatasetUri());
 			String resMapId = resMapUri.replaceFirst(".*/([^/?]+).*", "$1");
 //			log.debug("ResourceId: " + resMapId);
-			ResourceMap resMap = new ResourceMap(this.fileManager, apiBase, null, providerId, collectionId, resMapId, versionId);
+//			ResourceMap resMap = new ResourceMap(this.fileManager, apiBase, null, providerId, collectionId, resMapId, versionId);
+			ResourceMap resMap = new ResourceMap(this, resMapId);
 			set.add(resMap);
 		}
 		return set;

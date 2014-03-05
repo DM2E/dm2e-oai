@@ -22,7 +22,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.util.FileManager;
 
 import eu.dm2e.linkeddata.model.BaseModel.IdentifierType;
-import eu.dm2e.linkeddata.model.Collection;
+import eu.dm2e.linkeddata.model.AbstractDataset;
 import eu.dm2e.linkeddata.model.ResourceMap;
 import eu.dm2e.linkeddata.model.ThingWithPrefLabel;
 import eu.dm2e.linkeddata.model.VersionedDataset;
@@ -31,7 +31,7 @@ public class Dm2eApiClientTest {
 	
 	final String apiBase = Config.API_BASE;
 	Dm2eApiClient api;
-	Collection randomCollection;
+	AbstractDataset randomCollection;
 	Logger log = LoggerFactory.getLogger(getClass().getName());
 	protected FileManager testFM;
 
@@ -58,14 +58,14 @@ public class Dm2eApiClientTest {
 //		List<Collection> colList = new ArrayList<Collection>(colSet);
 //		Collections.shuffle(colList);
 //		randomCollection = colList.get(0);
-		randomCollection = new Collection(testFM, apiBase, null, "ub-ffm", "sammlungen");
+		randomCollection = new AbstractDataset(testFM, apiBase, null, "ub-ffm", "sammlungen");
 		randomCollection.read();
 	}
 	
 	
 	@Test
 	public void testListDatasets() {
-		Set<Collection> set = api.listCollections();
+		Set<AbstractDataset> set = api.listCollections();
 		assertThat(set.size()).isGreaterThan(0);
 	}
 	

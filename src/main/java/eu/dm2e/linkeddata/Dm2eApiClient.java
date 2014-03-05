@@ -28,7 +28,7 @@ import eu.dm2e.linkeddata.export.BaseXMLExporter;
 import eu.dm2e.linkeddata.export.OaiDublinCoreHeader;
 import eu.dm2e.linkeddata.export.OaiDublinCoreRecord;
 import eu.dm2e.linkeddata.model.BaseModel.IdentifierType;
-import eu.dm2e.linkeddata.model.Collection;
+import eu.dm2e.linkeddata.model.AbstractDataset;
 import eu.dm2e.linkeddata.model.ResourceMap;
 import eu.dm2e.linkeddata.model.VersionedDataset;
 
@@ -144,9 +144,9 @@ public class Dm2eApiClient {
 	 * 
 	 * @return Set of collections
 	 */
-	public Set<Collection> listCollections() {
+	public Set<AbstractDataset> listCollections() {
 		String uri = apiBase + "/list";
-		HashSet<Collection> set = new HashSet<Collection>();
+		HashSet<AbstractDataset> set = new HashSet<AbstractDataset>();
 		Model model = ModelFactory.createDefaultModel();
 		long t0 = System.nanoTime();
 		// TODO cache
@@ -157,7 +157,7 @@ public class Dm2eApiClient {
 			log.trace("list collections response: " + dumpModel(model));
 		StmtIterator collectionIter = model.listStatements(
 				model.createResource(uri),
-				model.createProperty(NS.DM2E_UNOFFICIAL.PROP_HAS_COLLECTION),
+				model.createProperty(NS.DM2E_UNVERSIONED.PROP_HAS_ABSTRACT_DATASET),
 				(Resource) null);
 		while (collectionIter.hasNext()) {
 			Resource collectionRes = collectionIter.next().getObject().asResource();
@@ -166,7 +166,7 @@ public class Dm2eApiClient {
 			t0 = System.nanoTime();
 			String shortId = String.format("%s/%s", idStrSegments[0], idStrSegments[1]);
 			log.debug("Instantiating Collection '{}'", shortId);
-			Collection coll = createCollection(new Collection(fileManager, apiBase, null, idStrSegments[0], idStrSegments[1]));
+			AbstractDataset coll = createCollection(new AbstractDataset(fileManager, apiBase, null, idStrSegments[0], idStrSegments[1]));
 			t1 = System.nanoTime();
 			log.debug("Instantiating Collection '{}' took {} ms", shortId, (t1-t0)/1000000);
 			set.add(coll);
@@ -190,10 +190,6 @@ public class Dm2eApiClient {
 		dataset.read();
 		return dataset;
 	}
-	public ResourceMap createResourceMap(String providerId, String datasetId, String itemId, String versionId) throws IllegalArgumentException, HttpException {
-		final ResourceMap resourceMap = new ResourceMap(fileManager, apiBase, null, providerId, datasetId, itemId, versionId);
-		return createResourceMap(resourceMap);
-	}
 	public ResourceMap createResourceMap(final ResourceMap resourceMap) throws IllegalArgumentException, HttpException {
 		resourceMap.read();
 		if (! resourceMap.isRead) {
@@ -203,18 +199,16 @@ public class Dm2eApiClient {
 		return resourceMap;
 	}
 	public ResourceMap createResourceMap(String fromUri, IdentifierType type) throws Exception { 
-		Collection coll = createCollection(fromUri, type);
-		String versionId = coll.getLatestVersionId();
-		return createResourceMap(new ResourceMap(fileManager, apiBase, fromUri, type, versionId));
+		return ResourceMap.fromIdentifier(fileManager, apiBase, fromUri, type);
 	}
-	public Collection createCollection(final Collection collection) {
-		collection.read();
-		return collection;
+	public AbstractDataset createCollection(final AbstractDataset abstractDataset) {
+		abstractDataset.read();
+		return abstractDataset;
 	}
-	public Collection createCollection(String fromUri, IdentifierType type) throws Exception {
-		Collection newCollection;
+	public AbstractDataset createCollection(String fromUri, IdentifierType type) throws Exception {
+		AbstractDataset newCollection;
 		try {
-			newCollection = new Collection(fileManager, apiBase, fromUri, type);
+			newCollection = new AbstractDataset(fileManager, apiBase, fromUri, type);
 		} catch (Exception e) {
 			throw e;
 		}

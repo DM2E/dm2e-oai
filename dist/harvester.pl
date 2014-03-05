@@ -3,7 +3,8 @@ use File::Slurp qw/read_file/;
 use strict;
 use warnings;
 use Data::Dumper;
-my $baseURL = 'http://141.20.126.232/dm2e-oai/oai';
+# my $baseURL = 'http://141.20.126.232/dm2e-oai/oai';
+my $baseURL = 'http://localhost:7777/oai';
 
 ## create a harvester for the Library of Congress
 my $harvester = Net::OAI::Harvester->new( 
