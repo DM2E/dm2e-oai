@@ -104,6 +104,8 @@ public class OaiDublinCoreRecord extends BaseXMLExporter {
 			
 			// <oai_dc:dc>
 			xml.writeStartElement(NS.OAI_DC.BASE, "dc");
+			xml.writeNamespace("oai_dc", NS.OAI_DC.BASE);
+			xml.writeNamespace("dc", NS.DC.BASE);
 
 			// <dc:type>
 			{
