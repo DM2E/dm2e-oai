@@ -152,13 +152,20 @@ public class OaiDublinCoreRecord extends BaseXMLExporter {
 				}
 			}
 			
-			// <edm:dataProvider>
+			// 
+			// <dc:publisher> 
 			{
-				// <edm:dataProvider>
-				xml.writeStartElement(NS.EDM.BASE, "dataProvider");
+				// == <edm:dataProvider>
+				xml.writeStartElement(NS.DC.BASE, "publisher");
 				xml.writeCharacters(resMap.getProviderId());
-				// </edm:dataProvider>
 				xml.writeEndElement();
+				
+				//
+				for (String publisher : resMap.getLiteralValues(NS.DC.PROP_PUBLISHER, null)) {
+					xml.writeStartElement(NS.DC.BASE, "publisher");
+					xml.writeCharacters(publisher);
+					xml.writeEndElement();
+				}
 			}
 			
 			// <dc:title>
@@ -213,6 +220,7 @@ public class OaiDublinCoreRecord extends BaseXMLExporter {
 			}
 			
 			// <dc:subject></dc:subject>
+			// TODO dm2e:genre
 			{
 				for (String subject : resMap.getLiteralValues(NS.DC.PROP_SUBJECT, NS.SKOS.CLASS_CONCEPT)) {
 					// <dc:subject>
@@ -242,126 +250,18 @@ public class OaiDublinCoreRecord extends BaseXMLExporter {
 					xml.writeEndElement();
 				}
 			}
-			// <dc:spatial></dc:spatial>
+			// <dc:coverage></dc:coverage>
 			{
-				// <dc:spatial>
-				for (String place : resMap.getLiteralValues(NS.DCTERMS.PROP_SPATIAL, null)) {
-					xml.writeStartElement(NS.DCTERMS.BASE, "spatial");
+				// <dc:coverage>
+				for (String place : resMap.getLiteralValues(NS.DC.PROP_COVERAGE, NS.EDM.CLASS_PLACE)) {
+					xml.writeStartElement(NS.DC.BASE, "coverage");
 					xml.writeCharacters(place);
-					// </dc:spatial>
+					// </dc:coverage>
 					xml.writeEndElement();
 				}
 			}
 			
 			
-			// TODO <dc:spatial></dc:spatial>
-			
-	//
-	//
-	////		log.debug(dumpModel(resMap.getModel()));
-	//		StmtIterator choIter = resMap.getModel().listStatements(resMap.getProvidedCHO_Resource(), null, (RDFNode)null);
-	//		log.debug("CHO Statements???? " + choIter.hasNext());
-	//		while (choIter.hasNext()) {
-	//			Statement stmt = choIter.next();
-	//			Property pred = stmt.getPredicate();
-	//			RDFNode obj = stmt.getObject();
-	//
-	//			Namespace thisElemNs;
-	//			Element el = null;
-	//			final String predUrl = pred.getURI().toString();
-	//			boolean addGenericElement = false;
-	//			if (NS.RDF.PROP_TYPE.equals(predUrl)) {
-	//				String objUri = obj.asResource().getURI();
-	//				if (NS.EDM.CLASS_PROVIDED_CHO.equals(objUri)) continue;
-	//				el = new Element("type", jdomNS.get("rdf"));
-	//				el.setAttribute(new Attribute("resource", obj.asResource().getURI(), jdomNS.get("rdf")));
-	//				Element el2 = new Element("type", jdomNS.get("dc"));
-	//				el2.addContent(obj.asResource().getURI());
-	//				oaiDcDc.addContent(el2);
-	//			} else if (NS.DC.PROP_TYPE.equals(predUrl)) {
-	//				if (obj.isResource()) {
-	//					el = new Element("type", jdomNS.get("rdf"));
-	//					el.setAttribute(new Attribute("resource", obj.asResource().getURI(), jdomNS.get("rdf")));
-	//				}
-	//				addGenericElement = true;
-	//			} else if (NS.DCTERMS.PROP_TITLE.equals(predUrl) || NS.DM2E.PROP_SUBTITLE.equals(predUrl)) {
-	//				// NOTE don't take the title but create a title from all the subtitles above #create-title
-	//			} else if (NS.DC.PROP_PUBLISHER.equals(predUrl)) {
-	//				el = new Element("publisher", jdomNS.get("dc"));
-	//				addContentOrPrefLabelToElement(obj, el);
-	//			} else if (NS.DM2E.PROP_PRINTED_AT.equals(predUrl)) {
-	//				el = new Element("coverage", jdomNS.get("dc"));
-	//				addContentOrPrefLabelToElement(obj, el);
-	//			} else if (NS.PRO.PROP_AUTHOR.equals(predUrl)) {
-	//				el = new Element("creator", jdomNS.get("dc"));
-	//				addContentOrPrefLabelToElement(obj, el);
-	//			} else if (NS.BIBO.PROP_EDITOR.equals(predUrl)) {
-	//				el = new Element("creator", jdomNS.get("dc"));
-	//				addContentOrPrefLabelToElement(obj, el);
-	//			} else if (NS.DC.PROP_SUBJECT.equals(predUrl)) {
-	//				el = new Element("subject", jdomNS.get("dc"));
-	//				addContentOrPrefLabelToElement(obj, el);
-	//			} else if (NS.DCTERMS.PROP_ISSUED.equals(predUrl)) {
-	//				el = new Element("date", jdomNS.get("dc"));
-	//				if (obj.isLiteral())
-	//					el.addContent(obj.asLiteral().toString());
-	//				else {
-	//					// TODO handle timespans
-	//				}
-	//				addGenericElement = true;
-	//			} else {
-	//				addGenericElement = true;
-	//			}
-	//			if (null != el && el.getContentSize() > 0 && el.getContent(0).getValue().length() > 0)  {
-	//				oaiDcDc.addContent(el);
-	//			}
-	//
-	//			if (addGenericElement) {
-	////				 generic mapping
-	////				log.warn("Unhandled Predicate: " + pred);
-	////				continue;
-	//				thisElemNs = jdomNS.get(pred.getNameSpace());
-	//				if (null == thisElemNs) {
-	//					log.warn("Unknown namespace: " + pred.getNameSpace());
-	//				}
-	//				Element genericElem = new Element(pred.getLocalName(), thisElemNs);
-	//				if (obj.isLiteral()) {
-	//					genericElem.setText(obj.asLiteral().getValue().toString());
-	//				} else {
-	//					genericElem.setText(obj.asResource().getURI());
-	//				}
-	//				if (null != genericElem) oaiDcDc.addContent(genericElem);
-	//			}
-	//		}
-	//
-	//		StmtIterator aggIter = resMap.getModel().listStatements(resMap.getAggregationResource(), null, (RDFNode)null);
-	//		while (aggIter.hasNext()) {
-	//			Statement stmt = aggIter.next();
-	//			Property pred = stmt.getPredicate();
-	//			RDFNode obj = stmt.getObject();
-	//			// manual mapping
-	//			Element el = null;
-	//			final String predUrl = pred.getURI().toString();
-	//			if (NS.EDM.PROP_IS_SHOWN_BY.equals(predUrl)) {
-	//				el = new Element("identifier", jdomNS.get("dc"));
-	//				el.setText(obj.asResource().getURI());
-	//				el.setAttribute("linktype", "fulltext");
-	////			} else if (NS.EDM.PROP_IS_SHOWN_AT.equals(predUrl)) {
-	////				el = new Element("identifier", jdomNS.get("dc"));
-	////				el.setText(obj.asResource().getURI());
-	////				el.setAttribute("linktype", "thumbnail");
-	////			} else if (NS.EDM.PROP_OBJECT.equals(predUrl)) {
-	////				el = new Element("identifier", jdomNS.get("dc"));
-	////				el.setText(obj.asResource().getURI());
-	////				el.setAttribute("linktype", "thumbnail");
-	////			} else if (NS.DM2E.PROP_HAS_ANNOTABLE_VERSION_AT.equals(predUrl)) {
-	////				el = new Element("identifier", jdomNS.get("dc"));
-	////				el.setText(obj.asResource().getURI());
-	////				el.setAttribute("linktype", "thumbnail");
-	//			}
-	//			if (null != el) oaiDcDc.addContent(el);
-	//		}
-
 			// </oai_dc:dc>
 			xml.writeEndElement(); 
 	
