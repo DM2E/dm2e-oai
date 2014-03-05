@@ -335,7 +335,7 @@ public class Dm2eOaiService {
 
 	// TODO Resumption Token Magic to improve performance
 	private Response oaiListIdentifiersOrRecords(Map<OaiKey,String> kvPairs, boolean headersOnly) {
-		int limit = 10;		// TODO this is for testing
+		int limit = 20;		// TODO this is for testing
 		String set = kvPairs.get(OaiKey.set);
 		String resumptionToken = kvPairs.get(OaiKey.resumptionToken);
 		if (null == set)
