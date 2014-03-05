@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.joda.time.DateTime;
+
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -81,6 +83,9 @@ public class VersionedDataset extends BaseModel implements Serializable {
 			set.add(resMap);
 		}
 		return set;
+	}
+	public DateTime getIngestionDate() {
+		return getDateTimeForProp(getVersionedDatasetResource(), NS.DC.PROP_DATE);
 	}
 
 

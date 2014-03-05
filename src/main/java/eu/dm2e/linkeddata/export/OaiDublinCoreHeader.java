@@ -1,7 +1,5 @@
 package eu.dm2e.linkeddata.export;
 
-import java.util.List;
-
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
@@ -25,16 +23,12 @@ public class OaiDublinCoreHeader extends BaseXMLExporter {
 		xml.writeStartElement("identifier");
 		xml.writeCharacters(id);
 		xml.writeEndElement();
-		List<String> theProps = getAggregationDateProperties();
-		for (String theProp : theProps) {
-			DateTime datetimeParsed = resMap.getDateTimeForProp(resMap.getAggregationResource(), theProp);
-			log.debug("" + datetimeParsed);
-			if (null != datetimeParsed) {
-				xml.writeStartElement("datestamp");
-				xml.writeCharacters(oaiDateFormatter.print(datetimeParsed));
-				xml.writeEndElement();
-			}
-		}
+
+		// <dateStamp>
+		DateTime ingestDateTime = resMap.getVersionedDataset().getIngestionDate();
+		xml.writeStartElement("datestamp");
+		xml.writeCharacters(oaiDateFormatter.print(ingestDateTime));
+		xml.writeEndElement();
 	
 		// <setSpec> Provider
 		xml.writeStartElement("setSpec");
