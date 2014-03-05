@@ -20,6 +20,7 @@ import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
@@ -85,15 +86,17 @@ public class ResourceMap extends BaseModel implements Serializable{
 	private final String	itemId;
 	public String getItemId() { return this.itemId; }
 
-//	private ResourceMap(FileManager fileManager, String apiBase, Model model, String providerId, String datasetId, String itemId, String versionId) {
-//		super(fileManager);
-//		this.apiBase = apiBase;
-//		this.model = null  != model ? model : ModelFactory.createDefaultModel();
-//		this.providerId = providerId;
-//		this.datasetId = datasetId;
-//		this.itemId = itemId;
-//		this.versionId = versionId;
-//	}
+	public ResourceMap(FileManager fileManager, String apiBase, Model model, String providerId, String datasetId, String itemId, String versionId) {
+		super(fileManager);
+		this.versionedDataset = new VersionedDataset(fileManager, apiBase, model, providerId, datasetId, versionId);
+//		this.versionedDataset.read();
+		this.apiBase = apiBase;
+		this.model = null  != model ? model : ModelFactory.createDefaultModel();
+		this.providerId = providerId;
+		this.datasetId = datasetId;
+		this.itemId = itemId;
+		this.versionId = versionId;
+	}
 	
 	public static ResourceMap fromIdentifier(FileManager fileManager, String apiBase, String fromUri, IdentifierType type) {
 		final String providerId;
