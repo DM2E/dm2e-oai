@@ -109,6 +109,10 @@
       a       <http://example.org/resourcemap> ;
       dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
 
+<http://data.dm2e.eu/data/concept/bbaw/dta/Physik> 
+    rdf:type skos:Concept ;
+    skos:prefLabel "Physik"@de . 
+
 <http://data.dm2e.eu/data/item/bbaw/dta/16157_f0022>
       a       <http://example.org/resourcemap> ;
       dct:isPartOf <http://data.dm2e.eu/data/item/bbaw/dta/16157> .
@@ -173,6 +177,9 @@
       edm:object <http://media.dwds.de/dta/images/strouhal_tonerregung_1878/strouhal_tonerregung_1878_0007_1600px.jpg> ;
       edm:provider <http://data.dm2e.eu/data/agent/DM2E> ;
       edm:rights <http://creativecommons.org/licenses/by-nc/3.0/> .
+
+<http://media.dwds.de/dta/images/strouhal_tonerregung_1878/strouhal_tonerregung_1878_0007_1600px.jpg>
+    dc:format "image/jpeg" .
 
 <http://data.dm2e.eu/data/item/bbaw/dta/16157_f0026>
       a       <http://example.org/resourcemap> ;

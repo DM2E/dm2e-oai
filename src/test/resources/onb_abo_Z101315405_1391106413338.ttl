@@ -30,7 +30,7 @@
 
 <http://data.dm2e.eu/data/item/onb/abo/%2BZ101315405>
       a       <http://example.org/resourcemap> , edm:ProvidedCHO ;
-      dm2e11:displayLevel "True" ;
+      dm2e:displayLevel "true"^^xsd:boolean ;
       dm2e11:genre <http://data.dm2e.eu/data/concept/onb/abo/Quelle> , <http://data.dm2e.eu/data/concept/onb/abo/Datensammlung> ;
       dm2e11:illustration "graph. Darst." ;
       dm2e11:printedAt <http://data.dm2e.eu/data/place/onb/abo/Wien> ;

@@ -4,6 +4,7 @@ import static org.fest.assertions.Assertions.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import eu.dm2e.linkeddata.Config;
 import eu.dm2e.linkeddata.Dm2eApiClient;
 
 
+@Ignore("URLs are broken at the momen")
 public class ThingWithPrefLabelTest {
 	
 	Logger log = LoggerFactory.getLogger(getClass().getName());

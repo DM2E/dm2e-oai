@@ -52,7 +52,7 @@ public class ResourceMapTest extends Dm2eApiClientTest {
 
 	@Test
 	public void testGetLiteralSubjects() throws Exception {
-		assertThat(rmBBAW.getLiteralSubjects(NS.SKOS.CLASS_CONCEPT)).contains("Physik");
+		assertThat(rmBBAW.getLiteralValues(NS.DC.PROP_SUBJECT, NS.SKOS.CLASS_CONCEPT)).contains("Physik");
 	}
 
 	@Test
