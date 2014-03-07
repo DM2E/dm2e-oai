@@ -31,6 +31,7 @@ import com.hp.hpl.jena.shared.JenaException;
 import com.hp.hpl.jena.util.FileManager;
 
 import eu.dm2e.NS;
+import eu.dm2e.linkeddata.Dm2eUtils;
 
 /**
  * Encapsulating a resource map with references to the "main" Aggregation and CHO of this resource map
@@ -88,6 +89,8 @@ public class ResourceMap extends BaseModel implements Serializable{
 	private String versionId;
 	public final String getVersionId() { return versionId; }
 	private final String	itemId;
+
+	private ResourceMap	containingResourceMap;
 	public String getItemId() { return this.itemId; }
 
 	public ResourceMap(FileManager fileManager, String apiBase, Model model, String providerId, String datasetId, String itemId, String versionId) {
@@ -233,55 +236,6 @@ public class ResourceMap extends BaseModel implements Serializable{
 		return thumbnail;
 	}
 
-//	public List<String> getLiteralSubjects(String... subjectTypes) {
-//		
-//		List<String> ret = new ArrayList<>();
-//
-//		Map<String, String> prefixMap = buildPrefixes();
-//
-//		ParameterizedSparqlString sb = new ParameterizedSparqlString();
-//		sb.setNsPrefixes(prefixMap);
-//		sb.setParam("cho", getProvidedCHO_Resource());
-//		sb.append("SELECT ?subject WHERE {  \n");
-//		sb.append("   ?cho dc:subject ?subject .  \n");
-//		sb.append(" }  ");
-//		Query query = QueryFactory.create(sb.toString());
-//		
-//		QueryExecution qexec = QueryExecutionFactory.create(query, getModel()) ;
-//		try {
-//			ResultSet results = qexec.execSelect() ;
-//			for ( ; results.hasNext() ; ) {
-//				QuerySolution soln = results.nextSolution() ;
-//				String subjectUri;
-//				String literalSubject = null;
-//				try {
-//					final Resource subjectResource = soln.get("subject").asResource();
-//					subjectUri = subjectResource.getURI();
-//
-//					// dereference if necessary and get skos:prefLabel
-//					ThingWithPrefLabel subjectThing = new ThingWithPrefLabel(fileManager, apiBase, model, subjectUri);
-//					if (!model.contains(subjectResource, model.createProperty(NS.RDF.PROP_TYPE), (Resource)null)) {
-//						subjectThing.read();
-//					}
-//					for (String subjectType : subjectTypes) {
-//						if (subjectType.equals(subjectThing.getRdfType())) {
-//							literalSubject = subjectThing.getPrefLabel();
-//							if (null == literalSubject) {
-//								literalSubject = subjectUri.substring(subjectUri.lastIndexOf('/') + 1);
-//							}
-//						}
-//					}
-//				} catch (JenaException e) {
-//					log.error(this + " contains a literal dc:subject!");
-//					literalSubject = soln.get("subject").asLiteral().getLexicalForm();
-//				}
-//				if (null != literalSubject)
-//					ret.add(literalSubject);
-//			}
-//		} finally { qexec.close(); }
-//		return ret;
-//	}
-
 	public String getLanguage() {
 		StmtIterator languageIter = getProvidedCHO_Resource().listProperties(model.createProperty(NS.DC.PROP_LANGUAGE));
 		if (! languageIter.hasNext()) {
@@ -401,5 +355,23 @@ public class ResourceMap extends BaseModel implements Serializable{
 			}
 		}
 		return ret;
+	}
+
+	public ResourceMap getContainingResourceMap() {
+		if (null == containingResourceMap) {
+			findContainingResourceMap();
+		}
+		return containingResourceMap;
+	}
+
+	private void findContainingResourceMap() {
+		Statement isPartOfStmt = getProvidedCHO_Resource().getProperty(model.createProperty(NS.DCTERMS.PROP_IS_PART_OF));
+		if (isPartOfStmt != null && isPartOfStmt.getObject().isURIResource()) {
+			final String containingURI = isPartOfStmt.getObject().asResource().getURI();
+			String containingId = Dm2eUtils.lastUriSegment(containingURI);
+			log.debug(" ?this dcterms:isPartOf {}", containingURI);
+			this.containingResourceMap = new ResourceMap(getVersionedDataset(), containingId);;
+			this.containingResourceMap.read();
+		}
 	}
 }
