@@ -14,11 +14,11 @@
     </appender>
 
     <root>
-        <level value="DEBUG" />
+        <level value="INFO" />
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
     </root>
     <logger name="org.apache.http" level="WARN" />
     <logger name="com.hp.hpl.jena.util.FileManager" level="INFO" />
-    <logger name="org.apache.jena" level="INFO" />
+    <logger name="org.apache.jena" level="ERROR" />
 </configuration>

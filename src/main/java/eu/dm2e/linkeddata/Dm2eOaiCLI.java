@@ -59,11 +59,17 @@ public class Dm2eOaiCLI {
 				System.out.print(" ");
 				System.out.print(resourceMap.getResourceMapUri());
 				System.out.print(" - ");
+				long t0 = System.nanoTime();
 				resourceMap.read();
+				long t1 = System.nanoTime();
+				System.out.print((t1-t0)/1_000_000);
+				System.out.print(" ");
 				recordExporter.writeResourceMapToXML(resourceMap, xmlWriter);
-				System.out.println("DONE");
+				long t2 = System.nanoTime();
+				System.out.print((t2-t1)/1_000_000);
+				System.out.println(" DONE");
 			} catch (XMLStreamException e) {
-				System.out.println("FAIL");
+				System.out.println(" FAIL");
 				dieHelpfully(e);
 			}
 		}
@@ -80,52 +86,63 @@ public class Dm2eOaiCLI {
 
 	private static List<ResourceMap> getResourceMapList() {
 		Set<VersionedDataset> datasets = new HashSet<VersionedDataset>();
-		log.debug("*****************");
-		log.debug("* Read Datasets *");
-		log.debug("*****************");
-		for (AbstractDataset aSet : api.listAbstractDatasets()) {
+		System.out.println("*****************");
+		System.out.println("* Read Datasets *");
+		System.out.println("*****************");
+		System.out.print("List collections ");
+		final Set<AbstractDataset> listAbstractDatasets = api.listAbstractDatasets();
+		System.out.println(" - DONE");
+		for (AbstractDataset aSet : listAbstractDatasets) {
 			long t0 = System.nanoTime();
 			
-			// TODO HACK NOTE TODO JUST FOR TESTING !!!!!!!!!
-			if (aSet.getCollectionUri().contains("dingler") || aSet.getCollectionUri().contains("abo")) {
-				continue;
-			}
-			// TODO HACK NOTE TODO JUST FOR TESTING !!!!!!!!!
+//			// TODO HACK NOTE TODO JUST FOR TESTING !!!!!!!!!
+//			if (aSet.getCollectionUri().contains("dingler") || aSet.getCollectionUri().contains("abo")) {
+//				continue;
+//			}
+//			// TODO HACK NOTE TODO JUST FOR TESTING !!!!!!!!!
 
 			log.debug("Adding latest VersionedDataset in AbstractDataset {}", aSet.getCollectionUri());
+			System.out.print(String.format("Adding latest VersionedDataset in AbstractDataset %s", aSet.getCollectionUri()));
 			final VersionedDataset latestVersion = api.createVersionedDataset(aSet.getLatestVersion());
 			if (null != latestVersion) {
 				datasets.add(latestVersion);
 			}
 			log.debug("Adding latest VersionedDataset in AbstractDataset {} took {} ms", aSet.getCollectionUri(), (System.nanoTime() - t0) / 1_000_000);
+			System.out.println(String.format(" took %d ms", (System.nanoTime() - t0) / 1_000_000));
 		}
 
 		List<ResourceMap> resourceMaps = new ArrayList<ResourceMap>();
-		for (VersionedDataset versionedDataset : datasets) {
-			long t0 = System.nanoTime();
-			ParameterizedSparqlString pss = new ParameterizedSparqlString();
-			pss.append("CONSTRUCT { ?s ?p ?o } WHERE { GRAPH ?g { ?s ?p ?o } }");
-			pss.setParam("g", versionedDataset.getVersionedDatasetResource());
-			System.out.print(pss.toString());
-			Query query = QueryFactory.create(pss.toString());
-			QueryExecution exec = QueryExecutionFactory.createServiceRequest(Config.ENDPOINT_SELECT, query);
-			exec.execConstruct(versionedDataset.getModel());
-			for (ResourceMap resourceMap : versionedDataset.listResourceMaps()) {
-				resourceMaps.add(resourceMap);
-			}
-			System.out.print(" took ");
-			System.out.print((System.nanoTime() - t0)/1_000_000);
-			System.out.println(" ms");
-		}
+		System.out.println("**********************");
+		System.out.println("* Read Resource Maps *");
+		System.out.println("**********************");
 
-//		log.debug("**********************");
-//		log.debug("* Read Resource Maps *");
-//		log.debug("**********************");
 //		for (VersionedDataset versionedDataset : datasets) {
-//			log.debug("Retrieving VersionedDataset {}", versionedDataset.getVersionedDatasetUri());
-////			VersionedDataset versionedDataset = api.createVersionedDataset(dummyDs);	// so we can cache
-//			log.debug("Retrieved dataset " + versionedDataset.getVersionedDatasetUri());
+//			long t0 = System.nanoTime();
+//			ParameterizedSparqlString pss = new ParameterizedSparqlString();
+//			pss.append("CONSTRUCT { ?s ?p ?o } WHERE { GRAPH ?g { ?s ?p ?o } }");
+//			pss.setParam("g", versionedDataset.getVersionedDatasetResource());
+//			System.out.print(pss.toString());
+//			Query query = QueryFactory.create(pss.toString());
+//			QueryExecution exec = QueryExecutionFactory.createServiceRequest(Config.ENDPOINT_SELECT, query);
+//			exec.execConstruct(versionedDataset.getModel());
+//			for (ResourceMap resourceMap : versionedDataset.listResourceMaps()) {
+//				resourceMaps.add(resourceMap);
+//			}
+//			System.out.print(" took ");
+//			System.out.print((System.nanoTime() - t0)/1_000_000);
+//			System.out.println(" ms");
 //		}
+
+		for (VersionedDataset versionedDataset : datasets) {
+			System.out.print("Retrieving VersionedDataset " + versionedDataset.getVersionedDatasetUri());
+			versionedDataset.read();
+			final Set<ResourceMap> listResourceMaps = versionedDataset.listResourceMaps();
+			System.out.print(" - Add ");
+			System.out.print(listResourceMaps.size());
+			System.out.print(" ResourceMaps");
+			resourceMaps.addAll(listResourceMaps);
+			System.out.println(" - DONE");
+		}
 		return resourceMaps;
 	}
 

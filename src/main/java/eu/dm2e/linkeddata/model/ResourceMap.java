@@ -2,7 +2,6 @@ package eu.dm2e.linkeddata.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -171,35 +170,36 @@ public class ResourceMap extends BaseModel implements Serializable{
 	}
 
 	public String getFirstPageLink() {
-		Map<String, String> prefixMap = buildPrefixes();
-		List<String> pageLinks = new ArrayList<>();
-		{
-			ParameterizedSparqlString sb = new ParameterizedSparqlString();
-			sb.setNsPrefixes(prefixMap);
-			sb.setParam("parentCHO", getProvidedCHO_Resource());
-			sb.append("SELECT DISTINCT ?cho WHERE {  \n");
-			sb.append("   ?cho dcterms:isPartOf* ?parentCHO .  \n");
-			sb.append("   FILTER(?cho != ?parentCHO)   \n");
-// TODO dirty data
-//			sb.append("   ?agg edm:aggregatedCHO ?cho .   \n")
-//			sb.append("   ?agg dc:type dm2e:Page   \n")
-			sb.append(" } ORDER BY STR(?cho)   \n");
-			sb.append("   LIMIT 1  \n ");
-			Query query = QueryFactory.create(sb.toString());
-			QueryExecution qexec = QueryExecutionFactory.create(query, model) ;
-			try {
-				ResultSet results = qexec.execSelect() ;
-				for ( ; results.hasNext() ; ) {
-					QuerySolution soln = results.nextSolution() ;
-					pageLinks.add(soln.get("cho").toString());
-				}
-			} finally { qexec.close() ; }
-		}
-		Collections.sort(pageLinks);
-		String firstPageLink = null;
-		if (pageLinks.size() > 0) firstPageLink = pageLinks.get(0);
-		log.debug("First Page: " + firstPageLink);
-		return firstPageLink;
+		return getProvidedCHO_Uri();
+//		Map<String, String> prefixMap = buildPrefixes();
+//		List<String> pageLinks = new ArrayList<>();
+//		{
+//			ParameterizedSparqlString sb = new ParameterizedSparqlString();
+//			sb.setNsPrefixes(prefixMap);
+//			sb.setParam("parentCHO", getProvidedCHO_Resource());
+//			sb.append("SELECT DISTINCT ?cho WHERE {  \n");
+//			sb.append("   ?cho dcterms:isPartOf* ?parentCHO .  \n");
+//			sb.append("   FILTER(?cho != ?parentCHO)   \n");
+//// TODO dirty data
+////			sb.append("   ?agg edm:aggregatedCHO ?cho .   \n")
+////			sb.append("   ?agg dc:type dm2e:Page   \n")
+//			sb.append(" } ORDER BY STR(?cho)   \n");
+//			sb.append("   LIMIT 1  \n ");
+//			Query query = QueryFactory.create(sb.toString());
+//			QueryExecution qexec = QueryExecutionFactory.create(query, model) ;
+//			try {
+//				ResultSet results = qexec.execSelect() ;
+//				for ( ; results.hasNext() ; ) {
+//					QuerySolution soln = results.nextSolution() ;
+//					pageLinks.add(soln.get("cho").toString());
+//				}
+//			} finally { qexec.close() ; }
+//		}
+//		Collections.sort(pageLinks);
+//		String firstPageLink = null;
+//		if (pageLinks.size() > 0) firstPageLink = pageLinks.get(0);
+//		log.debug("First Page: " + firstPageLink);
+//		return firstPageLink;
 	}
 
 	public String getThumbnailLink() {
