@@ -35,7 +35,7 @@ public class Dm2eOaiCLI {
 
 	public static void main(String[] args) {
 		
-		String outFileName = "/tmp/DM2E_OAI.xml";
+		String outFileName = "DM2E_OAI.xml";
 		final File outFile = new File(outFileName);
 		FileOutputStream outFileStream = null;
 		XMLStreamWriter xmlWriter = null;
