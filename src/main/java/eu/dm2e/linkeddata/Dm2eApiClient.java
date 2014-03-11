@@ -128,6 +128,14 @@ public class Dm2eApiClient {
 			this.fileManager = Dm2eApiClient.setupFileManager();
 		}
 	}
+	/**
+	 * @param apiBase
+	 * @param fileManager
+	 */
+	public Dm2eApiClient(String apiBase, FileManager fileManager) {
+		this.apiBase = apiBase;
+		this.fileManager = fileManager;
+	}
 	
 	/**
 	 * @return a {@link MapdbFileManager} backed Jena {@link FileManager}
@@ -144,7 +152,7 @@ public class Dm2eApiClient {
 	 * 
 	 * @return Set of collections
 	 */
-	public Set<AbstractDataset> listCollections() {
+	public Set<AbstractDataset> listAbstractDatasets() {
 		String uri = apiBase + "/list";
 		HashSet<AbstractDataset> set = new HashSet<AbstractDataset>();
 		Model model = ModelFactory.createDefaultModel();

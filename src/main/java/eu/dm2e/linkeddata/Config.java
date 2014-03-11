@@ -8,4 +8,5 @@ public class Config {
 	public static final String CACHE_MEDIATYPE	= "application/rdf+xml";
 	public static final String PUNDIT_FMT_STRING = "http://feed.thepund.it/?dm2e=%s&conf=dm2e.js";
 	public static final String DEFAULT_THUMBNAIL = "http://openclipart.org/image/100px/svg_to_png/147409/1309149032.png";
+	public static final String	ENDPOINT_SELECT	= "http://data.dm2e.eu:9997/dm2e-direct/sparql";
 }

@@ -1,5 +1,6 @@
 package eu.dm2e.linkeddata.export;
 
+import java.io.OutputStream;
 import java.io.Writer;
 
 import javanet.staxutils.IndentingXMLStreamWriter;
@@ -19,6 +20,14 @@ public abstract class BaseXMLExporter extends BaseExporter {
 	}
 	public static XMLStreamWriter getIndentingXMLStreamWriter(Writer writer) throws XMLStreamException {
 		return new IndentingXMLStreamWriter(getXMLStreamWriter(writer));
+	}
+	public static XMLStreamWriter getIndentingXMLStreamWriter(OutputStream out) throws XMLStreamException {
+		return new IndentingXMLStreamWriter(getXMLStreamWriter(out));
+	}
+	public static XMLStreamWriter getXMLStreamWriter(OutputStream out) throws XMLStreamException {
+		final XMLStreamWriter xml = getXMLOutputFactory().createXMLStreamWriter(out);
+		setNamespaces(xml);
+		return xml;
 	}
 	public static XMLStreamWriter getXMLStreamWriter(Writer writer) throws XMLStreamException {
 		final XMLStreamWriter xml = getXMLOutputFactory().createXMLStreamWriter(writer);

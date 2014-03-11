@@ -31,6 +31,7 @@ public abstract class BaseModel implements Comparable<BaseModel>{
 	public boolean	isRead = false;
 	protected FileManager fileManager;
 	
+	@SuppressWarnings("unused")
 	private BaseModel() { }
 
 	public BaseModel(FileManager fm) {
@@ -40,10 +41,13 @@ public abstract class BaseModel implements Comparable<BaseModel>{
 	public void read() {
 		if (isRead) return;
 		if (fileManager.hasCachedModel(getRetrievalUri())){
-			model = fileManager.getFromCache(getRetrievalUri());
+			this.model = fileManager.getFromCache(getRetrievalUri());
 		} else {
-			fileManager.readModel(model, getRetrievalUri());
-			fileManager.addCacheModel(getRetrievalUri(), model);
+			Model retModel = fileManager.readModel(model, getRetrievalUri());
+			if (null != retModel) {
+				this.model = retModel;
+			}
+			fileManager.addCacheModel(getRetrievalUri(), this.model);
 		}
 		isRead = true;
 	}
