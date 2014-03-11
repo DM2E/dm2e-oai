@@ -204,15 +204,15 @@ public class EdmRecord extends BaseXMLExporter {
 			}
 			
 			// <dc:subject></dc:subject>
-			{
-				for (String subject : resMap.getLiteralSubjects(NS.SKOS.CLASS_CONCEPT)) {
-					// <dc:subject>
-					xml.writeStartElement(NS.DC.BASE, "subject");
-					xml.writeCharacters(subject);
-					// </dc:subject>
-					xml.writeEndElement();
-				}
-			}
+//			{
+//				for (String subject : resMap.getLiteralSubjects(NS.SKOS.CLASS_CONCEPT)) {
+//					// <dc:subject>
+//					xml.writeStartElement(NS.DC.BASE, "subject");
+//					xml.writeCharacters(subject);
+//					// </dc:subject>
+//					xml.writeEndElement();
+//				}
+//			}
 			
 			// <dc:language></dc:language>
 			{
