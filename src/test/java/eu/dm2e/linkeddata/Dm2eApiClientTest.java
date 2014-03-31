@@ -65,7 +65,7 @@ public class Dm2eApiClientTest {
 	
 	@Test
 	public void testListDatasets() {
-		Set<AbstractDataset> set = api.listCollections();
+		Set<AbstractDataset> set = api.listAbstractDatasets();
 		assertThat(set.size()).isGreaterThan(0);
 	}
 	

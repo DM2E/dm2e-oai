@@ -359,7 +359,7 @@ public class Dm2eOaiService {
 		Set<VersionedDataset> datasets = new HashSet<VersionedDataset>();
 		if (null==set) {
 			log.debug("Iterating all collections");
-			for (AbstractDataset coll : api.listCollections()) {
+			for (AbstractDataset coll : api.listAbstractDatasets()) {
 				long t0 = System.nanoTime();
 				log.debug("Adding latest dataset in collection " + coll.getCollectionUri());
 				final VersionedDataset latestVersion = coll.getLatestVersion();
@@ -383,7 +383,7 @@ public class Dm2eOaiService {
 			} else {
 				// provider:onb
 				String provider = set.split(":")[1];
-				Set<AbstractDataset> collectionList = api.listCollections();
+				Set<AbstractDataset> collectionList = api.listAbstractDatasets();
 				for (AbstractDataset abstractDataset:collectionList) {
 					if (abstractDataset.getProviderId().equals(provider)) {
 						final VersionedDataset latestVersion = abstractDataset.getLatestVersion();

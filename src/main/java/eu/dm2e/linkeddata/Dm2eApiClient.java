@@ -173,6 +173,12 @@ public class Dm2eApiClient {
 			String[] idStrSegments = idStr.split("/");
 			t0 = System.nanoTime();
 			String shortId = String.format("%s/%s", idStrSegments[0], idStrSegments[1]);
+			
+			
+			if (shortId.startsWith("http:")) {
+				// This is *not* da dataset but a linkset or something else. skip it.
+				continue;
+			}
 			log.debug("Instantiating Collection '{}'", shortId);
 			AbstractDataset coll = createCollection(new AbstractDataset(fileManager, apiBase, null, idStrSegments[0], idStrSegments[1]));
 			t1 = System.nanoTime();
